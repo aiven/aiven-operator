@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.57">
+      <meta name="generator" content="zensical-0.0.59">
     
     
       
@@ -633,6 +633,34 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#tune-the-reconcile-interval" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tune the reconcile interval
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tune the reconcile interval">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#which-resources-this-affects" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Which resources this affects
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -797,6 +825,33 @@
     
   
   Deletion Policy
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/migrate-project-to-organizationproject.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Migrating from Project to OrganizationProject
 
     
   </span>
@@ -1648,7 +1703,7 @@
   <span class="md-ellipsis">
     
   
-  Project
+  Project [DEPRECATED]
 
     
   </span>
@@ -2558,7 +2613,7 @@
   <span class="md-ellipsis">
     
   
-  Project
+  Project [DEPRECATED]
 
     
   </span>
@@ -3337,6 +3392,34 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#tune-the-reconcile-interval" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Tune the reconcile interval
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tune the reconcile interval">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#which-resources-this-affects" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Which resources this affects
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -3419,6 +3502,19 @@ This ensures that the operator can function properly.</p>
 <p>You can configure the operator to monitor resources within specific namespaces.
 If the <code>ClusterRole</code> is enabled, it's bound to the operator's <code>ServiceAccount</code> within each watched namespace using a <code>RoleBinding</code>.
 This setup grants the operator the permissions specified in the <code>ClusterRole</code>, but only within the context of the specific namespaces where the <code>RoleBinding</code> is created.</p>
+<h3 id="tune-the-reconcile-interval">Tune the reconcile interval<a class="headerlink" href="#tune-the-reconcile-interval" title="Permanent link">&para;</a></h3>
+<p>Once a resource is ready, the operator re-reconciles most kinds against the Aiven API on a fixed
+interval to pick up changes made outside Kubernetes. The default is 10 minutes. See
+<a href="#which-resources-this-affects">which resources this affects</a> below — the service kinds are not
+among them.</p>
+<p>Set the <code>pollInterval</code> value to change it:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nt">pollInterval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">30m</span>
+</code></pre></div>
+<p>The accepted range is <code>10m</code> to <code>60m</code>. A value outside it is rejected at startup.</p>
+<h4 id="which-resources-this-affects">Which resources this affects<a class="headerlink" href="#which-resources-this-affects" title="Permanent link">&para;</a></h4>
+<p>It does <strong>not</strong> apply to the service kinds — <code>Clickhouse</code>, <code>Flink</code>, <code>Grafana</code>, <code>Kafka</code>,
+<code>KafkaConnect</code>, <code>MySQL</code>, <code>OpenSearch</code>, <code>PostgreSQL</code> and <code>Valkey</code>. Those do not re-reconcile on a
+fixed interval at all at the moment.</p>
 
 
 
@@ -3528,7 +3624,7 @@ This setup grants the operator the permissions specified in the <code>ClusterRol
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.49251538.min.js"></script>
+      <script src="../assets/javascripts/bundle.6970bfe9.min.js"></script>
       
     
   </body>

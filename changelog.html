@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="./assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.57">
+      <meta name="generator" content="zensical-0.0.59">
     
     
       
@@ -489,6 +489,17 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0460-2026-09-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.46.0 - 2026-09-04
+      </span>
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0450-2026-08-24" class="md-nav__link">
@@ -1317,6 +1328,33 @@
     
   
   Deletion Policy
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./guides/migrate-project-to-organizationproject.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Migrating from Project to OrganizationProject
 
     
   </span>
@@ -2168,7 +2206,7 @@
   <span class="md-ellipsis">
     
   
-  Project
+  Project [DEPRECATED]
 
     
   </span>
@@ -3078,7 +3116,7 @@
   <span class="md-ellipsis">
     
   
-  Project
+  Project [DEPRECATED]
 
     
   </span>
@@ -3824,6 +3862,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0460-2026-09-04" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.46.0 - 2026-09-04
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0450-2026-08-24" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4411,6 +4460,32 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0460-2026-09-04">v0.46.0 - 2026-09-04<a class="headerlink" href="#v0460-2026-09-04" title="Permanent link">&para;</a></h2>
+<ul>
+<li>Fix <code>KafkaSchema</code> silently ignoring the removal of <code>compatibilityLevel</code>: a subject-level override
+  previously applied by the operator is now reverted to a snapshot of the registry's current global
+  default. Overrides created outside the operator, or changed outside it since they were
+  applied, are never modified.
+  Resources whose <code>compatibilityLevel</code> was removed under an older operator version are not detected
+  retroactively: their override is picked up again the next time <code>compatibilityLevel</code> is set and
+  applied, after which removing the field reverts it as described above.</li>
+<li>Add <code>status.version</code> to service resources (<code>Kafka</code>, <code>PostgreSQL</code>, <code>MySQL</code>, <code>ClickHouse</code>, <code>OpenSearch</code>,
+  <code>Grafana</code>, <code>Flink</code>, <code>Valkey</code>): the version the service is currently running.</li>
+<li>Deprecate <code>Project</code> in favor of <code>OrganizationProject</code>. <code>Project</code> keeps working; see the new
+  <a href="https://aiven.github.io/aiven-operator/guides/migrate-project-to-organizationproject.html">migration guide</a>
+  for moving an existing project over without deleting it</li>
+<li>Change <code>Kafka</code> field <code>userConfig.schema_registry_config.sasl_oauthbearer_method_roles</code>: maxLength <code>4096</code></li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.ml_commons_connector_access_control_enabled</code>, type <code>boolean</code>:
+  When set to true, the setting allows admins to control access and permissions to the connector
+  API using backend_roles</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.ml_commons_trusted_connector_endpoints_regex</code>, type <code>array</code>:
+  Adds the trusted endpoints to the cluster settings. Supports Java regex expressions</li>
+<li>Add <code>ServiceIntegration</code> field <code>datadog.datadog_function_metrics_enabled</code>, type <code>boolean</code>: Enable collection
+  of PL/pgSQL function metrics from pg_stat_user_functions</li>
+<li>Add <code>ServiceIntegration</code> field <code>datadog.datadog_pg_relations</code>, type <code>array</code>: Relations to collect PostgreSQL
+  relation metrics for, such as table size, index statistics, row counts, vacuum ages and
+  locks</li>
+</ul>
 <h2 id="v0450-2026-08-24">v0.45.0 - 2026-08-24<a class="headerlink" href="#v0450-2026-08-24" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>ServiceUser</code>: increased the amount of concurrent reconcilers up to 10</li>
@@ -4449,6 +4524,11 @@
 <li>Add <code>PostgreSQL</code> field <code>userConfig.pgbouncer.server_login_retry</code>, type <code>number</code>: If login to the server
   failed, because of failure to connect or from authentication, the pooler waits this much before
   retrying to connect</li>
+<li>Add <code>--poll-interval</code> flag and matching <code>pollInterval</code> Helm value, to configure how often
+  resources in a steady state are re-reconciled against the Aiven API. Accepted range is 10m-60m,
+  so the interval can only be raised; the default is unchanged at 10 minutes. Does not apply to
+  the service kinds (<code>Clickhouse</code>, <code>Flink</code>, <code>Grafana</code>, <code>Kafka</code>, <code>KafkaConnect</code>, <code>MySQL</code>,
+  <code>OpenSearch</code>, <code>PostgreSQL</code>, <code>Valkey</code>), which do not re-reconcile on a fixed interval.</li>
 </ul>
 <h2 id="v0440-2026-08-11">v0.44.0 - 2026-08-11<a class="headerlink" href="#v0440-2026-08-11" title="Permanent link">&para;</a></h2>
 <ul>
@@ -5606,7 +5686,7 @@ as native <a href="https://kubernetes.io/blog/2022/09/23/crd-validation-rules-be
       <script id="__config" type="application/json">{"annotate":null,"base":".","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"./assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="./assets/javascripts/bundle.49251538.min.js"></script>
+      <script src="./assets/javascripts/bundle.6970bfe9.min.js"></script>
       
     
   </body>

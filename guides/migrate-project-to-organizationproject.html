@@ -8,36 +8,36 @@
       
       
       
-        <link rel="canonical" href="https://aiven.github.io/aiven-operator/troubleshooting.html">
+        <link rel="canonical" href="https://aiven.github.io/aiven-operator/guides/migrate-project-to-organizationproject.html">
       
       
-        <link rel="prev" href="./authentication.html">
+        <link rel="prev" href="./deletion-policy.html">
       
       
-        <link rel="next" href="./installation/uninstalling.html">
+        <link rel="next" href="./serviceuser-password-management.html">
       
       
         
       
       
-      <link rel="icon" href="./assets/images/favicon.png">
+      <link rel="icon" href="../assets/images/favicon.png">
       <meta name="generator" content="zensical-0.0.59">
     
     
       
-        <title>Troubleshooting - Aiven Operator</title>
+        <title>Migrating from Project to OrganizationProject - Aiven Operator</title>
       
     
     
       
         
       
-      <link rel="stylesheet" href="./assets/stylesheets/modern/main.5da3a30f.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.5da3a30f.min.css">
       
         
           
         
-        <link rel="stylesheet" href="./assets/stylesheets/modern/palette.812a03bb.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.812a03bb.min.css">
       
       
 
@@ -58,9 +58,9 @@
       
     
     
-      <link rel="stylesheet" href="./stylesheets/branding.css">
+      <link rel="stylesheet" href="../stylesheets/branding.css">
     
-    <script>__md_scope=new URL(".",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
+    <script>__md_scope=new URL("..",location),__md_scope.pathname.endsWith("/")||(__md_scope=new URL(__md_scope.pathname+"/",location)),__md_hash=e=>[...e].reduce(((e,t)=>(e<<5)-e+t.charCodeAt(0)),0),__md_get=(e,t=localStorage,_=__md_scope)=>JSON.parse(t.getItem(_.pathname+"."+e)),__md_set=(e,t,_=localStorage,a=__md_scope)=>{try{_.setItem(a.pathname+"."+e,JSON.stringify(t))}catch(e){}},document.documentElement.setAttribute("data-platform",navigator.platform)</script>
     
       
 
@@ -85,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#verify-operator-status" class="md-skip">
+        <a href="#migrating-from-project-to-organizationproject" class="md-skip">
           Skip to content
         </a>
       
@@ -99,9 +99,9 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="" title="Aiven Operator" class="md-header__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
+    <a href="./.." title="Aiven Operator" class="md-header__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
       
-  <img src="./assets/aiven_logo_RGB_blk.svg" alt="Aiven Operator">
+  <img src="../assets/aiven_logo_RGB_blk.svg" alt="Aiven Operator">
 
     </a>
     <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Troubleshooting
+              Migrating from Project to OrganizationProject
             
           </span>
         </div>
@@ -209,7 +209,7 @@
     
     
       <li class="md-tabs__item md-tabs__item--active">
-        <a href="./index.html" class="md-tabs__link">
+        <a href="../index.html" class="md-tabs__link">
           
   
   Home
@@ -241,7 +241,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="./resources/clickhouse.html" class="md-tabs__link">
+        <a href="../resources/clickhouse.html" class="md-tabs__link">
           
   
   Resources
@@ -266,7 +266,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="./examples/project.html" class="md-tabs__link">
+        <a href="../examples/project.html" class="md-tabs__link">
           
   
   Examples
@@ -288,7 +288,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="./contributing/index.html" class="md-tabs__link">
+        <a href="../contributing/index.html" class="md-tabs__link">
           
   
   Contributing
@@ -321,9 +321,9 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="" title="Aiven Operator" class="md-nav__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
+    <a href="./.." title="Aiven Operator" class="md-nav__button md-logo" aria-label="Aiven Operator" data-md-component="logo">
       
-  <img src="./assets/aiven_logo_RGB_blk.svg" alt="Aiven Operator">
+  <img src="../assets/aiven_logo_RGB_blk.svg" alt="Aiven Operator">
 
     </a>
     Aiven Operator
@@ -405,7 +405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./index.html" class="md-nav__link">
+      <a href="../index.html" class="md-nav__link">
         
   
   
@@ -432,7 +432,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./changelog.html" class="md-nav__link">
+      <a href="../changelog.html" class="md-nav__link">
         
   
   
@@ -514,7 +514,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./installation/prerequisites.html" class="md-nav__link">
+      <a href="../installation/prerequisites.html" class="md-nav__link">
         
   
   
@@ -541,7 +541,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./installation/helm.html" class="md-nav__link">
+      <a href="../installation/helm.html" class="md-nav__link">
         
   
   
@@ -568,7 +568,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./installation/kubectl.html" class="md-nav__link">
+      <a href="../installation/kubectl.html" class="md-nav__link">
         
   
   
@@ -595,7 +595,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./authentication.html" class="md-nav__link">
+      <a href="../authentication.html" class="md-nav__link">
         
   
   
@@ -619,34 +619,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      
-      
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-  Troubleshooting
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="troubleshooting.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../troubleshooting.html" class="md-nav__link">
         
   
   
@@ -661,220 +637,6 @@
   
 
       </a>
-      
-        
-
-
-<nav class="md-nav md-nav--secondary" aria-label="On this page">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      On this page
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#verify-operator-status" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Verify operator status
-      </span>
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Verify operator status">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#check-the-pods" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Check the Pods
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#visualize-the-operator-logs" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Visualize the operator logs
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#verify-the-operator-version" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Verify the operator version
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#known-issues-and-limitations" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Known issues and limitations
-      </span>
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Known issues and limitations">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#cert-manager" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        cert-manager
-      </span>
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="cert-manager">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#issue" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Issue
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#impact" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Impact
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#solution" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Solution
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#resource-reconciliation-behavior" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Resource Reconciliation Behavior
-      </span>
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Resource Reconciliation Behavior">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#when-reconciliation-stops" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        When Reconciliation Stops
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#common-misconception" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Common Misconception
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#how-to-force-reconciliation" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        How to Force Reconciliation
-      </span>
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="How to Force Reconciliation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#option-1-delete-and-recreate-the-kubernetes-resource" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Option 1: Delete and Recreate the Kubernetes Resource
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#option-2-remove-the-generation-annotation" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Option 2: Remove the Generation Annotation
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -887,7 +649,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./installation/uninstalling.html" class="md-nav__link">
+      <a href="../installation/uninstalling.html" class="md-nav__link">
         
   
   
@@ -914,7 +676,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./guides/token-management.html" class="md-nav__link">
+      <a href="./token-management.html" class="md-nav__link">
         
   
   
@@ -941,7 +703,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./guides/deletion-policy.html" class="md-nav__link">
+      <a href="./deletion-policy.html" class="md-nav__link">
         
   
   
@@ -965,10 +727,36 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="./guides/migrate-project-to-organizationproject.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Migrating from Project to OrganizationProject
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="migrate-project-to-organizationproject.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -983,6 +771,171 @@
   
 
       </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#before-you-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Before you start
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What changes
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What changes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#billing-fields" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Billing fields
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-you-lose" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What you lose
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#behavior-to-be-aware-of" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Behavior to be aware of
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Migration
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Migration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-1-collect-the-new-field-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Step 1: Collect the new field values
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-2-protect-the-aiven-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Step 2: Protect the Aiven project
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-3-delete-the-project-resource" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Step 3: Delete the Project resource
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-4-apply-the-organizationproject" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Step 4: Apply the OrganizationProject
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-verify" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Step 5: Verify
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connection-secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Connection secret
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -995,7 +948,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./guides/serviceuser-password-management.html" class="md-nav__link">
+      <a href="./serviceuser-password-management.html" class="md-nav__link">
         
   
   
@@ -1022,7 +975,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./controllers/reconciler.html" class="md-nav__link">
+      <a href="../controllers/reconciler.html" class="md-nav__link">
         
   
   
@@ -1049,7 +1002,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./controllers/clickhouseuser.html" class="md-nav__link">
+      <a href="../controllers/clickhouseuser.html" class="md-nav__link">
         
   
   
@@ -1187,7 +1140,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/clickhouse.html" class="md-nav__link">
+      <a href="../resources/clickhouse.html" class="md-nav__link">
         
   
   
@@ -1214,7 +1167,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/clickhousedatabase.html" class="md-nav__link">
+      <a href="../resources/clickhousedatabase.html" class="md-nav__link">
         
   
   
@@ -1241,7 +1194,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/clickhouserole.html" class="md-nav__link">
+      <a href="../resources/clickhouserole.html" class="md-nav__link">
         
   
   
@@ -1268,7 +1221,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/clickhouseuser.html" class="md-nav__link">
+      <a href="../resources/clickhouseuser.html" class="md-nav__link">
         
   
   
@@ -1295,7 +1248,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/clickhousegrant.html" class="md-nav__link">
+      <a href="../resources/clickhousegrant.html" class="md-nav__link">
         
   
   
@@ -1330,7 +1283,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/connectionpool.html" class="md-nav__link">
+      <a href="../resources/connectionpool.html" class="md-nav__link">
         
   
   
@@ -1357,7 +1310,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/database.html" class="md-nav__link">
+      <a href="../resources/database.html" class="md-nav__link">
         
   
   
@@ -1384,7 +1337,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/flink.html" class="md-nav__link">
+      <a href="../resources/flink.html" class="md-nav__link">
         
   
   
@@ -1411,7 +1364,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/grafana.html" class="md-nav__link">
+      <a href="../resources/grafana.html" class="md-nav__link">
         
   
   
@@ -1488,7 +1441,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafka.html" class="md-nav__link">
+      <a href="../resources/kafka.html" class="md-nav__link">
         
   
   
@@ -1515,7 +1468,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkaacl.html" class="md-nav__link">
+      <a href="../resources/kafkaacl.html" class="md-nav__link">
         
   
   
@@ -1542,7 +1495,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkaconnect.html" class="md-nav__link">
+      <a href="../resources/kafkaconnect.html" class="md-nav__link">
         
   
   
@@ -1569,7 +1522,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkaconnector.html" class="md-nav__link">
+      <a href="../resources/kafkaconnector.html" class="md-nav__link">
         
   
   
@@ -1596,7 +1549,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkanativeacl.html" class="md-nav__link">
+      <a href="../resources/kafkanativeacl.html" class="md-nav__link">
         
   
   
@@ -1623,7 +1576,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkaschema.html" class="md-nav__link">
+      <a href="../resources/kafkaschema.html" class="md-nav__link">
         
   
   
@@ -1650,7 +1603,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkaschemaregistryacl.html" class="md-nav__link">
+      <a href="../resources/kafkaschemaregistryacl.html" class="md-nav__link">
         
   
   
@@ -1677,7 +1630,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkatopic.html" class="md-nav__link">
+      <a href="../resources/kafkatopic.html" class="md-nav__link">
         
   
   
@@ -1712,7 +1665,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/mysql.html" class="md-nav__link">
+      <a href="../resources/mysql.html" class="md-nav__link">
         
   
   
@@ -1739,7 +1692,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/opensearch.html" class="md-nav__link">
+      <a href="../resources/opensearch.html" class="md-nav__link">
         
   
   
@@ -1766,7 +1719,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/organizationproject.html" class="md-nav__link">
+      <a href="../resources/organizationproject.html" class="md-nav__link">
         
   
   
@@ -1793,7 +1746,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/postgresql.html" class="md-nav__link">
+      <a href="../resources/postgresql.html" class="md-nav__link">
         
   
   
@@ -1820,7 +1773,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/project.html" class="md-nav__link">
+      <a href="../resources/project.html" class="md-nav__link">
         
   
   
@@ -1847,7 +1800,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/projectvpc.html" class="md-nav__link">
+      <a href="../resources/projectvpc.html" class="md-nav__link">
         
   
   
@@ -1874,7 +1827,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/serviceintegration.html" class="md-nav__link">
+      <a href="../resources/serviceintegration.html" class="md-nav__link">
         
   
   
@@ -1901,7 +1854,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/serviceintegrationendpoint.html" class="md-nav__link">
+      <a href="../resources/serviceintegrationendpoint.html" class="md-nav__link">
         
   
   
@@ -1928,7 +1881,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/serviceuser.html" class="md-nav__link">
+      <a href="../resources/serviceuser.html" class="md-nav__link">
         
   
   
@@ -1955,7 +1908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/valkey.html" class="md-nav__link">
+      <a href="../resources/valkey.html" class="md-nav__link">
         
   
   
@@ -2097,7 +2050,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/clickhouse.html" class="md-nav__link">
+      <a href="../resources/clickhouse.html" class="md-nav__link">
         
   
   
@@ -2124,7 +2077,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/clickhousedatabase.html" class="md-nav__link">
+      <a href="../resources/clickhousedatabase.html" class="md-nav__link">
         
   
   
@@ -2151,7 +2104,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/clickhouserole.html" class="md-nav__link">
+      <a href="../resources/clickhouserole.html" class="md-nav__link">
         
   
   
@@ -2178,7 +2131,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/clickhouseuser.html" class="md-nav__link">
+      <a href="../resources/clickhouseuser.html" class="md-nav__link">
         
   
   
@@ -2205,7 +2158,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/clickhousegrant.html" class="md-nav__link">
+      <a href="../resources/clickhousegrant.html" class="md-nav__link">
         
   
   
@@ -2240,7 +2193,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/connectionpool.html" class="md-nav__link">
+      <a href="../resources/connectionpool.html" class="md-nav__link">
         
   
   
@@ -2267,7 +2220,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/database.html" class="md-nav__link">
+      <a href="../resources/database.html" class="md-nav__link">
         
   
   
@@ -2294,7 +2247,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/flink.html" class="md-nav__link">
+      <a href="../resources/flink.html" class="md-nav__link">
         
   
   
@@ -2321,7 +2274,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/grafana.html" class="md-nav__link">
+      <a href="../resources/grafana.html" class="md-nav__link">
         
   
   
@@ -2398,7 +2351,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafka.html" class="md-nav__link">
+      <a href="../resources/kafka.html" class="md-nav__link">
         
   
   
@@ -2425,7 +2378,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkaacl.html" class="md-nav__link">
+      <a href="../resources/kafkaacl.html" class="md-nav__link">
         
   
   
@@ -2452,7 +2405,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkaconnect.html" class="md-nav__link">
+      <a href="../resources/kafkaconnect.html" class="md-nav__link">
         
   
   
@@ -2479,7 +2432,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkaconnector.html" class="md-nav__link">
+      <a href="../resources/kafkaconnector.html" class="md-nav__link">
         
   
   
@@ -2506,7 +2459,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkanativeacl.html" class="md-nav__link">
+      <a href="../resources/kafkanativeacl.html" class="md-nav__link">
         
   
   
@@ -2533,7 +2486,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkaschema.html" class="md-nav__link">
+      <a href="../resources/kafkaschema.html" class="md-nav__link">
         
   
   
@@ -2560,7 +2513,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkaschemaregistryacl.html" class="md-nav__link">
+      <a href="../resources/kafkaschemaregistryacl.html" class="md-nav__link">
         
   
   
@@ -2587,7 +2540,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/kafkatopic.html" class="md-nav__link">
+      <a href="../resources/kafkatopic.html" class="md-nav__link">
         
   
   
@@ -2622,7 +2575,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/mysql.html" class="md-nav__link">
+      <a href="../resources/mysql.html" class="md-nav__link">
         
   
   
@@ -2649,7 +2602,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/opensearch.html" class="md-nav__link">
+      <a href="../resources/opensearch.html" class="md-nav__link">
         
   
   
@@ -2676,7 +2629,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/organizationproject.html" class="md-nav__link">
+      <a href="../resources/organizationproject.html" class="md-nav__link">
         
   
   
@@ -2703,7 +2656,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/postgresql.html" class="md-nav__link">
+      <a href="../resources/postgresql.html" class="md-nav__link">
         
   
   
@@ -2730,7 +2683,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/project.html" class="md-nav__link">
+      <a href="../resources/project.html" class="md-nav__link">
         
   
   
@@ -2757,7 +2710,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/projectvpc.html" class="md-nav__link">
+      <a href="../resources/projectvpc.html" class="md-nav__link">
         
   
   
@@ -2784,7 +2737,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/serviceintegration.html" class="md-nav__link">
+      <a href="../resources/serviceintegration.html" class="md-nav__link">
         
   
   
@@ -2811,7 +2764,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/serviceintegrationendpoint.html" class="md-nav__link">
+      <a href="../resources/serviceintegrationendpoint.html" class="md-nav__link">
         
   
   
@@ -2838,7 +2791,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/serviceuser.html" class="md-nav__link">
+      <a href="../resources/serviceuser.html" class="md-nav__link">
         
   
   
@@ -2865,7 +2818,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./resources/valkey.html" class="md-nav__link">
+      <a href="../resources/valkey.html" class="md-nav__link">
         
   
   
@@ -2949,7 +2902,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./examples/project.html" class="md-nav__link">
+      <a href="../examples/project.html" class="md-nav__link">
         
   
   
@@ -2976,7 +2929,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./examples/project-vpc.html" class="md-nav__link">
+      <a href="../examples/project-vpc.html" class="md-nav__link">
         
   
   
@@ -3003,7 +2956,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./examples/clickhouse.html" class="md-nav__link">
+      <a href="../examples/clickhouse.html" class="md-nav__link">
         
   
   
@@ -3030,7 +2983,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./examples/mysql.html" class="md-nav__link">
+      <a href="../examples/mysql.html" class="md-nav__link">
         
   
   
@@ -3057,7 +3010,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./examples/opensearch.html" class="md-nav__link">
+      <a href="../examples/opensearch.html" class="md-nav__link">
         
   
   
@@ -3084,7 +3037,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./examples/postgresql.html" class="md-nav__link">
+      <a href="../examples/postgresql.html" class="md-nav__link">
         
   
   
@@ -3111,7 +3064,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./examples/service-integrations.html" class="md-nav__link">
+      <a href="../examples/service-integrations.html" class="md-nav__link">
         
   
   
@@ -3188,7 +3141,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./examples/kafka/index.html" class="md-nav__link">
+      <a href="../examples/kafka/index.html" class="md-nav__link">
         
   
   
@@ -3215,7 +3168,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./examples/kafka/schema.html" class="md-nav__link">
+      <a href="../examples/kafka/schema.html" class="md-nav__link">
         
   
   
@@ -3242,7 +3195,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./examples/kafka/connect.html" class="md-nav__link">
+      <a href="../examples/kafka/connect.html" class="md-nav__link">
         
   
   
@@ -3277,7 +3230,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./examples/valkey.html" class="md-nav__link">
+      <a href="../examples/valkey.html" class="md-nav__link">
         
   
   
@@ -3361,7 +3314,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./contributing/index.html" class="md-nav__link">
+      <a href="../contributing/index.html" class="md-nav__link">
         
   
   
@@ -3388,7 +3341,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./contributing/developer-guide.html" class="md-nav__link">
+      <a href="../contributing/developer-guide.html" class="md-nav__link">
         
   
   
@@ -3415,7 +3368,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./contributing/resource-generation.html" class="md-nav__link">
+      <a href="../contributing/resource-generation.html" class="md-nav__link">
         
   
   
@@ -3456,6 +3409,8 @@
                     
                     
                     
+                      
+                    
                     
                       <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
                       <div class="md-sidebar-button__wrapper">
@@ -3471,6 +3426,8 @@
   
   
   
+    
+  
   
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
@@ -3479,22 +3436,33 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#verify-operator-status" class="md-nav__link">
+  <a href="#before-you-start" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Verify operator status
+        Before you start
       </span>
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Verify operator status">
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-changes" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        What changes
+      </span>
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What changes">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#check-the-pods" class="md-nav__link">
+  <a href="#billing-fields" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Check the Pods
+        Billing fields
       </span>
     </span>
   </a>
@@ -3502,10 +3470,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#visualize-the-operator-logs" class="md-nav__link">
+  <a href="#what-you-lose" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Visualize the operator logs
+        What you lose
       </span>
     </span>
   </a>
@@ -3513,10 +3481,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#verify-the-operator-version" class="md-nav__link">
+  <a href="#behavior-to-be-aware-of" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Verify the operator version
+        Behavior to be aware of
       </span>
     </span>
   </a>
@@ -3529,34 +3497,22 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#known-issues-and-limitations" class="md-nav__link">
+  <a href="#migration" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Known issues and limitations
+        Migration
       </span>
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Known issues and limitations">
+    <nav class="md-nav" aria-label="Migration">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#cert-manager" class="md-nav__link">
+  <a href="#step-1-collect-the-new-field-values" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        cert-manager
-      </span>
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="cert-manager">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#issue" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Issue
+        Step 1: Collect the new field values
       </span>
     </span>
   </a>
@@ -3564,10 +3520,10 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#impact" class="md-nav__link">
+  <a href="#step-2-protect-the-aiven-project" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Impact
+        Step 2: Protect the Aiven project
       </span>
     </span>
   </a>
@@ -3575,18 +3531,35 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#solution" class="md-nav__link">
+  <a href="#step-3-delete-the-project-resource" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Solution
+        Step 3: Delete the Project resource
       </span>
     </span>
   </a>
   
 </li>
         
-      </ul>
-    </nav>
+          <li class="md-nav__item">
+  <a href="#step-4-apply-the-organizationproject" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Step 4: Apply the OrganizationProject
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-5-verify" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Step 5: Verify
+      </span>
+    </span>
+  </a>
   
 </li>
         
@@ -3596,80 +3569,13 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#resource-reconciliation-behavior" class="md-nav__link">
+  <a href="#connection-secret" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Resource Reconciliation Behavior
+        Connection secret
       </span>
     </span>
   </a>
-  
-    <nav class="md-nav" aria-label="Resource Reconciliation Behavior">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#when-reconciliation-stops" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        When Reconciliation Stops
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#common-misconception" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Common Misconception
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#how-to-force-reconciliation" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        How to Force Reconciliation
-      </span>
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="How to Force Reconciliation">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#option-1-delete-and-recreate-the-kubernetes-resource" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Option 1: Delete and Recreate the Kubernetes Resource
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#option-2-remove-the-generation-annotation" class="md-nav__link">
-    <span class="md-ellipsis">
-      <span class="md-typeset">
-        Option 2: Remove the Generation Annotation
-      </span>
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-        
-      </ul>
-    </nav>
   
 </li>
       
@@ -3692,93 +3598,199 @@
     
       
     
-    <a href="https://github.com/aiven/aiven-operator//raw/main/docs/docs/troubleshooting.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/aiven/aiven-operator//raw/main/docs/docs/guides/migrate-project-to-organizationproject.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-code-2" viewBox="0 0 24 24"><path d="M4 12.15V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2h-3.35"/><path d="M14 2v5a1 1 0 0 0 1 1h5M5 16l-3 3 3 3M9 22l3-3-3-3"/></svg>
     </a>
   
 
 
-  <h1 id="__skip">Troubleshooting</h1>
-
-<h2 id="verify-operator-status">Verify operator status<a class="headerlink" href="#verify-operator-status" title="Permanent link">&para;</a></h2>
-<p>Use the following checks to help you troubleshoot the Aiven Operator for Kubernetes.</p>
-<h3 id="check-the-pods">Check the Pods<a class="headerlink" href="#check-the-pods" title="Permanent link">&para;</a></h3>
-<p>Verify that all the operator Pods are <code>READY</code>, and the <code>STATUS</code> is <code>Running</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-n<span class="w"> </span>aiven-operator-system
+<h1 id="migrating-from-project-to-organizationproject">Migrating from Project to OrganizationProject<a class="headerlink" href="#migrating-from-project-to-organizationproject" title="Permanent link">&para;</a></h1>
+<p><a href="../resources/organizationproject.html"><code>OrganizationProject</code></a> is the replacement for <a href="../resources/project.html"><code>Project</code></a>.</p>
+<p>This guide moves a project managed by <code>Project</code> over to <code>OrganizationProject</code> <strong>without deleting the
+Aiven project</strong> and without touching the services running in it.</p>
+<div class="admonition warning">
+<p class="admonition-title">Read this first</p>
+<p><code>Project</code> deletes the Aiven project — and every service in it — when the Kubernetes resource is
+deleted. This procedure relies on the <a href="deletion-policy.html"><code>Orphan</code> deletion policy</a> to prevent
+that. Do not skip step 2.</p>
+</div>
+<h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">&para;</a></h2>
+<p>Check whether your <code>Project</code> uses <code>spec.cloud</code> or <code>spec.copyFromProject</code>. Neither exists in the
+organization API, and <code>OrganizationProject</code> cannot express them — see
+<a href="#what-you-lose">What you lose</a> below. Everything else has an equivalent or is already deprecated
+on the Aiven platform.</p>
+<h2 id="what-changes">What changes<a class="headerlink" href="#what-changes" title="Permanent link">&para;</a></h2>
+<p><code>OrganizationProject</code> addresses a project by <code>spec.organizationId</code> + <code>spec.projectId</code> rather than
+using <code>metadata.name</code> as the project name, which frees <code>metadata.name</code> to be any Kubernetes name.</p>
+<table>
+<thead>
+<tr>
+<th><code>Project</code></th>
+<th><code>OrganizationProject</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>metadata.name</code></td>
+<td><code>spec.projectId</code></td>
+</tr>
+<tr>
+<td><code>spec.accountId</code></td>
+<td><code>spec.parentId</code> (organization or organizational unit)</td>
+</tr>
+<tr>
+<td><code>spec.billingGroupId</code></td>
+<td><code>spec.billingGroupId</code> — now <strong>required</strong>, and no longer immutable</td>
+</tr>
+<tr>
+<td><code>spec.technicalEmails</code></td>
+<td><code>spec.technicalEmails</code></td>
+</tr>
+<tr>
+<td><code>spec.tags</code></td>
+<td><code>spec.tags</code></td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>spec.organizationId</code> — <strong>required</strong></td>
+</tr>
+<tr>
+<td>—</td>
+<td><code>spec.basePort</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="billing-fields">Billing fields<a class="headerlink" href="#billing-fields" title="Permanent link">&para;</a></h3>
+<p>These <code>Project</code> fields have no counterpart:</p>
+<p><code>cardId</code>, <code>billingAddress</code>, <code>billingEmails</code>, <code>billingCurrency</code>, <code>billingExtraText</code>, <code>countryCode</code>.</p>
+<p>Every one of them is deprecated in the Aiven API itself. Manage them on the billing group in the
+<a href="https://console.aiven.io/">Aiven Console</a> instead. Removing them from your manifests does not
+change anything in Aiven.</p>
+<h3 id="what-you-lose">What you lose<a class="headerlink" href="#what-you-lose" title="Permanent link">&para;</a></h3>
+<p>Two fields are genuinely unavailable in <code>OrganizationProject</code>, because the organization API has no
+equivalent:</p>
+<ul>
+<li><strong><code>spec.cloud</code></strong> sets the project's default cloud for newly launched services. Migrating does not
+  reset it — whatever it is today stays — but you can no longer manage it declaratively. Set
+  <code>spec.cloudName</code> explicitly on each service resource instead, which is the recommended practice
+  regardless.</li>
+<li><strong><code>spec.copyFromProject</code></strong> only ever applied when the project was first created, so it has no
+  effect on an existing project.</li>
+</ul>
+<p>The <code>Project</code> status fields <code>vatId</code>, <code>country</code>, <code>estimatedBalance</code>, <code>paymentMethod</code> and
+<code>availableCredits</code> are also gone. If you read them, get the equivalent from the billing group.</p>
+<h3 id="behavior-to-be-aware-of">Behavior to be aware of<a class="headerlink" href="#behavior-to-be-aware-of" title="Permanent link">&para;</a></h3>
+<div class="admonition note">
+<p class="admonition-title"><code>tags</code> and <code>technicalEmails</code> are authoritative</p>
+<p><code>OrganizationProject</code> treats both as the complete desired state: omitting them <strong>removes</strong> tags
+and technical emails that were added outside Kubernetes. Copy the current values into your spec
+unless you intend to clear them. <code>spec.basePort</code> behaves the other way — when omitted it is left
+unmanaged.</p>
+</div>
+<p>Other resources are unaffected. <code>PostgreSQL</code>, <code>Kafka</code>, <code>ServiceUser</code>, <code>ProjectVPC</code> and the rest
+reference the project by name in <code>spec.project</code>, and that name does not change.</p>
+<h2 id="migration">Migration<a class="headerlink" href="#migration" title="Permanent link">&para;</a></h2>
+<p>The example migrates a project named <code>my-project</code>.</p>
+<h3 id="step-1-collect-the-new-field-values">Step 1: Collect the new field values<a class="headerlink" href="#step-1-collect-the-new-field-values" title="Permanent link">&para;</a></h3>
+<p><code>OrganizationProject</code> requires <code>organizationId</code>, <code>parentId</code> and <code>billingGroupId</code>. All three come
+from the project itself:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>curl<span class="w"> </span>-sH<span class="w"> </span><span class="s2">"Authorization: aivenv1 </span><span class="nv">$AIVEN_TOKEN</span><span class="s2">"</span><span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="w">  </span>https://api.aiven.io/v1/project/my-project<span class="w"> </span><span class="se">\</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">  </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.project | {organization_id, account_id, billing_group_id, tags, tech_emails}'</span>
 </code></pre></div>
 <p>The output is similar to the following:</p>
-<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>NAME<span class="w">                                                            </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">   </span>AGE
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>aiven-operator-controller-manager-576d944499-ggttj<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>12m
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="p">{</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">  </span><span class="nt">"organization_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"org123456789a"</span><span class="p">,</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">  </span><span class="nt">"account_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"a123456789a"</span><span class="p">,</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">  </span><span class="nt">"billing_group_id"</span><span class="p">:</span><span class="w"> </span><span class="s2">"bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"</span><span class="p">,</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="w">  </span><span class="nt">"tags"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="nt">"env"</span><span class="p">:</span><span class="w"> </span><span class="s2">"prod"</span><span class="w"> </span><span class="p">},</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="w">  </span><span class="nt">"tech_emails"</span><span class="p">:</span><span class="w"> </span><span class="p">[{</span><span class="w"> </span><span class="nt">"email"</span><span class="p">:</span><span class="w"> </span><span class="s2">"tech@example.com"</span><span class="w"> </span><span class="p">}]</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">}</span>
 </code></pre></div>
-<p>Verify that the <code>cert-manager</code> Pods are also running.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-n<span class="w"> </span>cert-manager
+<p>Map the values as follows:</p>
+<ul>
+<li><code>organization_id</code> → <code>spec.organizationId</code></li>
+<li><code>account_id</code> → <code>spec.parentId</code></li>
+<li><code>billing_group_id</code> → <code>spec.billingGroupId</code></li>
+</ul>
+<p>Carry <code>tags</code> and <code>tech_emails</code> into the spec as well, otherwise the operator clears them.</p>
+<h3 id="step-2-protect-the-aiven-project">Step 2: Protect the Aiven project<a class="headerlink" href="#step-2-protect-the-aiven-project" title="Permanent link">&para;</a></h3>
+<p>Annotate the existing <code>Project</code> so that deleting it leaves the Aiven project intact:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>annotate<span class="w"> </span>project<span class="w"> </span>my-project<span class="w"> </span>controllers.aiven.io/deletion-policy<span class="o">=</span>Orphan
 </code></pre></div>
-<p>The output has the status:</p>
-<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>NAME<span class="w">                                       </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">   </span>AGE
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>cert-manager-7dd5854bb4-85cpv<span class="w">              </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>76s
-<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>cert-manager-cainjector-64c949654c-n2z8l<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>77s
-<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>cert-manager-webhook-6bdffc7c9d-47w6z<span class="w">      </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>76s
+<p>Verify the annotation before continuing:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>project<span class="w"> </span>my-project<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s1">'{.metadata.annotations}'</span>
 </code></pre></div>
-<h3 id="visualize-the-operator-logs">Visualize the operator logs<a class="headerlink" href="#visualize-the-operator-logs" title="Permanent link">&para;</a></h3>
-<p>Use the following command to visualize all the logs from the operator.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>logs<span class="w"> </span>-n<span class="w"> </span>aiven-operator-system<span class="w"> </span>-l<span class="w"> </span>control-plane<span class="o">=</span>controller-manager
+<p>If you manage the resource with GitOps, add the annotation to the manifest and let it sync <strong>first</strong>.
+An annotation applied in the same commit that removes the resource is never reconciled.</p>
+<h3 id="step-3-delete-the-project-resource">Step 3: Delete the Project resource<a class="headerlink" href="#step-3-delete-the-project-resource" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>delete<span class="w"> </span>project<span class="w"> </span>my-project
 </code></pre></div>
-<h3 id="verify-the-operator-version">Verify the operator version<a class="headerlink" href="#verify-the-operator-version" title="Permanent link">&para;</a></h3>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-n<span class="w"> </span>aiven-operator-system<span class="w"> </span>-l<span class="w"> </span>control-plane<span class="o">=</span>controller-manager<span class="w"> </span>-o<span class="w"> </span><span class="nv">jsonpath</span><span class="o">=</span><span class="s2">"{.items[0].spec.containers[0].image}"</span>
+<p>The Aiven project and its services are preserved.</p>
+<p>The connection secret is owned by the <code>Project</code> and is garbage collected along with it. If you want
+to reuse the same secret name in the next step, wait for it to actually disappear:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span><span class="nb">wait</span><span class="w"> </span>--for<span class="o">=</span>delete<span class="w"> </span>secret/my-project<span class="w"> </span>--timeout<span class="o">=</span>60s
 </code></pre></div>
-<h2 id="known-issues-and-limitations">Known issues and limitations<a class="headerlink" href="#known-issues-and-limitations" title="Permanent link">&para;</a></h2>
-<p>We're always working to resolve problems that pop up in Aiven products. If your problem is listed below, we know about
-it and are working to fix it. If your problem isn't listed below, report it as an issue.</p>
-<h3 id="cert-manager">cert-manager<a class="headerlink" href="#cert-manager" title="Permanent link">&para;</a></h3>
-<h4 id="issue">Issue<a class="headerlink" href="#issue" title="Permanent link">&para;</a></h4>
-<p>The following event appears on the operator Pod:</p>
-<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>MountVolume.SetUp<span class="w"> </span>failed<span class="w"> </span><span class="k">for</span><span class="w"> </span>volume<span class="w"> </span><span class="s2">"cert"</span><span class="w"> </span>:<span class="w"> </span>secret<span class="w"> </span><span class="s2">"webhook-server-cert"</span><span class="w"> </span>not<span class="w"> </span>found
+<div class="admonition warning">
+<p class="admonition-title">Do not run both resources at once</p>
+<p>Never point a <code>Project</code> and an <code>OrganizationProject</code> at the same Aiven project. Both controllers
+reconcile tags and technical emails and will overwrite each other. Finish step 3 before step 4.</p>
+</div>
+<h3 id="step-4-apply-the-organizationproject">Step 4: Apply the OrganizationProject<a class="headerlink" href="#step-4-apply-the-organizationproject" title="Permanent link">&para;</a></h3>
+<p><code>OrganizationProject</code> adopts an existing project when <code>spec.projectId</code> matches it, so the same
+project is now managed by the new resource:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">OrganizationProject</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-project</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-project</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PROJECT_</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">  </span><span class="nt">organizationId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">org123456789a</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">  </span><span class="nt">projectId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-project</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">  </span><span class="nt">parentId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">a123456789a</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">  </span><span class="nt">billingGroupId</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">  </span><span class="nt">technicalEmails</span><span class="p">:</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">tech@example.com</span>
+<a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a>
+<a id="__codelineno-6-22" name="__codelineno-6-22" href="#__codelineno-6-22"></a><span class="w">  </span><span class="nt">tags</span><span class="p">:</span>
+<a id="__codelineno-6-23" name="__codelineno-6-23" href="#__codelineno-6-23"></a><span class="w">    </span><span class="nt">env</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">prod</span>
 </code></pre></div>
-<h4 id="impact">Impact<a class="headerlink" href="#impact" title="Permanent link">&para;</a></h4>
-<p>You cannot run the operator.</p>
-<h4 id="solution">Solution<a class="headerlink" href="#solution" title="Permanent link">&para;</a></h4>
-<p>Make sure that cert-manager is up and running.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>pod<span class="w"> </span>-n<span class="w"> </span>cert-manager
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>organizationproject.yaml
 </code></pre></div>
-<p>The output shows the status of each cert-manager:</p>
-<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>NAME<span class="w">                                       </span>READY<span class="w">   </span>STATUS<span class="w">    </span>RESTARTS<span class="w">   </span>AGE
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>cert-manager-7dd5854bb4-85cpv<span class="w">              </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>76s
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>cert-manager-cainjector-64c949654c-n2z8l<span class="w">   </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>77s
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>cert-manager-webhook-6bdffc7c9d-47w6z<span class="w">      </span><span class="m">1</span>/1<span class="w">     </span>Running<span class="w">   </span><span class="m">0</span><span class="w">          </span>76s
+<h3 id="step-5-verify">Step 5: Verify<a class="headerlink" href="#step-5-verify" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>organizationproject<span class="w"> </span>my-project
 </code></pre></div>
-<h2 id="resource-reconciliation-behavior">Resource Reconciliation Behavior<a class="headerlink" href="#resource-reconciliation-behavior" title="Permanent link">&para;</a></h2>
-<p>The Aiven Operator is designed to stop reconciling resources once they reach a ready state. This behavior is different from some other Kubernetes operators and can cause confusion.</p>
-<h3 id="when-reconciliation-stops">When Reconciliation Stops<a class="headerlink" href="#when-reconciliation-stops" title="Permanent link">&para;</a></h3>
-<p>The operator stops reconciling a resource when <strong>both</strong> of the following conditions are met:</p>
-<ol>
-<li><strong>Latest generation processed</strong> - The operator has processed the latest changes from the Kubernetes resource specification</li>
-<li><strong>Resource is running</strong> - The resource has been successfully created in Aiven and is in a running state</li>
-</ol>
-<p>You can check if a resource is in this "ready" state by looking for these annotations:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>&lt;resource-type&gt;<span class="w"> </span>&lt;resource-name&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;
+<p>The output is similar to the following:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>NAME<span class="w">         </span>ORGANIZATION<span class="w">     </span>PROJECT<span class="w">      </span>PARENT
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>my-project<span class="w">   </span>org123456789a<span class="w">    </span>my-project<span class="w">   </span>a123456789a
 </code></pre></div>
-<p>Look for these annotations:
-- <code>controllers.aiven.io/instance-is-running</code>: Indicates the resource is running in Aiven
-- <code>controllers.aiven.io/generation-was-processed</code>: Indicates the latest spec changes have been processed</p>
-<h3 id="common-misconception">Common Misconception<a class="headerlink" href="#common-misconception" title="Permanent link">&para;</a></h3>
-<p><strong>Expected behavior</strong>: "If I manually delete a resource from the Aiven console, the operator should recreate it automatically."</p>
-<p><strong>Actual behavior</strong>: Once a resource/secret is ready, the operator stops continuous reconciliation. Manual changes in the Aiven console will <strong>not</strong> trigger automatic recreation.</p>
-<h3 id="how-to-force-reconciliation">How to Force Reconciliation<a class="headerlink" href="#how-to-force-reconciliation" title="Permanent link">&para;</a></h3>
-<p>If you need to force the operator to reconcile a resource (for example, after manually deleting it from Aiven), you have several options:</p>
-<h4 id="option-1-delete-and-recreate-the-kubernetes-resource">Option 1: Delete and Recreate the Kubernetes Resource<a class="headerlink" href="#option-1-delete-and-recreate-the-kubernetes-resource" title="Permanent link">&para;</a></h4>
-<p><strong>Note:</strong> The resource will be deleted on the Aiven side and data may be lost when using this approach.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>kubectl<span class="w"> </span>delete<span class="w"> </span>&lt;resource-type&gt;<span class="w"> </span>&lt;resource-name&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>your-resource.yaml
+<p>Confirm the resource reconciled:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>kubectl<span class="w"> </span><span class="nb">wait</span><span class="w"> </span>--for<span class="o">=</span><span class="nv">condition</span><span class="o">=</span>Running<span class="w"> </span>organizationproject/my-project<span class="w"> </span>--timeout<span class="o">=</span>2m
 </code></pre></div>
-<h4 id="option-2-remove-the-generation-annotation">Option 2: Remove the Generation Annotation<a class="headerlink" href="#option-2-remove-the-generation-annotation" title="Permanent link">&para;</a></h4>
-<p>Remove the <code>controllers.aiven.io/generation-was-processed</code> annotation to force reconciliation without affecting the resource's functionality:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>kubectl<span class="w"> </span>annotate<span class="w"> </span>&lt;resource-type&gt;<span class="w"> </span>&lt;resource-name&gt;<span class="w"> </span>-n<span class="w"> </span>&lt;namespace&gt;<span class="w"> </span>controllers.aiven.io/generation-was-processed-
-</code></pre></div></p>
-<p>Example:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>kubectl<span class="w"> </span>annotate<span class="w"> </span>kafkatopic<span class="w"> </span>orders-topic<span class="w"> </span>-n<span class="w"> </span>aiven<span class="w"> </span>controllers.aiven.io/generation-was-processed-
-</code></pre></div></p>
-<p>This is the cleanest approach as it doesn't modify the resource specification or create any side effects.</p>
+<h2 id="connection-secret">Connection secret<a class="headerlink" href="#connection-secret" title="Permanent link">&para;</a></h2>
+<p><code>Project</code> writes <code>PROJECT_CA_CERT</code> into its secret, plus a legacy unprefixed <code>CA_CERT</code>.
+<code>OrganizationProject</code> writes <code>ORGANIZATIONPROJECT_CA_CERT</code> by default, because the key is prefixed
+with the resource kind.</p>
+<p>Setting <code>connInfoSecretTarget.prefix: PROJECT_</code>, as in step 4, keeps the key named <code>PROJECT_CA_CERT</code>
+so that workloads reading it need no change. The certificate itself is unchanged — it is the same
+project, so the same CA is fetched.</p>
+<p>The legacy unprefixed <code>CA_CERT</code> key cannot be reproduced. Update any workload that reads it.</p>
+<div class="admonition note">
+<p class="admonition-title">Reusing the secret name</p>
+<p>Reuse the old secret's name only after the old secret is gone (see step 3). The operator makes
+the new resource the owner of the secret, and while the deleted <code>Project</code> is still listed as its
+owner, that fails with an <code>already owned</code> error. The reconciler recovers on its own once
+Kubernetes finishes the cleanup, but waiting avoids the error entirely.</p>
+</div>
 
 
 
@@ -3787,9 +3799,6 @@ it and are working to fix it. If your problem isn't listed below, report it as a
 
 
 
-
-  
-  
 
 
 
@@ -3821,7 +3830,7 @@ it and are working to fix it. If your problem isn't listed below, report it as a
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="./authentication.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Authentication">
+          <a href="./deletion-policy.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Deletion Policy">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
@@ -3831,20 +3840,20 @@ it and are working to fix it. If your problem isn't listed below, report it as a
                 Previous
               </span>
               <div class="md-ellipsis">
-                Authentication
+                Deletion Policy
               </div>
             </div>
           </a>
         
         
           
-          <a href="./installation/uninstalling.html" class="md-footer__link md-footer__link--next" aria-label="Next: Uninstall">
+          <a href="./serviceuser-password-management.html" class="md-footer__link md-footer__link--next" aria-label="Next: ServiceUser Password Management">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Uninstall
+                ServiceUser Password Management
               </div>
             </div>
             <div class="md-footer__button md-icon">
@@ -3885,10 +3894,10 @@ it and are working to fix it. If your problem isn't listed below, report it as a
     
       
       
-      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"./assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="./assets/javascripts/bundle.6970bfe9.min.js"></script>
+      <script src="../assets/javascripts/bundle.6970bfe9.min.js"></script>
       
     
   </body>

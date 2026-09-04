@@ -21,7 +21,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.57">
+      <meta name="generator" content="zensical-0.0.59">
     
     
       
@@ -709,6 +709,33 @@
     
   
   Deletion Policy
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/migrate-project-to-organizationproject.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Migrating from Project to OrganizationProject
 
     
   </span>
@@ -1707,7 +1734,7 @@
   <span class="md-ellipsis">
     
   
-  Project
+  Project [DEPRECATED]
 
     
   </span>
@@ -2617,7 +2644,7 @@
   <span class="md-ellipsis">
     
   
-  Project
+  Project [DEPRECATED]
 
     
   </span>
@@ -3767,8 +3794,12 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 the subject. The subject disappears from the registry's listing, re-applying a KafkaSchema with the same subjectName
 after deletion starts a brand-new subject at version 1.</p>
 <p>Update ordering: when schema and compatibilityLevel change in the same apply, the
-compatibility level is set first, because the registry validates a new version against the
-level currently configured for the subject. A rejected schema leaves the new level applied.</p>
+compatibility level is applied first, because the registry validates a new version against
+the level currently configured for the subject. A rejected schema leaves the new level applied.
+Removing compatibilityLevel reverts a subject-level override previously applied by the
+operator to a snapshot of the registry's current global default before the schema is
+registered; overrides created outside the operator, or changed outside it since they
+were applied, are left untouched.</p>
 <p><strong>Required</strong></p>
 <ul>
 <li><a href="#apiVersion-property" name="apiVersion-property"><code>apiVersion</code></a> (string). Value <code>aiven.io/v1alpha1</code>.</li>
@@ -3791,8 +3822,11 @@ level currently configured for the subject. A rejected schema leaves the new lev
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
 <li><a href="#spec.compatibilityLevel-property" name="spec.compatibilityLevel-property"><code>compatibilityLevel</code></a> (string, Enum: <code>BACKWARD</code>, <code>BACKWARD_TRANSITIVE</code>, <code>FORWARD</code>, <code>FORWARD_TRANSITIVE</code>, <code>FULL</code>, <code>FULL_TRANSITIVE</code>, <code>NONE</code>). Kafka Schemas compatibility level.
     When set, it is applied as the subject-level compatibility override.
-    Removing this field does not change the subject: an existing override stays in place
-    and is not reverted to the registry's global default.</li>
+    When removed, an override previously applied by the operator is reverted to a
+    snapshot of the registry's current global default; later changes to the global
+    default are not tracked.
+    Overrides created outside the operator, or changed
+    outside it since they were applied, are never modified.</li>
 <li><a href="#spec.references-property" name="spec.references-property"><code>references</code></a> (array of objects, MaxItems: 100). Schema references for Protobuf or JSON schemas that import other schemas.
     References must form a directed acyclic graph (DAG); cycles are not allowed. See below for <a href="#spec.references">nested schema</a>.</li>
 <li><a href="#spec.schemaType-property" name="spec.schemaType-property"><code>schemaType</code></a> (string, Enum: <code>AVRO</code>, <code>JSON</code>, <code>PROTOBUF</code>, Immutable). Schema type.</li>
@@ -3941,7 +3975,7 @@ Mutually exclusive with subject/version.</p>
       <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.49251538.min.js"></script>
+      <script src="../assets/javascripts/bundle.6970bfe9.min.js"></script>
       
     
   </body>
