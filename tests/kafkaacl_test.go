@@ -144,7 +144,7 @@ func TestKafkaACL(t *testing.T) {
 	}))
 }
 
-func getKafkaACLbyID(ctx context.Context, avnGen avngen.Client, projectName, serviceName, aclID string) (*kafka.AclOut, error) {
+func getKafkaACLbyID(ctx context.Context, avnGen avngen.Client, projectName, serviceName, aclID string) (*kafka.ServiceKafkaAclListOut, error) {
 	aclList, err := avnGen.ServiceKafkaAclList(ctx, projectName, serviceName)
 	if err != nil {
 		return nil, err
