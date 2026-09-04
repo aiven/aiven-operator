@@ -91,6 +91,7 @@ type ProjectStatus struct {
 // Project is the Schema for the projects API.
 // Info "Exposes secret keys": `PROJECT_CA_CERT`
 // +kubebuilder:subresource:status
+// +kubebuilder:deprecatedversion:warning="aiven.io/v1alpha1 Project is deprecated: use OrganizationProject instead."
 type Project struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`

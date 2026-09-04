@@ -408,8 +408,7 @@ func NewNotFound(msg string) error {
 
 // isAivenError returns true if the error comes from the old or new client and has given http code
 func isAivenError(err error, code int) bool {
-	var e avngen.Error
-	if errors.As(err, &e) {
+	if e, ok := errors.AsType[avngen.Error](err); ok {
 		return e.Status == code
 	}
 
@@ -417,8 +416,7 @@ func isAivenError(err error, code int) bool {
 }
 
 func isServerError(err error) bool {
-	var e avngen.Error
-	if errors.As(err, &e) {
+	if e, ok := errors.AsType[avngen.Error](err); ok {
 		return e.Status >= http.StatusInternalServerError && e.Status < 600
 	}
 	return false

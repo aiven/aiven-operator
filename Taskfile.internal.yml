@@ -272,6 +272,10 @@ tasks:
       - |
         if kubectl cluster-info --context {{.KIND_KUBECTL_CONTEXT}} >/dev/null 2>&1; then
           echo "✅ Kind cluster '{{.KIND_CLUSTER_NAME}}' already exists"
+        elif kind get clusters 2>/dev/null | grep -qx {{.KIND_CLUSTER_NAME}}; then
+          echo "❌ Kind cluster '{{.KIND_CLUSTER_NAME}}' exists but is not running."
+          echo "   Run 'task kind:delete' and retry."
+          exit 1
         else
           echo "🚀 Creating Kind cluster '{{.KIND_CLUSTER_NAME}}'..."
           kind create cluster \

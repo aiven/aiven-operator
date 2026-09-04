@@ -172,7 +172,7 @@ tasks:
     desc: 🗑️ Delete local Kind cluster
     cmds:
       - |
-        if kubectl cluster-info --context {{.KIND_KUBECTL_CONTEXT}} >/dev/null 2>&1; then
+        if kind get clusters 2>/dev/null | grep -qx {{.KIND_CLUSTER_NAME}}; then
           echo "🗑️ Deleting Kind cluster '{{.KIND_CLUSTER_NAME}}'..."
           kind delete cluster --name {{.KIND_CLUSTER_NAME}}
           echo "✅ Kind cluster deleted"
