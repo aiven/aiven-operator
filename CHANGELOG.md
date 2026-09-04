@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.46.0 - 2026-09-04
+
 - Fix `KafkaSchema` silently ignoring the removal of `compatibilityLevel`: a subject-level override
   previously applied by the operator is now reverted to a snapshot of the registry's current global
   default. Overrides created outside the operator, or changed outside it since they were
