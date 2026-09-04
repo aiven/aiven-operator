@@ -828,6 +828,9 @@ type Opensearch struct {
 	// Maximum amount of memory in percentage that can be used for the KNN index. Defaults to 50% of the JVM heap size. 0 is used to set it to null which can be used to invalidate caches.
 	KnnMemoryCircuitBreakerLimit *int `groups:"create,update" json:"knn_memory_circuit_breaker_limit,omitempty"`
 
+	// When set to true, the setting allows admins to control access and permissions to the connector API using backend_roles. Defaults to false.
+	MlCommonsConnectorAccessControlEnabled *bool `groups:"create,update" json:"ml_commons_connector_access_control_enabled,omitempty"`
+
 	// Enable or disable model access control for ML Commons. When enabled, access to ML models is controlled by security permissions. Defaults to false.
 	MlCommonsModelAccessControlEnabled *bool `groups:"create,update" json:"ml_commons_model_access_control_enabled,omitempty"`
 
@@ -838,6 +841,10 @@ type Opensearch struct {
 
 	// Enable or disable running ML Commons tasks only on ML nodes. When enabled, ML tasks will only execute on nodes designated as ML nodes. Defaults to true.
 	MlCommonsOnlyRunOnMlNode *bool `groups:"create,update" json:"ml_commons_only_run_on_ml_node,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=50
+	// Adds the trusted endpoints to the cluster settings. Supports Java regex expressions.
+	MlCommonsTrustedConnectorEndpointsRegex []string `groups:"create,update" json:"ml_commons_trusted_connector_endpoints_regex,omitempty"`
 
 	// +kubebuilder:validation:Pattern=`\d+(?:b|kb|mb|gb|tb)`
 	// Defines a limit of how much total remote data can be referenced as a ratio of the size of the disk reserved for the file cache. This is designed to be a safeguard to prevent oversubscribing a cluster. Defaults to 5gb. Requires restarting all OpenSearch nodes.

@@ -854,6 +854,11 @@ func (in *Opensearch) DeepCopyInto(out *Opensearch) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.MlCommonsConnectorAccessControlEnabled != nil {
+		in, out := &in.MlCommonsConnectorAccessControlEnabled, &out.MlCommonsConnectorAccessControlEnabled
+		*out = new(bool)
+		**out = **in
+	}
 	if in.MlCommonsModelAccessControlEnabled != nil {
 		in, out := &in.MlCommonsModelAccessControlEnabled, &out.MlCommonsModelAccessControlEnabled
 		*out = new(bool)
@@ -868,6 +873,11 @@ func (in *Opensearch) DeepCopyInto(out *Opensearch) {
 		in, out := &in.MlCommonsOnlyRunOnMlNode, &out.MlCommonsOnlyRunOnMlNode
 		*out = new(bool)
 		**out = **in
+	}
+	if in.MlCommonsTrustedConnectorEndpointsRegex != nil {
+		in, out := &in.MlCommonsTrustedConnectorEndpointsRegex, &out.MlCommonsTrustedConnectorEndpointsRegex
+		*out = make([]string, len(*in))
+		copy(*out, *in)
 	}
 	if in.NodeSearchCacheSize != nil {
 		in, out := &in.NodeSearchCacheSize, &out.NodeSearchCacheSize

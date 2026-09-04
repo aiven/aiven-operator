@@ -3,6 +3,28 @@
 
 package datadoguserconfig
 
+// Exactly one of 'relation_name' and 'relation_regex' must be set.
+type DatadogPgRelations struct {
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:Pattern=`^[0-9A-Za-z_][0-9A-Za-z_$]*$`
+	// Name of a single relation to collect metrics for.
+	RelationName *string `groups:"create,update" json:"relation_name,omitempty"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=128
+	// Regular expression matching the names of the relations to collect metrics for.
+	RelationRegex *string `groups:"create,update" json:"relation_regex,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=8
+	// Only collect lock metrics for these relation kinds. Applies to ordinary tables when unset. Accepted values are the 'relkind' values of 'pg_class': 'r' (ordinary table), 'i' (index), 'S' (sequence), 't' (TOAST table), 'm' (materialized view), 'c' (composite type), 'f' (foreign table), 'p' (partitioned table).
+	Relkind []string `groups:"create,update" json:"relkind,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=8
+	// Only collect metrics for relations in these schemas. Applies to all schemas when unset.
+	Schemas []string `groups:"create,update" json:"schemas,omitempty"`
+}
+
 // Datadog tag defined by user
 type DatadogTags struct {
 	// +kubebuilder:validation:MaxLength=1024
@@ -38,6 +60,13 @@ type Redis struct {
 type DatadogUserConfig struct {
 	// Enable Datadog Database Monitoring
 	DatadogDbmEnabled *bool `groups:"create,update" json:"datadog_dbm_enabled,omitempty"`
+
+	// Enable collection of PL/pgSQL function metrics from pg_stat_user_functions. Requires 'track_functions' to be set to 'pl' or 'all' in the service configuration.
+	DatadogFunctionMetricsEnabled *bool `groups:"create,update" json:"datadog_function_metrics_enabled,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=32
+	// Relations to collect PostgreSQL relation metrics for, such as table size, index statistics, row counts, vacuum ages and locks. No relation metrics are collected when unset.
+	DatadogPgRelations []*DatadogPgRelations `groups:"create,update" json:"datadog_pg_relations,omitempty"`
 
 	// Enable Datadog PgBouncer Metric Tracking
 	DatadogPgbouncerEnabled *bool `groups:"create,update" json:"datadog_pgbouncer_enabled,omitempty"`

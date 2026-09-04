@@ -114,7 +114,7 @@ func TestKafkaACLReconciler(t *testing.T) {
 			).Return(nil, nil).Once()
 		avn.EXPECT().
 			ServiceKafkaAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
-			Return([]kafka.AclOut{{
+			Return([]kafka.ServiceKafkaAclListOut{{
 				Id:         new("acl-id"),
 				Permission: acl.Spec.Permission,
 				Topic:      acl.Spec.Topic,
@@ -145,7 +145,7 @@ func TestKafkaACLReconciler(t *testing.T) {
 		// Observe matches the live ACL by content (topic/username/permission).
 		avn.EXPECT().
 			ServiceKafkaAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
-			Return([]kafka.AclOut{{
+			Return([]kafka.ServiceKafkaAclListOut{{
 				Id:         new("acl-id"),
 				Permission: acl.Spec.Permission,
 				Topic:      acl.Spec.Topic,
@@ -218,7 +218,7 @@ func TestKafkaACLReconciler(t *testing.T) {
 		// The ACL matching the current spec already exists; no Add/Delete must happen.
 		avn.EXPECT().
 			ServiceKafkaAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
-			Return([]kafka.AclOut{{
+			Return([]kafka.ServiceKafkaAclListOut{{
 				Id:         new("acl-id"),
 				Permission: acl.Spec.Permission,
 				Topic:      acl.Spec.Topic,
@@ -243,7 +243,7 @@ func TestKafkaACLReconciler(t *testing.T) {
 		// Spec now asks for a different permission than the live ACL.
 		acl.Spec.Permission = kafka.PermissionTypeWrite
 
-		liveACL := kafka.AclOut{
+		liveACL := kafka.ServiceKafkaAclListOut{
 			Id:         new("old-id"),
 			Permission: kafka.PermissionTypeAdmin,
 			Topic:      acl.Spec.Topic,
@@ -257,7 +257,7 @@ func TestKafkaACLReconciler(t *testing.T) {
 		// Observe: no ACL matches the new spec, but Status.ID is set -> exists, out of date.
 		avn.EXPECT().
 			ServiceKafkaAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
-			Return([]kafka.AclOut{liveACL}, nil).Once()
+			Return([]kafka.ServiceKafkaAclListOut{liveACL}, nil).Once()
 		// Update -> applyACL -> deleteACL: Status.ID short-circuits getID, delete by old id.
 		avn.EXPECT().
 			ServiceKafkaAclDelete(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName, "old-id").
@@ -274,7 +274,7 @@ func TestKafkaACLReconciler(t *testing.T) {
 		// applyACL final getID: Status.ID was reset, so it lists and resolves the new ACL.
 		avn.EXPECT().
 			ServiceKafkaAclList(mock.Anything, acl.Spec.Project, acl.Spec.ServiceName).
-			Return([]kafka.AclOut{{
+			Return([]kafka.ServiceKafkaAclListOut{{
 				Id:         new("new-id"),
 				Permission: kafka.PermissionTypeWrite,
 				Topic:      acl.Spec.Topic,

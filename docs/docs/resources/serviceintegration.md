@@ -496,6 +496,8 @@ Datadog specific user configuration options.
 **Optional**
 
 - [`datadog_dbm_enabled`](#spec.datadog.datadog_dbm_enabled-property){: name='spec.datadog.datadog_dbm_enabled-property'} (boolean). Enable Datadog Database Monitoring.
+- [`datadog_function_metrics_enabled`](#spec.datadog.datadog_function_metrics_enabled-property){: name='spec.datadog.datadog_function_metrics_enabled-property'} (boolean). Enable collection of PL/pgSQL function metrics from pg_stat_user_functions. Requires `track_functions` to be set to `pl` or `all` in the service configuration.
+- [`datadog_pg_relations`](#spec.datadog.datadog_pg_relations-property){: name='spec.datadog.datadog_pg_relations-property'} (array of objects, MaxItems: 32). Relations to collect PostgreSQL relation metrics for, such as table size, index statistics, row counts, vacuum ages and locks. No relation metrics are collected when unset. See below for [nested schema](#spec.datadog.datadog_pg_relations).
 - [`datadog_pgbouncer_enabled`](#spec.datadog.datadog_pgbouncer_enabled-property){: name='spec.datadog.datadog_pgbouncer_enabled-property'} (boolean). Enable Datadog PgBouncer Metric Tracking.
 - [`datadog_tags`](#spec.datadog.datadog_tags-property){: name='spec.datadog.datadog_tags-property'} (array of objects, MaxItems: 32). Custom tags provided by user. See below for [nested schema](#spec.datadog.datadog_tags).
 - [`exclude_consumer_groups`](#spec.datadog.exclude_consumer_groups-property){: name='spec.datadog.exclude_consumer_groups-property'} (array of strings, MaxItems: 1024). List of custom metrics.
@@ -507,6 +509,19 @@ Datadog specific user configuration options.
 - [`mirrormaker_custom_metrics`](#spec.datadog.mirrormaker_custom_metrics-property){: name='spec.datadog.mirrormaker_custom_metrics-property'} (array of strings, MaxItems: 1024). List of custom metrics.
 - [`opensearch`](#spec.datadog.opensearch-property){: name='spec.datadog.opensearch-property'} (object). Datadog Opensearch Options. See below for [nested schema](#spec.datadog.opensearch).
 - [`redis`](#spec.datadog.redis-property){: name='spec.datadog.redis-property'} (object). Datadog Redis Options. See below for [nested schema](#spec.datadog.redis).
+
+### datadog_pg_relations {: #spec.datadog.datadog_pg_relations }
+
+_Appears on [`spec.datadog`](#spec.datadog)._
+
+Exactly one of `relation_name` and `relation_regex` must be set.
+
+**Optional**
+
+- [`relation_name`](#spec.datadog.datadog_pg_relations.relation_name-property){: name='spec.datadog.datadog_pg_relations.relation_name-property'} (string, Pattern: `^[0-9A-Za-z_][0-9A-Za-z_$]*$`, MinLength: 1, MaxLength: 63). Name of a single relation to collect metrics for.
+- [`relation_regex`](#spec.datadog.datadog_pg_relations.relation_regex-property){: name='spec.datadog.datadog_pg_relations.relation_regex-property'} (string, MinLength: 1, MaxLength: 128). Regular expression matching the names of the relations to collect metrics for.
+- [`relkind`](#spec.datadog.datadog_pg_relations.relkind-property){: name='spec.datadog.datadog_pg_relations.relkind-property'} (array of strings, MaxItems: 8). Only collect lock metrics for these relation kinds. Applies to ordinary tables when unset. Accepted values are the `relkind` values of `pg_class`: `r` (ordinary table), `i` (index), `S` (sequence), `t` (TOAST table), `m` (materialized view), `c` (composite type), `f` (foreign table), `p` (partitioned table).
+- [`schemas`](#spec.datadog.datadog_pg_relations.schemas-property){: name='spec.datadog.datadog_pg_relations.schemas-property'} (array of strings, MaxItems: 8). Only collect metrics for relations in these schemas. Applies to all schemas when unset.
 
 ### datadog_tags {: #spec.datadog.datadog_tags }
 
