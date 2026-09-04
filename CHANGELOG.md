@@ -14,6 +14,17 @@
 - Deprecate `Project` in favor of `OrganizationProject`. `Project` keeps working; see the new
   [migration guide](https://aiven.github.io/aiven-operator/guides/migrate-project-to-organizationproject.html)
   for moving an existing project over without deleting it
+- Change `Kafka` field `userConfig.schema_registry_config.sasl_oauthbearer_method_roles`: maxLength `4096`
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_connector_access_control_enabled`, type `boolean`:
+  When set to true, the setting allows admins to control access and permissions to the connector
+  API using backend_roles
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_trusted_connector_endpoints_regex`, type `array`:
+  Adds the trusted endpoints to the cluster settings. Supports Java regex expressions
+- Add `ServiceIntegration` field `datadog.datadog_function_metrics_enabled`, type `boolean`: Enable collection
+  of PL/pgSQL function metrics from pg_stat_user_functions
+- Add `ServiceIntegration` field `datadog.datadog_pg_relations`, type `array`: Relations to collect PostgreSQL
+  relation metrics for, such as table size, index statistics, row counts, vacuum ages and
+  locks
 
 ## v0.45.0 - 2026-08-24
 

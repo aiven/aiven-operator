@@ -1491,10 +1491,14 @@ spec:
                           type: boolean
                         sasl_oauthbearer_method_roles:
                           description:
-                            Mapping of HTTP methods to the list of roles
-                            allowed to perform them on the Schema Registry. Role names
-                            use the `karapace.` prefix, e.g. `karapace.schema:read`.
-                          type: object
+                            'JSON object mapping HTTP methods to the list
+                            of roles allowed to perform them on the Schema Registry,
+                            provided as a JSON-encoded string. Role names use the `karapace.`
+                            prefix, e.g. `karapace.schema:read`. Defaults to `{"GET":
+                            ["karapace.schema:read", "karapace.subject:read"], "POST":
+                            [], "PUT": [], "DELETE": []}`.'
+                          maxLength: 4096
+                          type: string
                         sasl_oauthbearer_roles_claim_path:
                           description:
                             JSON path used to extract the roles claim from

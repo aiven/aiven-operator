@@ -262,7 +262,7 @@ Valkey specific user configuration options.
 - [`valkey_ssl`](#spec.userConfig.valkey_ssl-property){: name='spec.userConfig.valkey_ssl-property'} (boolean). Require SSL to access Valkey.
 - [`valkey_timeout`](#spec.userConfig.valkey_timeout-property){: name='spec.userConfig.valkey_timeout-property'} (integer, Minimum: 0, Maximum: 2073600). Valkey idle connection timeout in seconds.
 - [`valkey_version`](#spec.userConfig.valkey_version-property){: name='spec.userConfig.valkey_version-property'} (string). Available versions: `8.1`, `9.0`, `9.1`. Newer versions may also be available.
-    Valkey major version.
+    Valkey major version. Deprecated values: `9.0`.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
 

@@ -546,7 +546,7 @@ spec:
                     valkey_version:
                       description: |-
                         Available versions: `8.1`, `9.0`, `9.1`. Newer versions may also be available.
-                        Valkey major version
+                        Valkey major version. Deprecated values: `9.0`
                       type: string
                   type: object
               required:
