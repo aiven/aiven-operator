@@ -1,6 +1,32 @@
 # Changelog
 
 
+## v0.46.0 - 2026-09-04
+
+- Fix `KafkaSchema` silently ignoring the removal of `compatibilityLevel`: a subject-level override
+  previously applied by the operator is now reverted to a snapshot of the registry's current global
+  default. Overrides created outside the operator, or changed outside it since they were
+  applied, are never modified.
+  Resources whose `compatibilityLevel` was removed under an older operator version are not detected
+  retroactively: their override is picked up again the next time `compatibilityLevel` is set and
+  applied, after which removing the field reverts it as described above.
+- Add `status.version` to service resources (`Kafka`, `PostgreSQL`, `MySQL`, `ClickHouse`, `OpenSearch`,
+  `Grafana`, `Flink`, `Valkey`): the version the service is currently running.
+- Deprecate `Project` in favor of `OrganizationProject`. `Project` keeps working; see the new
+  [migration guide](https://aiven.github.io/aiven-operator/guides/migrate-project-to-organizationproject.html)
+  for moving an existing project over without deleting it
+- Change `Kafka` field `userConfig.schema_registry_config.sasl_oauthbearer_method_roles`: maxLength `4096`
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_connector_access_control_enabled`, type `boolean`:
+  When set to true, the setting allows admins to control access and permissions to the connector
+  API using backend_roles
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_trusted_connector_endpoints_regex`, type `array`:
+  Adds the trusted endpoints to the cluster settings. Supports Java regex expressions
+- Add `ServiceIntegration` field `datadog.datadog_function_metrics_enabled`, type `boolean`: Enable collection
+  of PL/pgSQL function metrics from pg_stat_user_functions
+- Add `ServiceIntegration` field `datadog.datadog_pg_relations`, type `array`: Relations to collect PostgreSQL
+  relation metrics for, such as table size, index statistics, row counts, vacuum ages and
+  locks
+
 ## v0.45.0 - 2026-08-24
 
 - `ServiceUser`: increased the amount of concurrent reconcilers up to 10
@@ -39,6 +65,11 @@
 - Add `PostgreSQL` field `userConfig.pgbouncer.server_login_retry`, type `number`: If login to the server
   failed, because of failure to connect or from authentication, the pooler waits this much before
   retrying to connect
+- Add `--poll-interval` flag and matching `pollInterval` Helm value, to configure how often
+  resources in a steady state are re-reconciled against the Aiven API. Accepted range is 10m-60m,
+  so the interval can only be raised; the default is unchanged at 10 minutes. Does not apply to
+  the service kinds (`Clickhouse`, `Flink`, `Grafana`, `Kafka`, `KafkaConnect`, `MySQL`,
+  `OpenSearch`, `PostgreSQL`, `Valkey`), which do not re-reconcile on a fixed interval.
 
 ## v0.44.0 - 2026-08-11
 
