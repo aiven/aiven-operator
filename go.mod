@@ -1,11 +1,11 @@
 module github.com/aiven/aiven-operator
 
-go 1.26
+go 1.26.0
 
 require (
 	github.com/ClickHouse/clickhouse-go/v2 v2.48.0
-	github.com/aiven/go-api-schemas v1.222.0
-	github.com/aiven/go-client-codegen v0.217.0
+	github.com/aiven/go-api-schemas v1.223.0
+	github.com/aiven/go-client-codegen v0.219.0
 	github.com/avast/retry-go v3.0.0+incompatible
 	github.com/dave/jennifer v1.7.1
 	github.com/docker/go-units v0.5.0
@@ -23,7 +23,7 @@ require (
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.uber.org/zap v1.28.0
 	golang.org/x/exp v0.0.0-20260508232706-74f9aab9d74a
-	golang.org/x/sync v0.22.0
+	golang.org/x/sync v0.23.0
 	golang.org/x/tools v0.49.0
 	gopkg.in/yaml.v3 v3.0.1
 	k8s.io/api v0.33.13
