@@ -1316,11 +1316,9 @@ spec:
                         Kafka major version. Deprecated values: `4.0`
                       type: string
                     karapace_version:
-                      description:
-                        Pin a specific installed Karapace version on this
-                        service. Leave null/unset to auto-follow the newest installed
-                        version.
-                      pattern: ^[0-9]+\.[0-9]+\.[0-9]+$
+                      description: |-
+                        Available versions: `6.2.1`, `6.2.2`. Newer versions may also be available.
+                        Select a Karapace version for this service, or select Latest to use the latest available version automatically. New versions become available after installation during a maintenance update.
                       type: string
                     letsencrypt_sasl:
                       description:
@@ -1485,9 +1483,10 @@ spec:
                         sasl_oauthbearer_authorization_enabled:
                           description:
                             If enabled, the Schema Registry enforces role-based
-                            authorization derived from the JWT roles claim. Requires
-                            `sasl_oauthbearer_authentication_enabled` to be enabled.
-                            Defaults to `false`.
+                            authorization derived from the JWT roles claim. Enabling
+                            this automatically enables `sasl_oauthbearer_authentication_enabled`
+                            when it is not already enabled, since authorization requires
+                            authentication. Defaults to `false`.
                           type: boolean
                         sasl_oauthbearer_method_roles:
                           description:

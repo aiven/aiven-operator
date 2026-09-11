@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Change `Kafka` field `userConfig.karapace_version`: pattern ~~`^[0-9]+\.[0-9]+\.[0-9]+$`~~
+
 ## v0.46.0 - 2026-09-04
 
 - Fix `KafkaSchema` silently ignoring the removal of `compatibilityLevel`: a subject-level override
