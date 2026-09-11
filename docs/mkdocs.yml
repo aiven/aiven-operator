@@ -78,6 +78,7 @@ nav:
           - guides/deletion-policy.md
           - guides/migrate-project-to-organizationproject.md
           - guides/serviceuser-password-management.md
+          - guides/serviceuser-rotation.md
           - controllers/reconciler.md
           - controllers/clickhouseuser.md
       - Resources: &crds
@@ -109,6 +110,7 @@ nav:
           - resources/serviceintegration.md
           - resources/serviceintegrationendpoint.md
           - resources/serviceuser.md
+          - resources/serviceuserrotation.md
           - resources/valkey.md
   - Resources: *crds
   - Examples:

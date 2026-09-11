@@ -1,0 +1,15 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: application-user-a
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-postgresql
+
+  # ServiceUserRotation publishes the application credentials.
+  connInfoSecretTargetDisabled: true
+  # Leave connInfoSecretSource unset so ServiceUser doesn't set the password.

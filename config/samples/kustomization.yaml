@@ -16,6 +16,7 @@ resources:
   - _v1alpha1_projectvpc.yaml
   - _v1alpha1_serviceintegration.yaml
   - _v1alpha1_serviceuser.yaml
+  - _v1alpha1_serviceuserrotation.yaml
   - _v1alpha1_mysql.yaml
   - _v1alpha1_grafana.yaml
   - _v1alpha1_clickhousedatabase.yaml

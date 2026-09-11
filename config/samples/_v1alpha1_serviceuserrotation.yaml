@@ -1,0 +1,14 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUserRotation
+metadata:
+  name: serviceuserrotation-sample
+spec:
+  project: my-aiven-project
+  serviceName: my-aiven-service
+  # Create both users and configure their permissions before enabling rotation.
+  usernames:
+    - application-user-a
+    - application-user-b
+  rotationInterval: 24h
+  connInfoSecretTarget:
+    name: application-credentials
