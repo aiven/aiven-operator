@@ -2,6 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add kind: `ServiceUserRotation` to manage a rotating pool of service users behind a stable connection Secret.
 - Change `Kafka` field `userConfig.karapace_version`: pattern ~~`^[0-9]+\.[0-9]+\.[0-9]+$`~~
 
 ## v0.46.0 - 2026-09-04
