@@ -657,7 +657,7 @@ type SchemaRegistryConfig struct {
 	// If enabled, the Schema Registry validates OAuth2/OIDC JWT bearer tokens on incoming requests. Requires the OIDC provider settings under the `kafka` configuration (`sasl_oauthbearer_jwks_endpoint_url` and related). Defaults to `false`.
 	SaslOauthbearerAuthenticationEnabled *bool `groups:"create,update" json:"sasl_oauthbearer_authentication_enabled,omitempty"`
 
-	// If enabled, the Schema Registry enforces role-based authorization derived from the JWT roles claim. Requires `sasl_oauthbearer_authentication_enabled` to be enabled. Defaults to `false`.
+	// If enabled, the Schema Registry enforces role-based authorization derived from the JWT roles claim. Enabling this automatically enables `sasl_oauthbearer_authentication_enabled` when it is not already enabled, since authorization requires authentication. Defaults to `false`.
 	SaslOauthbearerAuthorizationEnabled *bool `groups:"create,update" json:"sasl_oauthbearer_authorization_enabled,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=4096
@@ -783,8 +783,8 @@ type KafkaUserConfig struct {
 	// Kafka major version. Deprecated values: `4.0`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 
-	// +kubebuilder:validation:Pattern=`^[0-9]+\.[0-9]+\.[0-9]+$`
-	// Pin a specific installed Karapace version on this service. Leave null/unset to auto-follow the newest installed version.
+	// Available versions: `6.2.1`, `6.2.2`. Newer versions may also be available.
+	// Select a Karapace version for this service, or select Latest to use the latest available version automatically. New versions become available after installation during a maintenance update.
 	KarapaceVersion *string `groups:"create,update" json:"karapace_version,omitempty"`
 
 	// Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication. (Default: False)
