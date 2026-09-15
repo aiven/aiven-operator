@@ -54,6 +54,7 @@ func addKnownTypes(scheme *runtime.Scheme) error {
 		&ServiceIntegration{}, &ServiceIntegrationList{},
 		&ServiceIntegrationEndpoint{}, &ServiceIntegrationEndpointList{},
 		&ServiceUser{}, &ServiceUserList{},
+		&ServiceUserRotation{}, &ServiceUserRotationList{},
 		&UpgradePipelineStep{}, &UpgradePipelineStepList{},
 		&Valkey{}, &ValkeyList{},
 	)

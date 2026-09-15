@@ -2,6 +2,11 @@
 
 The operator manages ServiceUser passwords in one of two modes, chosen by whether `connInfoSecretSource` is set on the CR.
 
+For scheduled rotation across a pool of users with a stable connection Secret,
+use [ServiceUserRotation](serviceuser-rotation.md). Each username must be managed
+by only one resource; do not combine `ServiceUser` and `ServiceUserRotation` for
+the same users.
+
 ## Mode 1: Generated (no `connInfoSecretSource`)
 
 Aiven generates the password at creation. The operator publishes it to the target secret and never modifies it again. If something else changes the password (e.g. `ALTER USER` directly in the database), the operator has nothing declared to enforce — the target secret will be updated to reflect what Aiven state, with empty value.

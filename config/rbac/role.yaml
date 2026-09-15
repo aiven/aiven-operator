@@ -53,6 +53,7 @@ rules:
       - projectvpcs
       - serviceintegrationendpoints
       - serviceintegrations
+      - serviceuserrotations
       - serviceusers
       - upgradepipelinesteps
       - valkeys
@@ -94,6 +95,7 @@ rules:
       - projectvpcs/finalizers
       - serviceintegrationendpoints/finalizers
       - serviceintegrations/finalizers
+      - serviceuserrotations/finalizers
       - serviceusers/finalizers
       - upgradepipelinesteps/finalizers
       - valkeys/finalizers
@@ -131,6 +133,7 @@ rules:
       - projectvpcs/status
       - serviceintegrationendpoints/status
       - serviceintegrations/status
+      - serviceuserrotations/status
       - serviceusers/status
       - upgradepipelinesteps/status
       - valkeys/status

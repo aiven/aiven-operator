@@ -204,6 +204,14 @@ resources:
     namespaced: true
   controller: true
   domain: aiven.io
+  kind: ServiceUserRotation
+  path: github.com/aiven/aiven-operator/api/v1alpha1
+  version: v1alpha1
+- api:
+    crdVersion: v1
+    namespaced: true
+  controller: true
+  domain: aiven.io
   kind: MySQL
   path: github.com/aiven/aiven-operator/api/v1alpha1
   version: v1alpha1

@@ -21,6 +21,7 @@ resources:
   - bases/aiven.io_projectvpcs.yaml
   - bases/aiven.io_serviceintegrations.yaml
   - bases/aiven.io_serviceusers.yaml
+  - bases/aiven.io_serviceuserrotations.yaml
   - bases/aiven.io_mysqls.yaml
   - bases/aiven.io_grafanas.yaml
   - bases/aiven.io_clickhousedatabases.yaml
