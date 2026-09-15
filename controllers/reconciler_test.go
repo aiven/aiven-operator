@@ -1140,6 +1140,26 @@ func TestReconciler_Reconcile(t *testing.T) {
 	})
 }
 
+func TestReconciler_pollRequeue(t *testing.T) {
+	t.Parallel()
+
+	t.Run("default jitter stays within +10% of the poll interval", func(t *testing.T) {
+		r := newManagedReconciler[v1alpha1.ClickhouseUser, *v1alpha1.ClickhouseUser](
+			Controller{PollInterval: testPollInterval}, nil, nil,
+		)
+		for range 100 {
+			res := r.pollRequeue()
+			require.GreaterOrEqual(t, res.RequeueAfter, testPollInterval)
+			require.LessOrEqual(t, res.RequeueAfter, testPollInterval+testPollInterval/10)
+		}
+	})
+
+	t.Run("nil jitter returns the exact poll interval", func(t *testing.T) {
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{Controller: Controller{PollInterval: testPollInterval}}
+		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, r.pollRequeue())
+	})
+}
+
 func TestReconciler_ensureFinalizer(t *testing.T) {
 	t.Parallel()
 
