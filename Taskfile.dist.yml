@@ -199,8 +199,14 @@ tasks:
 
   test:unit:
     desc: Run unit tests.
+    deps: [internal:tools:install:envtest]
+    vars:
+      K8S_ASSETS_PATH:
+        sh: '{{.ENVTEST}} use "{{.ENVTEST_K8S_VERSION}}" --bin-dir {{.LOCALBIN}} -p path'
     cmds:
-      - "{{.GO_CMD}} test ./api/... ./controllers/... ./generators/... -race {{.CLI_ARGS}} -timeout=2m"
+      - |
+        export KUBEBUILDER_ASSETS={{.K8S_ASSETS_PATH}}
+        {{.GO_CMD}} test ./api/... ./controllers/... ./generators/... -race {{.CLI_ARGS}} -timeout=5m
 
   test:kuttl:
     desc: Run end-to-end tests using kuttl.

@@ -1534,6 +1534,23 @@ func TestReconciler_resolveK8sRefs(t *testing.T) {
 		require.False(t, requeue)
 	})
 
+	t.Run("Error if dependency kind is disabled", func(t *testing.T) {
+		// No client: the ref is rejected before any Get, so no informer starts for the disabled kind.
+		r := &Reconciler[*v1alpha1.PostgreSQL]{
+			Controller: Controller{
+				Scheme:       scheme,
+				EnabledKinds: kindSet{"PostgreSQL": true},
+			},
+		}
+
+		obj := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgresWithRef)
+		requeue, err := r.resolveK8sRefs(t.Context(), obj)
+
+		require.ErrorIs(t, err, errRefKindDisabled)
+		require.ErrorContains(t, err, "enable ProjectVPC")
+		require.False(t, requeue)
+	})
+
 	t.Run("Error if dependency type is not client.Object", func(t *testing.T) {
 		scheme := runtime.NewScheme()
 		require.NoError(t, clientgoscheme.AddToScheme(scheme))

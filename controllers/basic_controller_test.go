@@ -63,4 +63,38 @@ func TestInstanceReconcilerHelper_reconcile(t *testing.T) {
 		require.Equal(t, string(errConditionConnInfoSecret), running.Reason)
 		require.Nil(t, meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError))
 	})
+
+	t.Run("Sets error condition when a ref points to a disabled kind", func(t *testing.T) {
+		pg := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgresWithRef)
+		pg.Finalizers = []string{instanceDeletionFinalizer}
+
+		scheme := runtime.NewScheme()
+		require.NoError(t, clientgoscheme.AddToScheme(scheme))
+		require.NoError(t, v1alpha1.AddToScheme(scheme))
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.PostgreSQL{}).
+			WithObjects(pg.DeepCopy()).
+			Build()
+
+		helper := &instanceReconcilerHelper{
+			k8s:   k8sClient,
+			h:     NewMockHandlers(t),
+			rec:   record.NewFakeRecorder(10),
+			kinds: kindSet{"PostgreSQL": true},
+		}
+
+		_, err := helper.getObjectRefs(t.Context(), pg)
+		require.ErrorIs(t, err, errRefKindDisabled)
+
+		// reconcile's own error is not asserted: it is dropped once the status is persisted.
+		_, _ = helper.reconcile(t.Context(), pg)
+
+		got := &v1alpha1.PostgreSQL{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: pg.Name, Namespace: pg.Namespace}, got))
+		cond := meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError)
+		require.NotNil(t, cond)
+		require.Contains(t, cond.Message, "enable ProjectVPC")
+	})
 }

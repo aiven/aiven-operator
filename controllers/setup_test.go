@@ -61,3 +61,9 @@ func TestSetupConfigNormalizePollInterval(t *testing.T) {
 		})
 	}
 }
+
+func TestSetupControllersRejectsBadSpec(t *testing.T) {
+	// A nil manager proves the spec is validated before anything is registered.
+	err := SetupControllers(nil, SetupConfig{Controllers: "Redis"})
+	require.ErrorContains(t, err, `unknown kind "Redis"`)
+}

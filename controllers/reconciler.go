@@ -258,6 +258,10 @@ func (r *Reconciler[T]) resolveK8sRefs(ctx context.Context, obj T) (requeue bool
 
 	refs := refObj.GetRefs()
 	for _, ref := range refs {
+		if err := r.EnabledKinds.checkRef(ref.GroupVersionKind); err != nil {
+			return false, err
+		}
+
 		runtimeObj, err := r.Scheme.New(ref.GroupVersionKind)
 		if err != nil {
 			return false, fmt.Errorf("creating %s: %w", ref.GroupVersionKind, err)

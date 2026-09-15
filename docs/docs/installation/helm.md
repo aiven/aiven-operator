@@ -107,3 +107,41 @@ The accepted range is `10m` to `60m`. A value outside it is rejected at startup.
 It does **not** apply to the service kinds — `Clickhouse`, `Flink`, `Grafana`, `Kafka`,
 `KafkaConnect`, `MySQL`, `OpenSearch`, `PostgreSQL` and `Valkey`. Those do not re-reconcile on a
 fixed interval at all at the moment.
+
+### Choose which controllers run
+
+By default the operator runs a controller for every kind it supports, which requires every CRD to
+be installed. Set the `controllers` value to run only the ones you use. Kinds left out get no
+controller and no watch, so their CRDs need not be installed.
+
+| value                 | meaning                 |
+| --------------------- | ----------------------- |
+| unset or `"*"`        | all kinds (the default) |
+| `"Kafka,KafkaTopic"`  | only these kinds        |
+| `"*,-Flink,-Grafana"` | every kind except these |
+
+Kind names match the CRD kinds (`Kafka`, `KafkaTopic`, `PostgreSQL`, ...) and are case-insensitive.
+An unknown name, an exclusion without `*`, or a value that mixes both styles is rejected at
+startup. The error for an unknown name lists the valid kinds.
+
+With `--set`, escape the commas, as in `--set 'controllers=*\,-Flink'`, or use a values file.
+
+A Kafka-only installation, for example:
+
+```yaml
+controllers: "Kafka,KafkaTopic,KafkaACL,KafkaNativeACL,KafkaSchema,KafkaSchemaRegistryACL,KafkaQuota,KafkaConnect,KafkaConnector,ServiceUser"
+```
+
+!!! warning
+    A resource of a disabled kind is never reconciled. It keeps whatever status it had, and
+    deleting it hangs on its finalizer until the kind is enabled again. Token secrets referenced
+    only by disabled kinds are no longer protected from deletion: if such a secret is deleted, the
+    resource cannot be deleted until the secret is recreated, unless the operator has a default
+    token.
+
+    A resource that references a disabled kind through `projectVPCRef` or `destinationEndpointRef`
+    fails with an error condition, because nothing would make the referenced resource ready. Enable
+    the referenced kind (`ProjectVPC`, `ServiceIntegrationEndpoint`) or set the ID directly.
+
+The `aiven-operator-crds` chart still installs every CRD; see
+[#380](https://github.com/aiven/aiven-operator/issues/380) for installing a subset.

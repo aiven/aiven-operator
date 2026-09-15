@@ -49,6 +49,11 @@ type SetupConfig struct {
 
 	// PollInterval is how often a Ready resource is re-reconciled against the Aiven API.
 	PollInterval time.Duration
+
+	// Controllers selects the kinds that get a reconciler: empty or "*" for all, "Kafka,KafkaTopic"
+	// for an allow list, "*,-Flink" to exclude kinds. Kinds left out get no controller and no watch,
+	// so their CRDs need not be installed.
+	Controllers string
 }
 
 // normalize applies built-in defaults to unset fields.
@@ -61,56 +66,34 @@ func (c *SetupConfig) normalize() {
 func SetupControllers(mgr ctrl.Manager, cfg SetupConfig) error {
 	cfg.normalize()
 
+	kinds, err := parseControllers(cfg.Controllers, knownKinds())
+	if err != nil {
+		return err
+	}
+
 	if err := (&SecretFinalizerGCController{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("SecretFinalizerGCController"),
+		Client:  mgr.GetClient(),
+		Log:     ctrl.Log.WithName("controllers").WithName("SecretFinalizerGCController"),
+		Watched: kinds.objects(mgr.GetScheme()),
+		Lists:   kinds.lists(mgr.GetScheme()),
 	}).SetupWithManager(mgr, cfg.DefaultToken != ""); err != nil {
 		return fmt.Errorf("controller SecretFinalizerGCController: %w", err)
 	}
 
 	if err := (&SecretWatchController{
-		Client: mgr.GetClient(),
-		Log:    ctrl.Log.WithName("controllers").WithName("SecretWatchController"),
+		Client:  mgr.GetClient(),
+		Log:     ctrl.Log.WithName("controllers").WithName("SecretWatchController"),
+		Sources: kinds.secretSources(),
 	}).SetupWithManager(mgr); err != nil {
 		return fmt.Errorf("controller SecretWatchController: %w", err)
 	}
 
-	builders := map[string]reconcilerBuilder{
-		"Clickhouse":                 newClickhouseReconciler,
-		"ClickhouseDatabase":         newClickhouseDatabaseReconciler,
-		"ClickhouseRole":             newClickhouseRoleReconciler,
-		"ClickhouseUser":             newClickhouseUserReconciler,
-		"ClickhouseGrant":            newClickhouseGrantReconciler,
-		"ConnectionPool":             newConnectionPoolReconciler,
-		"Database":                   newDatabaseReconciler,
-		"Flink":                      newFlinkReconciler,
-		"Grafana":                    newGrafanaReconciler,
-		"Kafka":                      newKafkaReconciler,
-		"KafkaACL":                   newKafkaACLReconciler,
-		"KafkaNativeACL":             newKafkaNativeACLReconciler,
-		"KafkaConnect":               newKafkaConnectReconciler,
-		"KafkaConnector":             newKafkaConnectorReconciler,
-		"KafkaQuota":                 newKafkaQuotaReconciler,
-		"KafkaSchema":                newKafkaSchemaReconciler,
-		"KafkaSchemaRegistryACL":     newKafkaSchemaRegistryACLReconciler,
-		"KafkaTopic":                 newKafkaTopicReconciler,
-		"MySQL":                      newMySQLReconciler,
-		"OpenSearch":                 newOpenSearchReconciler,
-		"OpenSearchACLConfig":        newOpenSearchACLConfigReconciler,
-		"OrganizationProject":        newOrganizationProjectReconciler,
-		"PostgreSQL":                 newPostgreSQLReconciler,
-		"Project":                    newProjectReconciler,
-		"ProjectVPC":                 newProjectVPCReconciler,
-		"ServiceIntegration":         newServiceIntegrationReconciler,
-		"ServiceIntegrationEndpoint": newServiceIntegrationEndpointReconciler,
-		"ServiceUser":                newServiceUserReconciler,
-		"UpgradePipelineStep":        newUpgradePipelineStepReconciler,
-		"Valkey":                     newValkeyReconciler,
-	}
-
-	for k, v := range builders {
-		err := v(newController(mgr, k, cfg)).SetupWithManager(mgr)
-		if err != nil {
+	for _, k := range knownKinds() {
+		if !kinds.has(k) {
+			ctrl.Log.Info("controller disabled", "kind", k)
+			continue
+		}
+		if err := builders[k](newController(mgr, k, cfg, kinds)).SetupWithManager(mgr); err != nil {
 			return fmt.Errorf("controller %s setup error: %w", k, err)
 		}
 	}
@@ -119,7 +102,42 @@ func SetupControllers(mgr ctrl.Manager, cfg SetupConfig) error {
 	return nil
 }
 
-func newController(mgr ctrl.Manager, name string, cfg SetupConfig) Controller {
+// builders maps every reconcilable kind to its constructor. The keys are the names --controllers
+// accepts; see kinds.go.
+var builders = map[string]reconcilerBuilder{
+	"Clickhouse":                 newClickhouseReconciler,
+	"ClickhouseDatabase":         newClickhouseDatabaseReconciler,
+	"ClickhouseRole":             newClickhouseRoleReconciler,
+	"ClickhouseUser":             newClickhouseUserReconciler,
+	"ClickhouseGrant":            newClickhouseGrantReconciler,
+	"ConnectionPool":             newConnectionPoolReconciler,
+	"Database":                   newDatabaseReconciler,
+	"Flink":                      newFlinkReconciler,
+	"Grafana":                    newGrafanaReconciler,
+	"Kafka":                      newKafkaReconciler,
+	"KafkaACL":                   newKafkaACLReconciler,
+	"KafkaNativeACL":             newKafkaNativeACLReconciler,
+	"KafkaConnect":               newKafkaConnectReconciler,
+	"KafkaConnector":             newKafkaConnectorReconciler,
+	"KafkaQuota":                 newKafkaQuotaReconciler,
+	"KafkaSchema":                newKafkaSchemaReconciler,
+	"KafkaSchemaRegistryACL":     newKafkaSchemaRegistryACLReconciler,
+	"KafkaTopic":                 newKafkaTopicReconciler,
+	"MySQL":                      newMySQLReconciler,
+	"OpenSearch":                 newOpenSearchReconciler,
+	"OpenSearchACLConfig":        newOpenSearchACLConfigReconciler,
+	"OrganizationProject":        newOrganizationProjectReconciler,
+	"PostgreSQL":                 newPostgreSQLReconciler,
+	"Project":                    newProjectReconciler,
+	"ProjectVPC":                 newProjectVPCReconciler,
+	"ServiceIntegration":         newServiceIntegrationReconciler,
+	"ServiceIntegrationEndpoint": newServiceIntegrationEndpointReconciler,
+	"ServiceUser":                newServiceUserReconciler,
+	"UpgradePipelineStep":        newUpgradePipelineStepReconciler,
+	"Valkey":                     newValkeyReconciler,
+}
+
+func newController(mgr ctrl.Manager, name string, cfg SetupConfig, kinds kindSet) Controller {
 	return Controller{
 		Client:          mgr.GetClient(),
 		Log:             ctrl.Log.WithName("controllers").WithName(name),
@@ -129,5 +147,6 @@ func newController(mgr ctrl.Manager, name string, cfg SetupConfig) Controller {
 		KubeVersion:     cfg.KubeVersion,
 		OperatorVersion: cfg.OperatorVersion,
 		PollInterval:    cfg.PollInterval,
+		EnabledKinds:    kinds,
 	}
 }
