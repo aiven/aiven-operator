@@ -398,6 +398,9 @@ func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenCont
 			return requeue, nil
 		}
 
+		if !apierrors.IsConflict(err) {
+			meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
+		}
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForInstanceToBeRunning, err.Error())
 		return ctrl.Result{}, fmt.Errorf("unable to wait until instance is running: %w", err)
 	}
