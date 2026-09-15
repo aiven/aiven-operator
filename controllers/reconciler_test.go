@@ -2374,7 +2374,7 @@ func TestReconciler_updateResource(t *testing.T) {
 		}, recorderEvents(recorder))
 	})
 
-	t.Run("Returns error and emits warning when update fails", func(t *testing.T) {
+	t.Run("Sets error condition and returns error when update fails", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		recorder := record.NewFakeRecorder(10)
 
@@ -2391,11 +2391,44 @@ func TestReconciler_updateResource(t *testing.T) {
 
 		require.EqualError(t, err, fmt.Sprintf("unable to wait until instance is running: %s", assert.AnError.Error()))
 		require.Equal(t, ctrl.Result{}, res)
-		require.Empty(t, normalizedConditions(obj.Status.Conditions))
+		require.Equal(t, []metav1.Condition{
+			{
+				Type:    ConditionTypeError,
+				Status:  metav1.ConditionUnknown,
+				Reason:  string(errConditionCreateOrUpdate),
+				Message: assert.AnError.Error(),
+			},
+		}, normalizedConditions(obj.Status.Conditions))
 		require.Equal(t, []string{
 			"Normal WaitingForInstanceToBeRunning waiting for the instance to be running",
 			"Warning UnableToWaitForInstanceToBeRunning " + assert.AnError.Error(),
 		}, recorderEvents(recorder))
+	})
+
+	t.Run("Returns conflict without setting error condition", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Recorder: recorder,
+			},
+		}
+
+		conflict := apierrors.NewConflict(
+			schema.GroupResource{Group: v1alpha1.GroupVersion.Group, Resource: "clickhouseusers"},
+			obj.Name,
+			assert.AnError,
+		)
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().Update(mock.Anything, mock.Anything).Return(UpdateResult{}, conflict).Once()
+
+		res, err := r.updateResource(t.Context(), c, obj)
+
+		require.EqualError(t, err, "unable to wait until instance is running: Operation cannot be fulfilled on clickhouseusers.aiven.io \"test-user\": "+assert.AnError.Error())
+		require.True(t, apierrors.IsConflict(err))
+		require.Equal(t, ctrl.Result{}, res)
+		require.Empty(t, normalizedConditions(obj.Status.Conditions))
 	})
 
 	t.Run("Returns error when publishing secret details fails", func(t *testing.T) {
