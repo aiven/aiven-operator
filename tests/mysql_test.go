@@ -118,6 +118,31 @@ func TestMySQL(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["MYSQL_REPLICA_URI"]) // business-4 has replica
 	assert.NotEmpty(t, secret.Data["MYSQL_CA_CERT"])
 
+	t.Run("creates ServiceUser with requested authentication", func(t *testing.T) {
+		userName := randName("mysql-native-user")
+		require.NoError(t, s.Apply(fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: %[1]s
+  serviceName: %[2]s
+  authentication: mysql_native_password
+`, cfg.Project, name, userName)))
+
+		user := new(v1alpha1.ServiceUser)
+		require.NoError(t, s.GetRunning(user, userName))
+
+		userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, name, userName)
+		require.NoError(t, err)
+		assert.Equal(t, service.AuthenticationTypeMysqlNativePassword, userAvn.Authentication)
+	})
+
 	// Tests service power off functionality
 	// Note: Power on testing is handled generically in generic_service_handler_test.go
 	// since it's consistent across services. Power off testing is done here since

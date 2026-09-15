@@ -93,8 +93,9 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 		user.Spec.Project,
 		user.Spec.ServiceName,
 		&service.ServiceUserCreateIn{
-			Username:      user.GetUsername(),
-			AccessControl: buildServiceUserAccessControlIn(user.Spec.AccessControl),
+			Username:       user.GetUsername(),
+			AccessControl:  buildServiceUserAccessControlIn(user.Spec.AccessControl),
+			Authentication: user.Spec.Authentication,
 		},
 	)
 	if err != nil {
