@@ -2,6 +2,9 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `--controllers` flag and `controllers` Helm value to choose which kinds the operator reconciles,
+  e.g. `Kafka,KafkaTopic` or `*,-Flink`.
+
 ## v0.47.0 - 2026-09-21
 
 - Add up to 10% jitter to the periodic reconcile interval.

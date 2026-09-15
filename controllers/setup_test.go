@@ -1,10 +1,25 @@
 package controllers
 
 import (
+	"context"
+	"reflect"
 	"testing"
 	"time"
 
+	"github.com/go-logr/logr"
 	"github.com/stretchr/testify/require"
+	apimeta "k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/runtime"
+	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
+	"k8s.io/client-go/tools/record"
+	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/cache"
+	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/client/fake"
+	"sigs.k8s.io/controller-runtime/pkg/config"
+	"sigs.k8s.io/controller-runtime/pkg/manager"
+
+	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
 func TestValidatePollInterval(t *testing.T) {
@@ -60,4 +75,75 @@ func TestSetupConfigNormalizePollInterval(t *testing.T) {
 			require.Equal(t, tc.want, cfg.PollInterval)
 		})
 	}
+}
+
+// fakeManager records what SetupControllers registers.
+type fakeManager struct {
+	ctrl.Manager
+	scheme *runtime.Scheme
+	client client.Client
+
+	indexed map[string][]string // index key -> kinds, in registration order
+	added   int                 // controllers handed to Add
+}
+
+func newFakeManager(t *testing.T) *fakeManager {
+	scheme := runtime.NewScheme()
+	require.NoError(t, clientgoscheme.AddToScheme(scheme))
+	require.NoError(t, v1alpha1.AddToScheme(scheme))
+	return &fakeManager{
+		scheme:  scheme,
+		client:  fake.NewClientBuilder().WithScheme(scheme).Build(),
+		indexed: map[string][]string{},
+	}
+}
+
+func (m *fakeManager) GetClient() client.Client             { return m.client }
+func (m *fakeManager) GetScheme() *runtime.Scheme           { return m.scheme }
+func (m *fakeManager) GetFieldIndexer() client.FieldIndexer { return m }
+func (m *fakeManager) GetCache() cache.Cache                { return nil }
+func (m *fakeManager) GetRESTMapper() apimeta.RESTMapper    { return nil }
+func (m *fakeManager) GetLogger() logr.Logger               { return logr.Discard() }
+func (m *fakeManager) GetEventRecorderFor(string) record.EventRecorder {
+	return record.NewFakeRecorder(1)
+}
+func (m *fakeManager) Add(manager.Runnable) error { m.added++; return nil }
+
+func (m *fakeManager) GetControllerOptions() config.Controller {
+	// Subtests register the same controller names in one process.
+	return config.Controller{SkipNameValidation: new(true)}
+}
+
+func (m *fakeManager) IndexField(_ context.Context, obj client.Object, field string, _ client.IndexerFunc) error {
+	m.indexed[field] = append(m.indexed[field], reflect.TypeOf(obj).Elem().Name())
+	return nil
+}
+
+func TestSetupControllers(t *testing.T) {
+	t.Run("rejects an unknown kind before touching the manager", func(t *testing.T) {
+		err := SetupControllers(nil, SetupConfig{Controllers: "Redis"})
+		require.ErrorContains(t, err, `unknown kind "Redis"`)
+	})
+
+	t.Run("a subset indexes and registers only its kinds", func(t *testing.T) {
+		mgr := newFakeManager(t)
+		require.NoError(t, SetupControllers(mgr, SetupConfig{Controllers: "Kafka,KafkaTopic,ServiceUser"}))
+
+		require.Equal(t, map[string][]string{
+			secretRefIndexKey:         {"Kafka", "KafkaTopic", "ServiceUser"},
+			connInfoSecretRefIndexKey: {"ServiceUser"},
+		}, mgr.indexed)
+		// The two secret controllers plus one per enabled kind.
+		require.Equal(t, 2+3, mgr.added)
+	})
+
+	t.Run("the default registers every kind", func(t *testing.T) {
+		mgr := newFakeManager(t)
+		require.NoError(t, SetupControllers(mgr, SetupConfig{}))
+
+		require.Equal(t, knownKinds(), mgr.indexed[secretRefIndexKey])
+		require.Equal(t, []string{"ServiceUser", "ClickhouseUser"}, mgr.indexed[connInfoSecretRefIndexKey])
+		require.Equal(t, []string{"KafkaSchema"}, mgr.indexed[kafkaSchemaRefIndex])
+		require.Equal(t, 2+len(builders), mgr.added)
+	})
 }

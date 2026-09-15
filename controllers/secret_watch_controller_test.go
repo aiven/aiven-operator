@@ -88,8 +88,9 @@ func TestSecretWatchController_getResourcesWithSecretSource(t *testing.T) {
 	require.NoError(t, v1alpha1.AddToScheme(scheme))
 
 	controller := &SecretWatchController{
-		Client: fake.NewClientBuilder().WithScheme(scheme).Build(),
-		Log:    ctrl.Log.WithName("test"),
+		Client:  fake.NewClientBuilder().WithScheme(scheme).Build(),
+		Log:     ctrl.Log.WithName("test"),
+		Sources: allSecretSourceKinds,
 	}
 
 	resources := controller.getResourcesWithSecretSource()
@@ -475,5 +476,60 @@ func TestAnnotationHandling(t *testing.T) {
 		timestampStr := annotations["controllers.aiven.io/secret-source-updated"]
 		assert.NotEmpty(t, timestampStr)
 		assert.Regexp(t, `^\d+$`, timestampStr, "Timestamp should be numeric")
+	})
+}
+
+func TestSecretWatchController_findResourcesUsingSecret(t *testing.T) {
+	t.Parallel()
+
+	scheme := runtime.NewScheme()
+	require.NoError(t, clientgoscheme.AddToScheme(scheme))
+	require.NoError(t, v1alpha1.AddToScheme(scheme))
+
+	source := &v1alpha1.ConnInfoSecretSource{Name: "my-secret", PasswordKey: "password"}
+	serviceUser := &v1alpha1.ServiceUser{
+		ObjectMeta: metav1.ObjectMeta{Name: "su", Namespace: "default"},
+		Spec:       v1alpha1.ServiceUserSpec{ConnInfoSecretSource: source},
+	}
+	clickhouseUser := &v1alpha1.ClickhouseUser{
+		ObjectMeta: metav1.ObjectMeta{Name: "chu", Namespace: "default"},
+		Spec:       v1alpha1.ClickhouseUserSpec{ConnInfoSecretSource: source},
+	}
+	otherNamespace := &v1alpha1.ServiceUser{
+		ObjectMeta: metav1.ObjectMeta{Name: "su", Namespace: "other"},
+		Spec:       v1alpha1.ServiceUserSpec{ConnInfoSecretSource: source},
+	}
+	secret := &corev1.Secret{ObjectMeta: metav1.ObjectMeta{Name: "my-secret", Namespace: "default"}}
+
+	newController := func(sources []secretSourceKind) *SecretWatchController {
+		return &SecretWatchController{
+			Client: fake.NewClientBuilder().
+				WithScheme(scheme).
+				WithObjects(serviceUser, clickhouseUser, otherNamespace).
+				WithIndex(&v1alpha1.ServiceUser{}, connInfoSecretRefIndexKey, connInfoSecretRefIndexFunc).
+				WithIndex(&v1alpha1.ClickhouseUser{}, connInfoSecretRefIndexKey, connInfoSecretRefIndexFunc).
+				Build(),
+			Log:     ctrl.Log.WithName("test"),
+			Sources: sources,
+		}
+	}
+	names := func(res []SecretSourceResource) []string {
+		out := make([]string, 0, len(res))
+		for _, r := range res {
+			out = append(out, reflect.TypeOf(r).Elem().Name()+"/"+r.GetName())
+		}
+		return out
+	}
+
+	t.Run("all kinds in the secret's namespace", func(t *testing.T) {
+		res, err := newController(allSecretSourceKinds).findResourcesUsingSecret(context.Background(), secret)
+		require.NoError(t, err)
+		assert.ElementsMatch(t, []string{"ServiceUser/su", "ClickhouseUser/chu"}, names(res))
+	})
+
+	t.Run("only enabled kinds", func(t *testing.T) {
+		res, err := newController(kindSet{"ClickhouseUser": true}.secretSources()).findResourcesUsingSecret(context.Background(), secret)
+		require.NoError(t, err)
+		assert.Equal(t, []string{"ClickhouseUser/chu"}, names(res))
 	})
 }

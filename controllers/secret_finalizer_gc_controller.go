@@ -5,7 +5,6 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"reflect"
 
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
@@ -31,10 +30,15 @@ type SecretFinalizerGCController struct {
 	client.Client
 
 	Log logr.Logger
+
+	// Watched are the kinds whose authSecretRef keeps a token secret protected.
+	// Lists are their list types.
+	Watched []v1alpha1.AivenManagedObject
+	Lists   []client.ObjectList
 }
 
 func (c *SecretFinalizerGCController) SetupWithManager(mgr ctrl.Manager, hasDefaultToken bool) error {
-	aivenManagedTypes := c.knownInstanceTypes()
+	aivenManagedTypes := c.Watched
 
 	if err := indexClientSecretRefFields(context.Background(), mgr, aivenManagedTypes...); err != nil {
 		return fmt.Errorf("unable to add index for secret ref fields: %w", err)
@@ -151,30 +155,9 @@ func (c *SecretFinalizerGCController) Reconcile(ctx context.Context, req ctrl.Re
 	return ctrl.Result{}, nil
 }
 
-func (c *SecretFinalizerGCController) knownListTypes() []client.ObjectList {
-	res := make([]client.ObjectList, 0)
-
-	for _, t := range c.Scheme().KnownTypes(v1alpha1.GroupVersion) {
-		if list, ok := reflect.New(t).Interface().(client.ObjectList); ok {
-			res = append(res, list)
-		}
-	}
-	return res
-}
-
-func (c *SecretFinalizerGCController) knownInstanceTypes() []v1alpha1.AivenManagedObject {
-	res := make([]v1alpha1.AivenManagedObject, 0)
-
-	for _, t := range c.Scheme().KnownTypes(v1alpha1.GroupVersion) {
-		if obj, ok := reflect.New(t).Interface().(v1alpha1.AivenManagedObject); ok {
-			res = append(res, obj)
-		}
-	}
-	return res
-}
-
 func (c *SecretFinalizerGCController) secretIsStillNeeded(ctx context.Context, secret *corev1.Secret) (bool, error) {
-	for _, listType := range c.knownListTypes() {
+	for _, proto := range c.Lists {
+		listType := proto.DeepCopyObject().(client.ObjectList)
 		if needed, err := c.secretIsStillNeededBy(ctx, secret, listType); err != nil {
 			return false, fmt.Errorf("unable to decide if secret is still used by some aiven resource: %w", err)
 		} else if needed {

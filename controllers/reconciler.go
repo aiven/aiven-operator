@@ -130,9 +130,10 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 	}
 
 	if requeue, err := r.resolveK8sRefs(ctx, obj); err != nil {
+		orig := obj.DeepCopyObject().(v1alpha1.AivenManagedObject)
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionPreconditions, err))
-		return ctrl.Result{}, fmt.Errorf("unable to resolve references: %w", err)
+		return ctrl.Result{}, errors.Join(fmt.Errorf("unable to resolve references: %w", err), r.persistReconcileState(ctx, orig, obj))
 	} else if requeue {
 		r.Recorder.Event(obj, corev1.EventTypeNormal, eventWaitingForPreconditions, "waiting for referenced resources to be ready")
 		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
@@ -258,6 +259,10 @@ func (r *Reconciler[T]) resolveK8sRefs(ctx context.Context, obj T) (requeue bool
 
 	refs := refObj.GetRefs()
 	for _, ref := range refs {
+		if err := r.EnabledKinds.checkRef(ref.GroupVersionKind); err != nil {
+			return false, err
+		}
+
 		runtimeObj, err := r.Scheme.New(ref.GroupVersionKind)
 		if err != nil {
 			return false, fmt.Errorf("creating %s: %w", ref.GroupVersionKind, err)
