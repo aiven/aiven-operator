@@ -50,6 +50,9 @@ spec:
   topicName: bar_topic_name_with_underscores
   replication: 2
   partitions: 2
+  tags:
+    - key: schema-subject
+      value: com.example.orders.OrderCreated-value
 `, project, ksName, fooTopicName, barTopicName)
 }
 
@@ -134,6 +137,8 @@ func TestKafkaTopic(t *testing.T) {
 	assert.Equal(t, barAvn.Replication, barTopic.Spec.Replication)
 	assert.Len(t, barAvn.Partitions, barTopic.Spec.Partitions)
 	assert.Nil(t, barTopic.Spec.Config)
+
+	assert.Equal(t, []kafkatopic.TagOut{{Key: "schema-subject", Value: "com.example.orders.OrderCreated-value"}}, barAvn.Tags)
 
 	// We need to validate deletion,
 	// because we can get false positive here:

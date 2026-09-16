@@ -157,9 +157,9 @@ Kafka topic tags.
 
 **Required**
 
-- [`key`](#spec.tags.key-property){: name='spec.tags.key-property'} (string, Pattern: `^[a-zA-Z0-9_-]+$`, MinLength: 1, MaxLength: 64).
+- [`key`](#spec.tags.key-property){: name='spec.tags.key-property'} (string, MinLength: 1, MaxLength: 64).
 
 **Optional**
 
-- [`value`](#spec.tags.value-property){: name='spec.tags.value-property'} (string, Pattern: `^[a-zA-Z0-9_-]+$`, MaxLength: 256).
+- [`value`](#spec.tags.value-property){: name='spec.tags.value-property'} (string, MaxLength: 256).
 
