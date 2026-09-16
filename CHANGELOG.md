@@ -3,6 +3,7 @@
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
 - Change `Kafka` field `userConfig.karapace_version`: pattern ~~`^[0-9]+\.[0-9]+\.[0-9]+$`~~
+- Remove the character pattern from `KafkaTopic` `tags` key and value; only the length limits remain.
 
 ## v0.46.0 - 2026-09-04
 

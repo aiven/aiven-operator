@@ -331,11 +331,9 @@ spec:
                       key:
                         maxLength: 64
                         minLength: 1
-                        pattern: ^[a-zA-Z0-9_-]+$
                         type: string
                       value:
                         maxLength: 256
-                        pattern: ^[a-zA-Z0-9_-]+$
                         type: string
                     required:
                       - key
