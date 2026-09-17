@@ -937,6 +937,7 @@ func setupKafkaSchemaReconciler(
 	r.newAivenGeneratedClient = func(_, _, _ string) (avngen.Client, error) {
 		return avn, nil
 	}
+	r.jitter = nil // deterministic RequeueAfter
 	return r
 }
 

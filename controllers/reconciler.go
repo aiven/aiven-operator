@@ -18,6 +18,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/types"
+	"k8s.io/apimachinery/pkg/util/wait"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/builder"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -49,6 +50,9 @@ func newManagedReconciler[
 		},
 		newSecret: newSecret,
 		options:   options,
+		jitter: func(d time.Duration) time.Duration {
+			return wait.Jitter(d, pollJitterFactor)
+		},
 	}
 
 	return r
@@ -67,6 +71,7 @@ type Reconciler[T v1alpha1.AivenManagedObject] struct {
 	newController           func(avnGen avngen.Client) AivenController[T]
 	newObj                  func() T
 	newSecret               func(o objWithSecret, stringData map[string]string, addPrefix bool) *corev1.Secret
+	jitter                  func(time.Duration) time.Duration
 	options                 *controller.Options
 	watches                 []func(*builder.Builder) *builder.Builder
 	indexes                 []func(context.Context, ctrl.Manager) error
@@ -86,6 +91,18 @@ func (r *Reconciler[T]) WithIndexes(fns ...func(context.Context, ctrl.Manager) e
 
 // requeueTimeout sets timeout to requeue controller
 const requeueTimeout = 10 * time.Second
+
+// pollJitterFactor extends the poll interval by up to 10%.
+const pollJitterFactor = 0.1
+
+// pollRequeue schedules the next periodic reconcile, jittered when configured.
+func (r *Reconciler[T]) pollRequeue() ctrl.Result {
+	d := r.PollInterval
+	if r.jitter != nil {
+		d = r.jitter(d)
+	}
+	return ctrl.Result{RequeueAfter: d}
+}
 
 type managedAnnotationsPatchPayload struct {
 	Metadata managedAnnotationsPatchMetadata `json:"metadata"`
@@ -208,7 +225,7 @@ func (r *Reconciler[T]) handleObserveError(ctx context.Context, obj T, err error
 	if errors.Is(err, errServicePoweredOff) {
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionPreconditions, err))
-		return ctrl.Result{RequeueAfter: r.PollInterval}, nil
+		return r.pollRequeue(), nil
 	}
 
 	if errors.Is(err, errPreconditionNotMet) {
@@ -423,7 +440,7 @@ func (r *Reconciler[T]) completeReconcileSuccess(obj v1alpha1.AivenManagedObject
 	)
 
 	if IsReadyToUse(obj) {
-		return ctrl.Result{RequeueAfter: r.PollInterval}, nil
+		return r.pollRequeue(), nil
 	}
 
 	// Many Aiven operations are asynchronous. After a successful API call the resource may still be starting up,

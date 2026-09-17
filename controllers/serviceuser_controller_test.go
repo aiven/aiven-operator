@@ -215,6 +215,7 @@ func TestServiceUserReconciler(t *testing.T) {
 		r.newAivenGeneratedClient = func(_, _, _ string) (avngen.Client, error) {
 			return avn, nil
 		}
+		r.jitter = nil // deterministic RequeueAfter
 
 		res, err := r.Reconcile(t.Context(), ctrlruntime.Request{
 			NamespacedName: types.NamespacedName{
