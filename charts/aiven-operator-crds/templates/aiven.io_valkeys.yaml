@@ -453,6 +453,22 @@ spec:
                         - allchannels
                         - resetchannels
                       type: string
+                    valkey_active_defrag_ignore_bytes:
+                      description:
+                        Minimum amount of fragmentation waste, in bytes,
+                        before active defragmentation starts. Only takes effect when
+                        `valkey_activedefrag` is enabled.
+                      maximum: 1073741824
+                      minimum: 1048576
+                      type: integer
+                    valkey_active_defrag_threshold_lower:
+                      description:
+                        Minimum percentage of fragmentation before active
+                        defragmentation starts. Only takes effect when `valkey_activedefrag`
+                        is enabled.
+                      maximum: 100
+                      minimum: 1
+                      type: integer
                     valkey_active_expire_effort:
                       description:
                         Valkey reclaims expired keys both when accessed and

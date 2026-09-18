@@ -240,6 +240,16 @@ func (in *ValkeyUserConfig) DeepCopyInto(out *ValkeyUserConfig) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.ValkeyActiveDefragIgnoreBytes != nil {
+		in, out := &in.ValkeyActiveDefragIgnoreBytes, &out.ValkeyActiveDefragIgnoreBytes
+		*out = new(int)
+		**out = **in
+	}
+	if in.ValkeyActiveDefragThresholdLower != nil {
+		in, out := &in.ValkeyActiveDefragThresholdLower, &out.ValkeyActiveDefragThresholdLower
+		*out = new(int)
+		**out = **in
+	}
 	if in.ValkeyActiveExpireEffort != nil {
 		in, out := &in.ValkeyActiveExpireEffort, &out.ValkeyActiveExpireEffort
 		*out = new(int)
