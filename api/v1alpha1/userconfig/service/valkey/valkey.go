@@ -143,6 +143,16 @@ type ValkeyUserConfig struct {
 	// Determines default pub/sub channels' ACL for new users if ACL is not supplied. When this option is not defined, all_channels is assumed to keep backward compatibility. This option doesn't affect Valkey configuration acl-pubsub-default.
 	ValkeyAclChannelsDefault *string `groups:"create,update" json:"valkey_acl_channels_default,omitempty"`
 
+	// +kubebuilder:validation:Minimum=1048576
+	// +kubebuilder:validation:Maximum=1073741824
+	// Minimum amount of fragmentation waste, in bytes, before active defragmentation starts. Only takes effect when `valkey_activedefrag` is enabled.
+	ValkeyActiveDefragIgnoreBytes *int `groups:"create,update" json:"valkey_active_defrag_ignore_bytes,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=100
+	// Minimum percentage of fragmentation before active defragmentation starts. Only takes effect when `valkey_activedefrag` is enabled.
+	ValkeyActiveDefragThresholdLower *int `groups:"create,update" json:"valkey_active_defrag_threshold_lower,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=10
 	// Valkey reclaims expired keys both when accessed and in the background. The background process scans for expired keys to free memory. Increasing the active-expire-effort setting (default 1, max 10) uses more CPU to reclaim expired keys faster, reducing memory usage but potentially increasing latency.
