@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -323,6 +324,55 @@ func TestServiceUserReconciler(t *testing.T) {
 		secret := &corev1.Secret{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
 		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+	})
+
+	t.Run("Creates a MySQL user with the requested authentication and source password", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Spec.Authentication = service.AuthenticationTypeMysqlNativePassword
+		user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{Name: "src", PasswordKey: "PASSWORD"}
+		password := "source-secret-password"
+		src := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{Name: "src", Namespace: user.Namespace},
+			Data:       map[string][]byte{"PASSWORD": []byte(password)},
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "mysql",
+				Components:  []service.ComponentOut{{Component: "mysql", Host: "host", Port: 3306}},
+			}, nil).Twice()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(nil, newAivenError(404, "not found")).Once()
+		avn.EXPECT().
+			ServiceUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, &service.ServiceUserCreateIn{
+				Username:       user.Name,
+				Authentication: user.Spec.Authentication,
+			}).
+			Return(&service.ServiceUserCreateOut{}, nil).Once()
+		avn.EXPECT().
+			ServiceUserCredentialsModify(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name, &service.ServiceUserCredentialsModifyIn{
+				NewPassword:    &password,
+				Authentication: user.Spec.Authentication,
+				Operation:      service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
+			}).
+			Return(&service.ServiceUserCredentialsModifyOut{}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: password, Authentication: user.Spec.Authentication}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, res := runScenario(t, user, avn, src)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), secret))
+		require.Equal(t, []byte(password), secret.Data["SERVICEUSER_PASSWORD"])
 	})
 
 	t.Run("Retries transient not found after create before publishing secrets", func(t *testing.T) {
@@ -1045,6 +1095,395 @@ func TestServiceUserReconciler(t *testing.T) {
 		secret := &corev1.Secret{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
 		require.Equal(t, []byte(srcPassword), secret.Data["SERVICEUSER_PASSWORD"])
+	})
+
+	t.Run("Leaves authentication unchanged when the spec omits it", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "mysql",
+				Components:  []service.ComponentOut{{Component: "mysql", Host: "host", Port: 3306}},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw", Authentication: service.AuthenticationTypeMysqlNativePassword}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, res := runScenario(t, user, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), secret))
+		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+	})
+
+	t.Run("Doesn't detect authentication drift when the API omits the field", func(t *testing.T) {
+		for _, serviceType := range []string{"mysql", "pg"} {
+			t.Run(serviceType, func(t *testing.T) {
+				user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+				user.Generation = 1
+				user.Spec.Authentication = service.AuthenticationTypeMysqlNativePassword
+				user.Annotations = map[string]string{
+					processedGenerationAnnotation: "1",
+					instanceIsRunningAnnotation:   "true",
+				}
+
+				avn := avngen.NewMockClient(t)
+				avn.EXPECT().
+					ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+					Return(&service.ServiceGetOut{
+						State:       service.ServiceStateTypeRunning,
+						ServiceType: serviceType,
+						Components:  []service.ComponentOut{{Component: serviceType, Host: "host", Port: 1234}},
+					}, nil).Once()
+				avn.EXPECT().
+					ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+					Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+				avn.EXPECT().
+					ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+				r, res := runScenario(t, user, avn)
+				require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+				secret := &corev1.Secret{}
+				require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), secret))
+				require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+			})
+		}
+	})
+
+	t.Run("Applies authentication to existing users while preserving their password", func(t *testing.T) {
+		for _, tc := range []struct {
+			name        string
+			serviceType string
+			generation  int64
+			annotations map[string]string
+			desired     service.AuthenticationType
+			actual      service.AuthenticationType
+		}{
+			{
+				name:        "repairs an external change during periodic reconciliation",
+				serviceType: "mysql",
+				generation:  1,
+				annotations: map[string]string{
+					processedGenerationAnnotation: "1",
+					instanceIsRunningAnnotation:   "true",
+				},
+				desired: service.AuthenticationTypeMysqlNativePassword,
+				actual:  service.AuthenticationTypeCachingSha2Password,
+			},
+			{
+				name:        "applies a changed spec",
+				serviceType: "mysql",
+				generation:  2,
+				annotations: map[string]string{
+					processedGenerationAnnotation: "1",
+					instanceIsRunningAnnotation:   "true",
+				},
+				desired: service.AuthenticationTypeCachingSha2Password,
+				actual:  service.AuthenticationTypeMysqlNativePassword,
+			},
+			{
+				name:        "adopts an existing Aiven user",
+				serviceType: "mysql",
+				generation:  1,
+				desired:     service.AuthenticationTypeMysqlNativePassword,
+				actual:      service.AuthenticationTypeCachingSha2Password,
+			},
+			{
+				name:        "uses authentication when another service exposes it",
+				serviceType: "future-service",
+				generation:  1,
+				annotations: map[string]string{
+					processedGenerationAnnotation: "1",
+					instanceIsRunningAnnotation:   "true",
+				},
+				desired: service.AuthenticationTypeMysqlNativePassword,
+				actual:  service.AuthenticationTypeCachingSha2Password,
+			},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+				user.Generation = tc.generation
+				user.Annotations = tc.annotations
+				user.Spec.Username = "existing_database_user"
+				user.Spec.Authentication = tc.desired
+				password := "existing-password"
+
+				avn := avngen.NewMockClient(t)
+				avn.EXPECT().
+					ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+					Return(&service.ServiceGetOut{
+						State:       service.ServiceStateTypeRunning,
+						ServiceType: tc.serviceType,
+						Components:  []service.ComponentOut{{Component: tc.serviceType, Host: "host", Port: 3306}},
+					}, nil).Times(3)
+				avn.EXPECT().
+					ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Spec.Username).
+					Return(&service.ServiceUserGetOut{Username: user.Spec.Username, Password: password, Authentication: tc.actual}, nil).Twice()
+				avn.EXPECT().
+					ServiceUserCredentialsModify(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Spec.Username, &service.ServiceUserCredentialsModifyIn{
+						NewPassword:    &password,
+						Authentication: tc.desired,
+						Operation:      service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
+					}).
+					Return(&service.ServiceUserCredentialsModifyOut{}, nil).Once()
+				avn.EXPECT().
+					ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Spec.Username).
+					Return(&service.ServiceUserGetOut{Username: user.Spec.Username, Password: password, Authentication: tc.desired}, nil).Twice()
+				avn.EXPECT().
+					ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Times(3)
+
+				r, res := runScenario(t, user, avn)
+				require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+				secret := &corev1.Secret{}
+				require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), secret))
+				require.Equal(t, []byte(user.Spec.Username), secret.Data["SERVICEUSER_USERNAME"])
+				require.Equal(t, []byte(password), secret.Data["SERVICEUSER_PASSWORD"])
+
+				// Once the method matches, the next poll must not reset credentials again.
+				res, err := r.Reconcile(t.Context(), ctrlruntime.Request{NamespacedName: client.ObjectKeyFromObject(user)})
+				require.NoError(t, err)
+				require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+			})
+		}
+	})
+
+	t.Run("Doesn't reset matching authentication when another spec change triggers Update", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 2
+		user.Spec.Authentication = service.AuthenticationTypeMysqlNativePassword
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "mysql",
+				Components:  []service.ComponentOut{{Component: "mysql", Host: "host", Port: 3306}},
+			}, nil).Twice()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw", Authentication: user.Spec.Authentication}, nil).Times(3)
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Twice()
+
+		r, res := runScenario(t, user, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+		got := &v1alpha1.ServiceUser{}
+		require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), got))
+		require.Equal(t, "2", got.Annotations[processedGenerationAnnotation])
+	})
+
+	t.Run("Skips authentication during Update when the API omits the field", func(t *testing.T) {
+		for _, tc := range []struct {
+			name     string
+			password string
+		}{
+			{name: "password is available", password: "existing-password"},
+			{name: "password is unavailable"},
+		} {
+			t.Run(tc.name, func(t *testing.T) {
+				user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+				user.Generation = 2
+				user.Spec.Authentication = service.AuthenticationTypeMysqlNativePassword
+				user.Annotations = map[string]string{
+					processedGenerationAnnotation: "1",
+					instanceIsRunningAnnotation:   "true",
+				}
+
+				avn := avngen.NewMockClient(t)
+				avn.EXPECT().
+					ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+					Return(&service.ServiceGetOut{
+						State:       service.ServiceStateTypeRunning,
+						ServiceType: "pg",
+						Components:  []service.ComponentOut{{Component: "pg", Host: "host", Port: 5432}},
+					}, nil).Twice()
+				avn.EXPECT().
+					ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+					Return(&service.ServiceUserGetOut{Username: user.Name, Password: tc.password}, nil).Times(3)
+				avn.EXPECT().
+					ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Twice()
+
+				r, res := runScenario(t, user, avn)
+				require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+				got := &v1alpha1.ServiceUser{}
+				require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), got))
+				require.Equal(t, "2", got.Annotations[processedGenerationAnnotation])
+				require.Equal(t, user.Spec.Authentication, got.Spec.Authentication)
+				secret := &corev1.Secret{}
+				require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), secret))
+				require.Equal(t, tc.password, string(secret.Data["SERVICEUSER_PASSWORD"]))
+			})
+		}
+	})
+
+	t.Run("Updates the source password without authentication when the API omits the field", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 2
+		user.Spec.Authentication = service.AuthenticationTypeMysqlNativePassword
+		user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{Name: "src", PasswordKey: "PASSWORD"}
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+		password := "source-secret-password"
+		src := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{Name: "src", Namespace: user.Namespace},
+			Data:       map[string][]byte{"PASSWORD": []byte(password)},
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "pg",
+				Components:  []service.ComponentOut{{Component: "pg", Host: "host", Port: 5432}},
+			}, nil).Times(3)
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "previous-password"}, nil).Twice()
+		avn.EXPECT().
+			ServiceUserCredentialsModify(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name, &service.ServiceUserCredentialsModifyIn{
+				NewPassword: &password,
+				Operation:   service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
+			}).
+			Return(&service.ServiceUserCredentialsModifyOut{}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: password}, nil).Twice()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Times(3)
+
+		r, res := runScenario(t, user, avn, src)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), secret))
+		require.Equal(t, []byte(password), secret.Data["SERVICEUSER_PASSWORD"])
+		got := &v1alpha1.ServiceUser{}
+		require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), got))
+		require.Equal(t, user.Spec.Authentication, got.Spec.Authentication)
+
+		res, err := r.Reconcile(t.Context(), ctrlruntime.Request{NamespacedName: client.ObjectKeyFromObject(user)})
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+	})
+
+	t.Run("Reports authentication drift without resetting an unknown password", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Spec.Authentication = service.AuthenticationTypeMysqlNativePassword
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+		secret := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{Name: user.Name, Namespace: user.Namespace},
+			Data:       map[string][]byte{"SERVICEUSER_PASSWORD": []byte("published-password")},
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "mysql",
+				Components:  []service.ComponentOut{{Component: "mysql", Host: "host", Port: 3306}},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Authentication: service.AuthenticationTypeCachingSha2Password}, nil).Twice()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, _, err := runScenarioErr(t, user, avn, secret)
+		require.ErrorContains(t, err, "cannot change service user authentication without a known password")
+		got := &v1alpha1.ServiceUser{}
+		require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), got))
+		require.NotNil(t, meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError))
+		gotSecret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(secret), gotSecret))
+		require.Equal(t, secret.Data, gotSecret.Data)
+	})
+
+	t.Run("Retries a failed authentication update using the source password", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Spec.Authentication = service.AuthenticationTypeMysqlNativePassword
+		user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{Name: "src", PasswordKey: "PASSWORD"}
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+		password := "source-secret-password"
+		src := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{Name: "src", Namespace: user.Namespace},
+			Data:       map[string][]byte{"PASSWORD": []byte(password)},
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "mysql",
+				Components:  []service.ComponentOut{{Component: "mysql", Host: "host", Port: 3306}},
+			}, nil).Times(3)
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "api-password", Authentication: service.AuthenticationTypeCachingSha2Password}, nil).Times(4)
+		request := &service.ServiceUserCredentialsModifyIn{
+			NewPassword:    &password,
+			Authentication: user.Spec.Authentication,
+			Operation:      service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
+		}
+		apiErr := newAivenError(500, "authentication update failed")
+		avn.EXPECT().
+			ServiceUserCredentialsModify(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name, request).
+			Return(nil, apiErr).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Times(3)
+
+		r, _, err := runScenarioErr(t, user, avn, src)
+		require.ErrorIs(t, err, apiErr)
+		got := &v1alpha1.ServiceUser{}
+		require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), got))
+		condition := meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError)
+		require.NotNil(t, condition)
+		require.Contains(t, condition.Message, "authentication update failed")
+
+		avn.EXPECT().
+			ServiceUserCredentialsModify(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name, request).
+			Return(&service.ServiceUserCredentialsModifyOut{}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: password, Authentication: user.Spec.Authentication}, nil).Once()
+
+		res, err := r.Reconcile(t.Context(), ctrlruntime.Request{NamespacedName: client.ObjectKeyFromObject(user)})
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+		require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), got))
+		require.Nil(t, meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError))
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), secret))
+		require.Equal(t, []byte(password), secret.Data["SERVICEUSER_PASSWORD"])
 	})
 
 	t.Run("Repairs managed Valkey ACL drift during periodic reconcile", func(t *testing.T) {

@@ -76,9 +76,11 @@ func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.Serv
 	}
 
 	return Observation{
-		ResourceExists:   true,
-		ResourceUpToDate: IsReadyToUse(user) && accessControlMatches(user.Spec.AccessControl, u.AccessControl),
-		SecretDetails:    details,
+		ResourceExists: true,
+		ResourceUpToDate: IsReadyToUse(user) &&
+			accessControlMatches(user.Spec.AccessControl, u.AccessControl) &&
+			(user.Spec.Authentication == "" || u.Authentication == "" || user.Spec.Authentication == u.Authentication),
+		SecretDetails: details,
 	}, nil
 }
 
@@ -93,15 +95,16 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 		user.Spec.Project,
 		user.Spec.ServiceName,
 		&service.ServiceUserCreateIn{
-			Username:      user.GetUsername(),
-			AccessControl: buildServiceUserAccessControlIn(user.Spec.AccessControl),
+			Username:       user.GetUsername(),
+			AccessControl:  buildServiceUserAccessControlIn(user.Spec.AccessControl),
+			Authentication: user.Spec.Authentication,
 		},
 	)
 	if err != nil {
 		return CreateResult{}, fmt.Errorf("creating service user: %w", err)
 	}
 
-	if _, err := r.setAivenPasswordIfProvided(ctx, user, password); err != nil {
+	if _, err := r.setAivenPasswordIfProvided(ctx, user, password, user.Spec.Authentication); err != nil {
 		return CreateResult{}, err
 	}
 
@@ -144,7 +147,23 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 		logr.FromContextOrDiscard(ctx).V(1).Info("skipping access control update since it isn't provided in the spec")
 	}
 
-	wrotePassword, err := r.setAivenPasswordIfProvided(ctx, user, password)
+	authentication := user.Spec.Authentication
+	if authentication != "" {
+		u, err := r.avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.GetUsername())
+		if err != nil {
+			return UpdateResult{}, fmt.Errorf("getting service user before updating authentication: %w", err)
+		}
+		if u.Authentication == "" {
+			authentication = ""
+		} else if password == "" && u.Authentication != authentication {
+			// Authentication changes require a credentials reset. Keep the current password.
+			password = u.Password
+			if password == "" {
+				return UpdateResult{}, errors.New("cannot change service user authentication without a known password: set spec.connInfoSecretSource")
+			}
+		}
+	}
+	wrotePassword, err := r.setAivenPasswordIfProvided(ctx, user, password, authentication)
 	if err != nil {
 		return UpdateResult{}, err
 	}
@@ -219,9 +238,9 @@ func (r *ServiceUserController) findDuplicate(ctx context.Context, user *v1alpha
 	return nil, nil
 }
 
-// setAivenPasswordIfProvided pushes the password to Aiven if non-empty.
+// setAivenPasswordIfProvided sets the password and optional authentication method.
 // Returns true when the password was actually updated.
-func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, user *v1alpha1.ServiceUser, password string) (bool, error) {
+func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, user *v1alpha1.ServiceUser, password string, authentication service.AuthenticationType) (bool, error) {
 	if password == "" {
 		return false, nil
 	}
@@ -232,8 +251,9 @@ func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, 
 		user.Spec.ServiceName,
 		user.GetUsername(),
 		&service.ServiceUserCredentialsModifyIn{
-			NewPassword: &password,
-			Operation:   service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
+			NewPassword:    &password,
+			Authentication: authentication,
+			Operation:      service.ServiceUserCredentialsModifyOperationTypeResetCredentials,
 		},
 	); err != nil {
 		return false, fmt.Errorf("modifying service user credentials: %w", err)
