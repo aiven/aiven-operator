@@ -209,6 +209,7 @@ ServiceUser:
     ServiceUserGet,
     ProjectKmsGetCA,
   ]
+ServiceUserRotation: [ServiceGet, ServiceUserCredentialsModify, ProjectKmsGetCA]
 UpgradePipelineStep:
   [
     UpgradePipelineStepCreate,

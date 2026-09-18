@@ -9,6 +9,7 @@ import (
 	"os"
 	"os/signal"
 	"runtime/debug"
+	"sync"
 	"syscall"
 	"testing"
 	"time"
@@ -19,6 +20,7 @@ import (
 	"k8s.io/client-go/discovery"
 	"k8s.io/client-go/kubernetes/scheme"
 	ctrl "sigs.k8s.io/controller-runtime"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/envtest"
 	"sigs.k8s.io/controller-runtime/pkg/log/zap"
 	metricsserver "sigs.k8s.io/controller-runtime/pkg/metrics/server"
@@ -145,7 +147,7 @@ func setupSuite(ctx context.Context) (*envtest.Environment, error) {
 		return nil, err
 	}
 
-	err = controllers.SetupControllers(mgr, controllers.SetupConfig{
+	err = controllers.SetupControllers(&suiteManager{Manager: mgr}, controllers.SetupConfig{
 		DefaultToken:    cfg.Token,
 		KubeVersion:     kubeVersion.String(),
 		OperatorVersion: operatorVersion,
@@ -169,6 +171,34 @@ func setupSuite(ctx context.Context) (*envtest.Environment, error) {
 
 	sharedResources = NewSharedResources(ctx, k8sClient)
 	return env, nil
+}
+
+type secretUpdateHook func(context.Context, *corev1.Secret, func() error) error
+
+// Hooks are scoped to a Secret and affect only controller clients. Tests use
+// an unwrapped client to perform competing writes against the API server.
+var secretUpdateHooks sync.Map // client.ObjectKey -> secretUpdateHook
+
+type suiteManager struct {
+	ctrl.Manager
+}
+
+func (m *suiteManager) GetClient() client.Client {
+	return &suiteClient{Client: m.Manager.GetClient()}
+}
+
+type suiteClient struct {
+	client.Client
+}
+
+func (c *suiteClient) Update(ctx context.Context, obj client.Object, opts ...client.UpdateOption) error {
+	update := func() error { return c.Client.Update(ctx, obj, opts...) }
+	if secret, ok := obj.(*corev1.Secret); ok {
+		if hook, exists := secretUpdateHooks.Load(client.ObjectKeyFromObject(secret)); exists {
+			return hook.(secretUpdateHook)(ctx, secret, update)
+		}
+	}
+	return update()
 }
 
 func recoverPanic(t *testing.T) {

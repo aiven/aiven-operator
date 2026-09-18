@@ -1,0 +1,21 @@
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUserRotation
+metadata:
+  name: application-users
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-postgresql
+
+  # Create both users and configure their permissions before enabling rotation.
+  usernames:
+    - application-user-a
+    - application-user-b
+  rotationInterval: 720h
+
+  connInfoSecretTarget:
+    name: application-database-credentials
+    prefix: SERVICEUSER_
