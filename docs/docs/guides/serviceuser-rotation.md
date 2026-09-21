@@ -9,6 +9,46 @@ Applications read them from one Kubernetes Secret. The previous user's password
 stays unchanged until that user is selected again, giving applications time to
 switch.
 
+## How rotation works
+
+`rotationInterval` sets the delay from publishing credentials to the next
+scheduled switch to another user. Users are selected in list order. Each
+rotation generates a secure random password. The generator isn't configurable.
+The first publication changes the first user's password immediately.
+
+With two users, `a` and `b`, and a 30-day interval, the sequence looks like this.
+`A1`, `B1` and `A2` stand for different generated passwords.
+
+| Time | User in Secret | Password in Secret | Previous password |
+| --- | --- | --- | --- |
+| Day 0 | `a` | `A1` | — |
+| Day 30 | `b` | `B1` | `A1` still works |
+| Day 60 | `a` | `A2` | `B1` still works |
+
+The Secret switches every 30 days, but `A1` normally lasts about 60 days: 30 as
+the current password and another 30 after the switch to `b`. It's replaced while
+preparing `a` for the next publication.
+
+Always use this Secret as the source of credentials for your applications.
+After a rotation changes the credentials in it, reload them in your applications
+or restart the applications to pick up the new values.
+
+You normally have one rotation interval after the switch, assuming the interval
+stays unchanged. Complete the switch before the previous user is selected again.
+The operator doesn't restart workloads or wait for applications to confirm the
+switch.
+
+Connection refreshes don't move the next deadline. Changing the interval
+recalculates it from the last publication time, so shortening the interval can
+make rotation immediately due.
+
+The operator doesn't set a password expiry time. A password stops working when
+it's replaced, so downtime or failed rotations can extend its lifetime.
+
+If rotation is overdue after downtime, the operator rotates once and starts a
+new interval. It doesn't catch up on missed windows. A valid pending rotation
+is retried even if you extend the interval.
+
 ## Set up rotation
 
 Use an existing, operational Aiven service and a token with the
@@ -58,46 +98,6 @@ can't be changed after creation.
 Use a dedicated Secret. Let this rotation resource be the only automation that
 changes these users' passwords. Applications should use its Secret rather than
 credentials from individual `ServiceUser` resources.
-
-## How rotation works
-
-`rotationInterval` sets the delay from publishing credentials to the next
-scheduled switch to another user. Users are selected in list order. Each
-rotation generates a secure random password. The generator isn't configurable.
-The first publication changes the first user's password immediately.
-
-With two users, `a` and `b`, and a 30-day interval, the sequence looks like this.
-`A1`, `B1` and `A2` stand for different generated passwords.
-
-| Time | User in Secret | Password in Secret | Previous password |
-| --- | --- | --- | --- |
-| Day 0 | `a` | `A1` | — |
-| Day 30 | `b` | `B1` | `A1` still works |
-| Day 60 | `a` | `A2` | `B1` still works |
-
-The Secret switches every 30 days, but `A1` normally lasts about 60 days: 30 as
-the current password and another 30 after the switch to `b`. It's replaced while
-preparing `a` for the next publication.
-
-Always use this Secret as the source of credentials for your applications.
-After a rotation changes the credentials in it, reload them in your applications
-or restart the applications to pick up the new values.
-
-You normally have one rotation interval after the switch, assuming the interval
-stays unchanged. Complete the switch before the previous user is selected again.
-The operator doesn't restart workloads or wait for applications to confirm the
-switch.
-
-Connection refreshes don't move the next deadline. Changing the interval
-recalculates it from the last publication time, so shortening the interval can
-make rotation immediately due.
-
-The operator doesn't set a password expiry time. A password stops working when
-it's replaced, so downtime or failed rotations can extend its lifetime.
-
-If rotation is overdue after downtime, the operator rotates once and starts a
-new interval. It doesn't catch up on missed windows. A valid pending rotation
-is retried even if you extend the interval.
 
 ## The connection Secret
 
