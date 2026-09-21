@@ -37,6 +37,9 @@
         <loc>https://aiven.github.io/aiven-operator/guides/serviceuser-password-management.html</loc>
       </url>
       <url>
+        <loc>https://aiven.github.io/aiven-operator/guides/serviceuser-rotation.html</loc>
+      </url>
+      <url>
         <loc>https://aiven.github.io/aiven-operator/controllers/reconciler.html</loc>
       </url>
       <url>
@@ -121,6 +124,9 @@
         <loc>https://aiven.github.io/aiven-operator/resources/serviceuser.html</loc>
       </url>
       <url>
+        <loc>https://aiven.github.io/aiven-operator/resources/serviceuserrotation.html</loc>
+      </url>
+      <url>
         <loc>https://aiven.github.io/aiven-operator/resources/valkey.html</loc>
       </url>
       <url>
@@ -200,6 +206,9 @@
       </url>
       <url>
         <loc>https://aiven.github.io/aiven-operator/resources/serviceuser.html</loc>
+      </url>
+      <url>
+        <loc>https://aiven.github.io/aiven-operator/resources/serviceuserrotation.html</loc>
       </url>
       <url>
         <loc>https://aiven.github.io/aiven-operator/resources/valkey.html</loc>

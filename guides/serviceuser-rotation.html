@@ -8,13 +8,13 @@
       
       
       
-        <link rel="canonical" href="https://aiven.github.io/aiven-operator/installation/prerequisites.html">
+        <link rel="canonical" href="https://aiven.github.io/aiven-operator/guides/serviceuser-rotation.html">
       
       
-        <link rel="prev" href="../changelog.html">
+        <link rel="prev" href="./serviceuser-password-management.html">
       
       
-        <link rel="next" href="./helm.html">
+        <link rel="next" href="../controllers/reconciler.html">
       
       
         
@@ -25,7 +25,7 @@
     
     
       
-        <title>Prerequisites - Aiven Operator</title>
+        <title>Service user rotation - Aiven Operator</title>
       
     
     
@@ -85,7 +85,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#prerequisites" class="md-skip">
+        <a href="#service-user-rotation" class="md-skip">
           Skip to content
         </a>
       
@@ -118,7 +118,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Prerequisites
+              Service user rotation
             
           </span>
         </div>
@@ -513,19 +513,10 @@
                   
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      
-      
-      
-        
-      
-      
-      <a href="prerequisites.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../installation/prerequisites.html" class="md-nav__link">
         
   
   
@@ -540,7 +531,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -553,7 +543,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./helm.html" class="md-nav__link">
+      <a href="../installation/helm.html" class="md-nav__link">
         
   
   
@@ -580,7 +570,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./kubectl.html" class="md-nav__link">
+      <a href="../installation/kubectl.html" class="md-nav__link">
         
   
   
@@ -661,7 +651,7 @@
   
   
     <li class="md-nav__item">
-      <a href="./uninstalling.html" class="md-nav__link">
+      <a href="../installation/uninstalling.html" class="md-nav__link">
         
   
   
@@ -688,7 +678,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/token-management.html" class="md-nav__link">
+      <a href="./token-management.html" class="md-nav__link">
         
   
   
@@ -715,7 +705,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/deletion-policy.html" class="md-nav__link">
+      <a href="./deletion-policy.html" class="md-nav__link">
         
   
   
@@ -742,7 +732,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/migrate-project-to-organizationproject.html" class="md-nav__link">
+      <a href="./migrate-project-to-organizationproject.html" class="md-nav__link">
         
   
   
@@ -769,7 +759,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../guides/serviceuser-password-management.html" class="md-nav__link">
+      <a href="./serviceuser-password-management.html" class="md-nav__link">
         
   
   
@@ -793,10 +783,36 @@
                   
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../guides/serviceuser-rotation.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Service user rotation
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="serviceuser-rotation.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -811,6 +827,93 @@
   
 
       </a>
+      
+        
+
+
+<nav class="md-nav md-nav--secondary" aria-label="On this page">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-rotation-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        How rotation works
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-up-rotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Set up rotation
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-connection-secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The connection Secret
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#password-changes-outside-rotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Password changes outside rotation
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#errors-and-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Errors and recovery
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deletion" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Deletion
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -3334,6 +3437,11 @@
                       
                     
                     
+                      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+                      <div class="md-sidebar-button__wrapper">
+                        <label class="md-sidebar-button" for="__toc"></label>
+                      </div>
+                    
                   
                   <div class="md-sidebar__inner">
                     
@@ -3345,6 +3453,80 @@
   
     
   
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      On this page
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#how-rotation-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        How rotation works
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#set-up-rotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Set up rotation
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-connection-secret" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        The connection Secret
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#password-changes-outside-rotation" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Password changes outside rotation
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#errors-and-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Errors and recovery
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deletion" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Deletion
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
   
 </nav>
                   </div>
@@ -3363,32 +3545,179 @@
     
       
     
-    <a href="https://github.com/aiven/aiven-operator//raw/main/docs/docs/installation/prerequisites.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/aiven/aiven-operator//raw/main/docs/docs/guides/serviceuser-rotation.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-file-code-2" viewBox="0 0 24 24"><path d="M4 12.15V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.706.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2h-3.35"/><path d="M14 2v5a1 1 0 0 0 1 1h5M5 16l-3 3 3 3M9 22l3-3-3-3"/></svg>
     </a>
   
 
 
-<h1 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h1>
-<p>The Aiven Operator for Kubernetes® supports all major Kubernetes distributions, both locally and in the cloud.</p>
-<p>Make sure you have the following:</p>
+<h1 id="service-user-rotation">Service user rotation<a class="headerlink" href="#service-user-rotation" title="Permanent link">&para;</a></h1>
+<p><code>ServiceUserRotation</code> rotates credentials between two existing Aiven service users.
+Applications read them from one Kubernetes Secret. The previous user's password
+stays unchanged until that user is selected again, giving applications time to
+switch.</p>
+<h2 id="how-rotation-works">How rotation works<a class="headerlink" href="#how-rotation-works" title="Permanent link">&para;</a></h2>
+<p><code>rotationInterval</code> sets the delay from publishing credentials to the next
+scheduled switch to another user. Users are selected in list order. Each
+rotation generates a secure random password. The generator isn't configurable.
+The first publication changes the first user's password immediately.</p>
+<p>With two users, <code>a</code> and <code>b</code>, and a 30-day interval, the sequence looks like this.
+<code>A1</code>, <code>B1</code> and <code>A2</code> stand for different generated passwords.</p>
+<table>
+<thead>
+<tr>
+<th>Time</th>
+<th>User in Secret</th>
+<th>Password in Secret</th>
+<th>Previous password</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Day 0</td>
+<td><code>a</code></td>
+<td><code>A1</code></td>
+<td>—</td>
+</tr>
+<tr>
+<td>Day 30</td>
+<td><code>b</code></td>
+<td><code>B1</code></td>
+<td><code>A1</code> still works</td>
+</tr>
+<tr>
+<td>Day 60</td>
+<td><code>a</code></td>
+<td><code>A2</code></td>
+<td><code>B1</code> still works</td>
+</tr>
+</tbody>
+</table>
+<p>The Secret switches every 30 days, but <code>A1</code> normally lasts about 60 days: 30 as
+the current password and another 30 after the switch to <code>b</code>. It's replaced while
+preparing <code>a</code> for the next publication.</p>
+<p>Always use this Secret as the source of credentials for your applications.
+After a rotation changes the credentials in it, reload them in your applications
+or restart the applications to pick up the new values.</p>
+<p>You normally have one rotation interval after the switch, assuming the interval
+stays unchanged. Complete the switch before the previous user is selected again.
+The operator doesn't restart workloads or wait for applications to confirm the
+switch.</p>
+<p>Connection refreshes don't move the next deadline. Changing the interval
+recalculates it from the last publication time, so shortening the interval can
+make rotation immediately due.</p>
+<p>The operator doesn't set a password expiry time. A password stops working when
+it's replaced, so downtime or failed rotations can extend its lifetime.</p>
+<p>If rotation is overdue after downtime, the operator rotates once and starts a
+new interval. It doesn't catch up on missed windows. A valid pending rotation
+is retried even if you extend the interval.</p>
+<h2 id="set-up-rotation">Set up rotation<a class="headerlink" href="#set-up-rotation" title="Permanent link">&para;</a></h2>
+<p>Use an existing, operational Aiven service and a token with the
+<a href="../resources/serviceuserrotation.html#required-permissions">required permissions</a>.
+Reading connection details also needs <code>service:secrets:read</code>.</p>
+<p>Create both users and give them the permissions your application needs before
+enabling rotation. Use <code>ServiceUser</code> resources or prepare them another way.
+<code>ServiceUserRotation</code> doesn't create, recreate or delete users, and it doesn't
+configure or check their roles and grants.</p>
+<p>When using <code>ServiceUser</code>, leave <code>connInfoSecretSource</code> unset so it doesn't set
+the password. Set <code>connInfoSecretTargetDisabled: true</code> at creation to disable
+its separate connection Secret. This field can't be changed later.
+See the <a href="../resources/examples/serviceuser-for-rotation.yaml">ServiceUser example for rotation</a>
+and create one resource for each username.</p>
+<p>This example rotates between two users every 30 days:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceUserRotation</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-users</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>
+<a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-aiven-project</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-postgresql</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>
+<a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">  </span><span class="nt">usernames</span><span class="p">:</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-user-a</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-user-b</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">  </span><span class="nt">rotationInterval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">720h</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-database-credentials</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SERVICEUSER_</span>
+</code></pre></div>
+<p>Choose exactly two distinct usernames, excluding <code>avnadmin</code>. The interval must be
+at least one hour. The user list, its order, the Secret name and the key prefix
+can't be changed after creation.</p>
+<p>Use a dedicated Secret. Let this rotation resource be the only automation that
+changes these users' passwords. Applications should use its Secret rather than
+credentials from individual <code>ServiceUser</code> resources.</p>
+<h2 id="the-connection-secret">The connection Secret<a class="headerlink" href="#the-connection-secret" title="Permanent link">&para;</a></h2>
+<p>Applications read <code>SERVICEUSER_USERNAME</code>, <code>SERVICEUSER_PASSWORD</code> and the connection
+fields from <code>application-database-credentials</code>. These names follow the example
+above. You can choose a different prefix when creating the resource.</p>
+<p>Between rotations, the operator refreshes endpoints, certificates and the CA
+while keeping the published password. It removes optional Kafka SASL and Schema
+Registry endpoint keys when those endpoints disappear. Other data keys are
+preserved. Labels and annotations follow <code>spec.connInfoSecretTarget</code>, so manual
+changes to them are overwritten.</p>
+<p>The same Secret stores the rotation state:</p>
 <ul>
-<li>Admin access to a Kubernetes cluster.</li>
-<li>
-<p><a href="https://cert-manager.io/docs/installation/helm/">Cert manager installed</a>: The operator uses this to configure the service reference of the webhooks. Webhooks are used for setting defaults
-  and enforcing invariants that are expected by the Aiven API and will lead to errors if ignored.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This is not required in the Helm installation if you select to <a href="./helm.html">disable webhooks</a>,
-but that is not recommended outside of playground use.</p>
-</div>
-</li>
-<li>
-<p>For production usage, <a href="https://helm.sh">Helm</a> is recommended.</p>
-</li>
-<li>Optional: For playground usage, you can use <a href="https://kind.sigs.k8s.io/">kind</a>.</li>
+<li><code>aiven-rotation-published-at</code>: the last publication time, in RFC3339Nano format.</li>
+<li><code>aiven-rotation-desired-username</code>: the next user.</li>
+<li><code>aiven-rotation-desired-password</code>: the password prepared for that user.</li>
 </ul>
+<p>Before changing a password in Aiven, the operator saves the next credentials in
+these keys. Retries use the same saved password, including after a restart or a
+lost API response. Once the new connection details are ready, one Secret update
+publishes the credentials, records the time and removes the pending pair.</p>
+<p>Before the first publication, the Secret contains only the pending pair.
+Applications need the public connection keys to connect. Tools that reload
+workloads on any Secret change may also react to preparation, before those
+public keys change.</p>
+<h2 id="password-changes-outside-rotation">Password changes outside rotation<a class="headerlink" href="#password-changes-outside-rotation" title="Permanent link">&para;</a></h2>
+<p>Passwords go from the operator to Aiven during rotation. The operator doesn't
+detect or undo password changes made elsewhere, and it doesn't copy passwords
+from Aiven. Restoring an old password could break clients using a new one.</p>
+<p>If someone changes the active password, the Secret keeps the old value. New
+connections may fail until the next successful rotation or manual recovery.</p>
+<p>If the active user is deleted, reconciliation fails while reading its connection
+details. Its owner must restore the user and its permissions. Recreating it
+doesn't restore the published password, and rotation still leaves that password
+unchanged until the next scheduled switch or manual recovery.</p>
+<h2 id="errors-and-recovery">Errors and recovery<a class="headerlink" href="#errors-and-recovery" title="Permanent link">&para;</a></h2>
+<p>A failed password request leaves the pending pair saved for a retry. The current
+username, password and publication time stay unchanged. If there's a published
+user, its connection details are refreshed before the request. Errors reading
+Aiven data or writing the Secret can still block that refresh.</p>
+<p>A missing inactive user doesn't block connection refreshes. When its turn comes,
+the password request fails and the operator retries the saved candidate. It
+doesn't create the missing user.</p>
+<p>Don't edit the managed credential keys. The operator discards incomplete pending
+pairs and candidates outside the pool, but it doesn't repair arbitrary changes.
+Discarding an invalid pair doesn't bring the next rotation forward.</p>
+<p>Back up the whole Secret, including the rotation state:</p>
+<ul>
+<li>Deleting the Secret loses that state. The operator starts again with the first
+  user and a new password.</li>
+<li>An old backup may contain a password that no longer works. Restoring the Secret
+  doesn't restore that password in Aiven.</li>
+<li>An invalid publication time blocks credential updates. Restore it from a
+  backup. Removing the timestamp is treated as no previous publication and can
+  cause an immediate password change.</li>
+</ul>
+<p>The <code>Error</code> condition reports the last reconciliation failure and disappears
+after a successful reconcile. It doesn't tell you whether applications can
+connect. Status shows the last successful reconciliation. Before the first one,
+its username and times are empty. Changing status doesn't control rotation.
+Monitor application connections as well as operator errors.</p>
+<h2 id="deletion">Deletion<a class="headerlink" href="#deletion" title="Permanent link">&para;</a></h2>
+<p>Deleting <code>ServiceUserRotation</code> stops rotation. The Aiven users, their passwords
+and permissions stay unchanged. Their lifecycle remains with <code>ServiceUser</code> or
+the external process that manages them.</p>
+<p>The owned connection Secret is deleted. Copy any credentials you need to keep
+elsewhere before deleting the rotation resource.</p>
 
 
 
@@ -3431,7 +3760,7 @@ but that is not recommended outside of playground use.</p>
       <nav class="md-footer__inner md-grid" aria-label="Footer" >
         
           
-          <a href="../changelog.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: Changelog">
+          <a href="./serviceuser-password-management.html" class="md-footer__link md-footer__link--prev" aria-label="Previous: ServiceUser Password Management">
             <div class="md-footer__button md-icon">
               
               <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-arrow-left" viewBox="0 0 24 24"><path d="m12 19-7-7 7-7M19 12H5"/></svg>
@@ -3441,20 +3770,20 @@ but that is not recommended outside of playground use.</p>
                 Previous
               </span>
               <div class="md-ellipsis">
-                Changelog
+                ServiceUser Password Management
               </div>
             </div>
           </a>
         
         
           
-          <a href="./helm.html" class="md-footer__link md-footer__link--next" aria-label="Next: Install with Helm (recommended)">
+          <a href="../controllers/reconciler.html" class="md-footer__link md-footer__link--next" aria-label="Next: Generic reconciler">
             <div class="md-footer__title">
               <span class="md-footer__direction">
                 Next
               </span>
               <div class="md-ellipsis">
-                Install with Helm (recommended)
+                Generic reconciler
               </div>
             </div>
             <div class="md-footer__button md-icon">
