@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.47.0 - 2026-09-21
+
 - Add up to 10% jitter to the periodic reconcile interval.
 - Add kind: `ServiceUserRotation` to manage a rotating pool of service users behind a stable connection Secret.
 - Change `Kafka` field `userConfig.karapace_version`: pattern ~~`^[0-9]+\.[0-9]+\.[0-9]+$`~~

@@ -1,6 +1,17 @@
 # Changelog
 
 
+## v0.47.0 - 2026-09-21
+
+- Add up to 10% jitter to the periodic reconcile interval.
+- Add kind: `ServiceUserRotation` to manage a rotating pool of service users behind a stable connection Secret.
+- Change `Kafka` field `userConfig.karapace_version`: pattern ~~`^[0-9]+\.[0-9]+\.[0-9]+$`~~
+- Remove the character pattern from `KafkaTopic` `tags` key and value; only the length limits remain.
+- Add `Valkey` field `userConfig.valkey_active_defrag_ignore_bytes`, type `integer`: Minimum amount of
+  fragmentation waste, in bytes, before active defragmentation starts
+- Add `Valkey` field `userConfig.valkey_active_defrag_threshold_lower`, type `integer`: Minimum percentage
+  of fragmentation before active defragmentation starts
+
 ## v0.46.0 - 2026-09-04
 
 - Fix `KafkaSchema` silently ignoring the removal of `compatibilityLevel`: a subject-level override
