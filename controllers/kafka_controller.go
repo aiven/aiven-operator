@@ -142,3 +142,20 @@ func addKafkaEndpointDetails(details SecretDetails, components []service.Compone
 		}
 	}
 }
+
+// refreshKafkaEndpointDetails replaces optional Kafka endpoints in existing Secret data.
+func refreshKafkaEndpointDetails(data map[string][]byte, components []service.ComponentOut, prefix string) {
+	for _, key := range []string{
+		prefix + "SASL_HOST",
+		prefix + "SASL_PORT",
+		prefix + "SCHEMA_REGISTRY_HOST",
+		prefix + "SCHEMA_REGISTRY_PORT",
+	} {
+		delete(data, key)
+	}
+	details := make(SecretDetails)
+	addKafkaEndpointDetails(details, components, prefix)
+	for key, value := range details {
+		data[key] = []byte(value)
+	}
+}
