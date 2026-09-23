@@ -56,7 +56,11 @@ func main() {
 	var development bool
 	var webhookPort int
 	var pollInterval time.Duration
+	var controllersSpec string
 	flag.IntVar(&webhookPort, "webhook-port", webhookDefaultPort, "Webhook server port (default: 9443)")
+	flag.StringVar(&controllersSpec, "controllers", "*",
+		"Kinds the operator reconciles: \"*\" for all, \"Kafka,KafkaTopic\" for an allow list, "+
+			"\"*,-Flink\" to exclude kinds.")
 	flag.DurationVar(&pollInterval, "poll-interval", controllers.DefaultPollInterval,
 		"How often resources in a steady state are re-reconciled against the Aiven API. "+
 			"Accepted range is 10m-60m.")
@@ -87,6 +91,10 @@ func main() {
 	// Validated before the manager is built, so a bad value costs nothing.
 	if err := controllers.ValidatePollInterval(pollInterval); err != nil {
 		setupLog.Error(err, "invalid --poll-interval")
+		os.Exit(1)
+	}
+	if err := controllers.ValidateControllers(controllersSpec); err != nil {
+		setupLog.Error(err, "invalid --controllers")
 		os.Exit(1)
 	}
 
@@ -156,6 +164,7 @@ func main() {
 		KubeVersion:     kubeVersion.String(),
 		OperatorVersion: operatorVersion,
 		PollInterval:    pollInterval,
+		Controllers:     controllersSpec,
 	})
 	if err != nil {
 		setupLog.Error(err, "controllers setup error")

@@ -51,6 +51,9 @@ type (
 		OperatorVersion string
 		PollInterval    time.Duration
 		newAivenClient  func(token, kubeVersion, operatorVersion string) (avngen.Client, error)
+
+		// EnabledKinds are the kinds selected by --controllers.
+		EnabledKinds kindSet
 	}
 
 	// Handlers represents Aiven API handlers
@@ -151,6 +154,7 @@ func (c *Controller) reconcileInstance(ctx context.Context, req ctrl.Request, h 
 		log:    instanceLogger,
 		s:      clientAuthSecret,
 		rec:    c.Recorder,
+		kinds:  c.EnabledKinds,
 	}
 
 	requeue, err := helper.reconcile(ctx, o)
@@ -180,6 +184,9 @@ type instanceReconcilerHelper struct {
 
 	// rec, recorder to record events for the object
 	rec record.EventRecorder
+
+	// kinds, the kinds selected by --controllers
+	kinds kindSet
 }
 
 func (i *instanceReconcilerHelper) reconcile(ctx context.Context, o v1alpha1.AivenManagedObject) (bool, error) {
@@ -273,6 +280,11 @@ func (i *instanceReconcilerHelper) reconcileInstance(ctx context.Context, o v1al
 	// check instance preconditions, if not met - requeue
 	i.log.Info("handling service update/creation")
 	refs, err := i.getObjectRefs(ctx, o)
+	if errors.Is(err, errRefKindDisabled) {
+		i.rec.Event(o, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
+		meta.SetStatusCondition(o.Conditions(), getErrorCondition(errConditionPreconditions, err))
+		return false, err
+	}
 	if err != nil {
 		i.log.Info(fmt.Sprintf("one or more references can't be found yet: %s", err))
 		return true, nil
@@ -380,6 +392,10 @@ func (i *instanceReconcilerHelper) getObjectRefs(ctx context.Context, o client.O
 	schema := i.k8s.Scheme()
 	objs := make([]client.Object, 0, len(refs))
 	for _, r := range refs {
+		if err := i.kinds.checkRef(r.GroupVersionKind); err != nil {
+			return nil, err
+		}
+
 		runtimeObj, err := schema.New(r.GroupVersionKind)
 		if err != nil {
 			return nil, fmt.Errorf("unknown GroupVersionKind %s: %w", r.GroupVersionKind, err)

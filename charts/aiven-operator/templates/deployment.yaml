@@ -83,6 +83,9 @@ spec:
             {{- end }}
             - --poll-interval={{ $pollInterval }}
             {{- end }}
+            {{- if .Values.controllers }}
+            - --controllers={{ .Values.controllers }}
+            {{- end }}
 
           ports:
             - name: metrics

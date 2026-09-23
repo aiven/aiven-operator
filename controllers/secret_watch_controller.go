@@ -11,7 +11,9 @@ import (
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	"k8s.io/apimachinery/pkg/fields"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -27,6 +29,9 @@ type SecretWatchController struct {
 	client.Client
 
 	Log logr.Logger
+
+	// Sources are the kinds whose connInfoSecretSource is indexed and re-triggered on secret changes.
+	Sources []secretSourceKind
 }
 
 const (
@@ -101,12 +106,26 @@ type SecretSourceResource interface {
 	GetConnInfoSecretSource() *v1alpha1.ConnInfoSecretSource
 }
 
-// getResourcesWithSecretSource returns all known resource types that implement SecretSourceResource
+// secretSourceKind pairs a kind that supports connInfoSecretSource with its object and list types.
+type secretSourceKind struct {
+	kind string
+	obj  SecretSourceResource
+	list client.ObjectList
+}
+
+// allSecretSourceKinds are the kinds that implement SecretSourceResource.
+var allSecretSourceKinds = []secretSourceKind{
+	{kind: "ServiceUser", obj: &v1alpha1.ServiceUser{}, list: &v1alpha1.ServiceUserList{}},
+	{kind: "ClickhouseUser", obj: &v1alpha1.ClickhouseUser{}, list: &v1alpha1.ClickhouseUserList{}},
+}
+
+// getResourcesWithSecretSource returns the resource types this controller indexes
 func (c *SecretWatchController) getResourcesWithSecretSource() []SecretSourceResource {
-	return []SecretSourceResource{
-		&v1alpha1.ServiceUser{},
-		&v1alpha1.ClickhouseUser{},
+	res := make([]SecretSourceResource, 0, len(c.Sources))
+	for _, k := range c.Sources {
+		res = append(res, k.obj)
 	}
+	return res
 }
 
 // connInfoSecretRefIndexFunc indexes the secret names referenced by connInfoSecretSource
@@ -147,28 +166,24 @@ func (c *SecretWatchController) findResourcesUsingSecret(ctx context.Context, se
 	secretKey := fmt.Sprintf("%s/%s", secret.Namespace, secret.Name)
 	var allResources []SecretSourceResource //nolint:prealloc
 
-	serviceUserList := &v1alpha1.ServiceUserList{}
-	err := c.List(ctx, serviceUserList, &client.ListOptions{
-		FieldSelector: fields.OneTermEqualSelector(connInfoSecretRefIndexKey, secretKey),
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to list ServiceUsers: %w", err)
-	}
+	for _, k := range c.Sources {
+		list := k.list.DeepCopyObject().(client.ObjectList)
+		err := c.List(ctx, list, &client.ListOptions{
+			FieldSelector: fields.OneTermEqualSelector(connInfoSecretRefIndexKey, secretKey),
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to list %ss: %w", k.kind, err)
+		}
 
-	for i := range serviceUserList.Items {
-		allResources = append(allResources, &serviceUserList.Items[i])
-	}
-
-	clickhouseUserList := &v1alpha1.ClickhouseUserList{}
-	err = c.List(ctx, clickhouseUserList, &client.ListOptions{
-		FieldSelector: fields.OneTermEqualSelector(connInfoSecretRefIndexKey, secretKey),
-	})
-	if err != nil {
-		return nil, fmt.Errorf("failed to list ClickhouseUsers: %w", err)
-	}
-
-	for i := range clickhouseUserList.Items {
-		allResources = append(allResources, &clickhouseUserList.Items[i])
+		err = meta.EachListItem(list, func(o runtime.Object) error {
+			if r, ok := o.(SecretSourceResource); ok {
+				allResources = append(allResources, r)
+			}
+			return nil
+		})
+		if err != nil {
+			return nil, fmt.Errorf("failed to iterate %ss: %w", k.kind, err)
+		}
 	}
 
 	return allResources, nil

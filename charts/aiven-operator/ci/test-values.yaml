@@ -12,3 +12,5 @@ logging:
   encoder: json
 
 pollInterval: 15m
+
+controllers: "*,-Flink"

@@ -356,9 +356,44 @@ func TestReconciler_Reconcile(t *testing.T) {
 		require.Contains(t, err.Error(), "unable to resolve references:")
 		require.Contains(t, err.Error(), "creating "+gvk.String())
 
-		require.Equal(t, []string{
-			"Warning UnableToWaitForPreconditions " + strings.TrimPrefix(err.Error(), "unable to resolve references: "),
-		}, recorderEvents(recorder))
+		// The status persist fails too on this scheme; the event carries only the resolve error.
+		events := recorderEvents(recorder)
+		require.Len(t, events, 1)
+		require.True(t, strings.HasPrefix(events[0], "Warning UnableToWaitForPreconditions creating "+gvk.String()), events[0])
+	})
+
+	t.Run("Persists error condition when a ref kind is disabled", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgresWithRef)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.PostgreSQL{}).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		r := &Reconciler[*v1alpha1.PostgreSQL]{
+			Controller: Controller{
+				Client:       k8sClient,
+				Scheme:       scheme,
+				Recorder:     recorder,
+				EnabledKinds: kindSet{"PostgreSQL": true},
+			},
+			newObj: func() *v1alpha1.PostgreSQL { return &v1alpha1.PostgreSQL{} },
+		}
+
+		nn := types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}
+		res, err := r.Reconcile(t.Context(), ctrl.Request{NamespacedName: nn})
+
+		require.Equal(t, ctrl.Result{}, res)
+		require.ErrorIs(t, err, errRefKindDisabled)
+
+		got := &v1alpha1.PostgreSQL{}
+		require.NoError(t, k8sClient.Get(t.Context(), nn, got))
+		cond := meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError)
+		require.NotNil(t, cond)
+		require.Equal(t, string(errConditionPreconditions), cond.Reason)
+		require.Contains(t, cond.Message, "enable ProjectVPC")
 	})
 
 	t.Run("Requests requeue when refs are not ready", func(t *testing.T) {
@@ -1531,6 +1566,23 @@ func TestReconciler_resolveK8sRefs(t *testing.T) {
 		requeue, err := r.resolveK8sRefs(t.Context(), obj)
 
 		require.EqualError(t, err, fmt.Sprintf("creating %s: %s", gvk, underlying.Error()))
+		require.False(t, requeue)
+	})
+
+	t.Run("Error if dependency kind is disabled", func(t *testing.T) {
+		// No client: the ref is rejected before any Get, so no informer starts for the disabled kind.
+		r := &Reconciler[*v1alpha1.PostgreSQL]{
+			Controller: Controller{
+				Scheme:       scheme,
+				EnabledKinds: kindSet{"PostgreSQL": true},
+			},
+		}
+
+		obj := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgresWithRef)
+		requeue, err := r.resolveK8sRefs(t.Context(), obj)
+
+		require.ErrorIs(t, err, errRefKindDisabled)
+		require.ErrorContains(t, err, "enable ProjectVPC")
 		require.False(t, requeue)
 	})
 
