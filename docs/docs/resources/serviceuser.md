@@ -205,7 +205,11 @@ ServiceUserSpec defines the desired state of ServiceUser.
 - [`accessControl`](#spec.accessControl-property){: name='spec.accessControl-property'} (object). AccessControl Service type specific access control rules for user.
     When this block is present, the operator manages the full access-control scope it contains. See below for [nested schema](#spec.accessControl).
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
-- [`authentication`](#spec.authentication-property){: name='spec.authentication-property'} (string, Enum: `caching_sha2_password`, `mysql_native_password`). Authentication details.
+- [`authentication`](#spec.authentication-property){: name='spec.authentication-property'} (string, Enum: `caching_sha2_password`, `mysql_native_password`). Authentication method for the user. MySQL only.
+    When set, the operator applies it on creation and restores it if it is changed outside the operator.
+    Changing the method resets the user credentials: the password from connInfoSecretSource is used,
+    otherwise the current password is reused.
+    Leave unset to keep authentication unmanaged.
 - [`connInfoSecretSource`](#spec.connInfoSecretSource-property){: name='spec.connInfoSecretSource-property'} (object). ConnInfoSecretSource declares the password the operator should enforce on the user.
     Direct password changes in the database will be reverted on the next reconcile cycle.
     To rotate, update the source secret.

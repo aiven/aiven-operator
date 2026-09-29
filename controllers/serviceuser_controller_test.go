@@ -1251,10 +1251,18 @@ func TestServiceUserReconciler(t *testing.T) {
 				require.Equal(t, []byte(user.Spec.Username), secret.Data["SERVICEUSER_USERNAME"])
 				require.Equal(t, []byte(password), secret.Data["SERVICEUSER_PASSWORD"])
 
+				rec := r.Recorder.(*record.FakeRecorder)
+				require.True(t, slices.ContainsFunc(recorderEvents(rec), func(e string) bool {
+					return strings.Contains(e, eventAuthenticationReset)
+				}), "expected %s event", eventAuthenticationReset)
+
 				// Once the method matches, the next poll must not reset credentials again.
 				res, err := r.Reconcile(t.Context(), ctrlruntime.Request{NamespacedName: client.ObjectKeyFromObject(user)})
 				require.NoError(t, err)
 				require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+				require.False(t, slices.ContainsFunc(recorderEvents(rec), func(e string) bool {
+					return strings.Contains(e, eventAuthenticationReset)
+				}), "unexpected %s event: authentication already matched", eventAuthenticationReset)
 			})
 		}
 	})
@@ -1287,6 +1295,9 @@ func TestServiceUserReconciler(t *testing.T) {
 		got := &v1alpha1.ServiceUser{}
 		require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), got))
 		require.Equal(t, "2", got.Annotations[processedGenerationAnnotation])
+		require.False(t, slices.ContainsFunc(recorderEvents(r.Recorder.(*record.FakeRecorder)), func(e string) bool {
+			return strings.Contains(e, eventAuthenticationReset)
+		}), "unexpected %s event: authentication already matched", eventAuthenticationReset)
 	})
 
 	t.Run("Skips authentication during Update when the API omits the field", func(t *testing.T) {
@@ -1414,6 +1425,9 @@ func TestServiceUserReconciler(t *testing.T) {
 
 		r, _, err := runScenarioErr(t, user, avn, secret)
 		require.ErrorContains(t, err, "cannot change service user authentication without a known password")
+		require.False(t, slices.ContainsFunc(recorderEvents(r.Recorder.(*record.FakeRecorder)), func(e string) bool {
+			return strings.Contains(e, eventAuthenticationReset)
+		}), "unexpected %s event: nothing was reset", eventAuthenticationReset)
 		got := &v1alpha1.ServiceUser{}
 		require.NoError(t, r.Get(t.Context(), client.ObjectKeyFromObject(user), got))
 		require.NotNil(t, meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError))

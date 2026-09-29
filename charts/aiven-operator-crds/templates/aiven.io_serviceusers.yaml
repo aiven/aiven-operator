@@ -95,7 +95,12 @@ spec:
                     - name
                   type: object
                 authentication:
-                  description: Authentication details
+                  description: |-
+                    Authentication method for the user. MySQL only.
+                    When set, the operator applies it on creation and restores it if it is changed outside the operator.
+                    Changing the method resets the user credentials: the password from connInfoSecretSource is used,
+                    otherwise the current password is reused.
+                    Leave unset to keep authentication unmanaged.
                   enum:
                     - caching_sha2_password
                     - mysql_native_password

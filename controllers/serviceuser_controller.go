@@ -55,7 +55,10 @@ type ServiceUserController struct {
 	rec    record.EventRecorder
 }
 
-const eventSkippedDeletionAtAiven = "SkippedDeletionAtAiven"
+const (
+	eventSkippedDeletionAtAiven = "SkippedDeletionAtAiven"
+	eventAuthenticationReset    = "AuthenticationReset"
+)
 
 func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.ServiceUser) (Observation, error) {
 	u, details, err := r.fetchUser(ctx, user, false)
@@ -155,12 +158,17 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 		}
 		if u.Authentication == "" {
 			authentication = ""
-		} else if password == "" && u.Authentication != authentication {
-			// Authentication changes require a credentials reset. Keep the current password.
-			password = u.Password
+		} else if u.Authentication != authentication {
 			if password == "" {
-				return UpdateResult{}, errors.New("cannot change service user authentication without a known password: set spec.connInfoSecretSource")
+				// Authentication changes require a credentials reset. Keep the current password.
+				password = u.Password
+				if password == "" {
+					return UpdateResult{}, errors.New("cannot change service user authentication without a known password: set spec.connInfoSecretSource")
+				}
 			}
+			r.rec.Eventf(user, corev1.EventTypeNormal, eventAuthenticationReset,
+				"resetting credentials of user %q to change authentication from %q to %q",
+				user.GetUsername(), u.Authentication, authentication)
 		}
 	}
 	wrotePassword, err := r.setAivenPasswordIfProvided(ctx, user, password, authentication)
