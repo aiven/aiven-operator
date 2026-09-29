@@ -41,7 +41,11 @@ type ServiceUserSpec struct {
 	AccessControl *ServiceUserAccessControl `json:"accessControl,omitempty"`
 
 	// +kubebuilder:validation:Enum=caching_sha2_password;mysql_native_password
-	// Authentication details
+	// Authentication method for the user. MySQL only.
+	// When set, the operator applies it on creation and restores it if it is changed outside the operator.
+	// Changing the method resets the user credentials: the password from connInfoSecretSource is used,
+	// otherwise the current password is reused.
+	// Leave unset to keep authentication unmanaged.
 	Authentication service.AuthenticationType `json:"authentication,omitempty"`
 }
 
