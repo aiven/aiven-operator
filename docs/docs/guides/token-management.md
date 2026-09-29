@@ -8,7 +8,8 @@ The Aiven Operator needs valid Aiven API tokens to manage resources. The operato
 
 1. **Centralized Token Management**: One token configured at the operator level
 2. **Per-Resource Token Management**: Individual tokens specified for each resource
-3. **Mixed Approach**: Combination of both, with per-resource tokens taking precedence
+
+The approaches can't be combined: when a default token is configured, it's used for every resource.
 
 ## Centralized Token Management
 
@@ -100,51 +101,17 @@ The Aiven Operator needs valid Aiven API tokens to manage resources. The operato
        name: postgres-connection
    ```
 
-## Mixed Approach
-
-You can combine both approaches:
-
-```yaml
-# Operator configured with default token
-defaultTokenSecret:
-  name: "aiven-default-token"
-  key: "token"
-```
-
-```yaml
-# Most resources use default token
-apiVersion: aiven.io/v1alpha1
-kind: Valkey
-metadata:
-  name: shared-cache
-  namespace: development
-spec:
-  # Uses default token
-  project: dev-project
-  plan: hobbyist
-  
----
-# Dedicated token
-apiVersion: aiven.io/v1alpha1
-kind: PostgreSQL
-metadata:
-  name: critical-db
-  namespace: production
-spec:
-  authSecretRef:
-    name: production-token  # Override default
-    key: token
-  project: production-project
-  plan: business-8
-```
-
 ## Token Priority
 
-The operator resolves tokens in the following priority order:
+The operator resolves tokens in the following order:
 
-1. **Resource-level `authSecretRef`** (highest priority)
-2. **Operator-level `defaultTokenSecret`** (fallback)
+1. **Operator-level `defaultTokenSecret`**: if configured, it's used for every resource and
+   `authSecretRef` is ignored
+2. **Resource-level `authSecretRef`**: used only when no default token is configured
 3. **No token** (results in error)
+
+To use different tokens for different resources, don't configure `defaultTokenSecret`, and set
+`authSecretRef` on every resource.
 
 ## Updating Tokens
 

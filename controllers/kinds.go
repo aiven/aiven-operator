@@ -52,7 +52,7 @@ func parseControllers(spec string, known []string) (kindSet, error) {
 
 	all := false
 	var allow, deny []string
-	for _, tok := range strings.Split(spec, ",") {
+	for tok := range strings.SplitSeq(spec, ",") {
 		tok = strings.TrimSpace(tok)
 		switch {
 		case tok == "":
