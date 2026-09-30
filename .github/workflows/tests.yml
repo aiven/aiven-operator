@@ -97,6 +97,7 @@ jobs:
       - uses: arduino/setup-task@v3
         with:
           version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
       - id: find_tests
         run: |
           output=$(task find-test-tags TAGS="${{ inputs.test_tags }}")
