@@ -1,6 +1,17 @@
 # Changelog
 
 
+## v0.48.0 - 2026-10-01
+
+- **BREAKING**: `ServiceUser` now applies `spec.authentication` when creating Aiven users and
+  corrects drift for existing users when the API returns this field. After upgrading, users whose
+  authentication method differs from the spec will be updated during reconciliation. This can
+  break connections from clients that don't support the configured method. Leaving the field
+  unset keeps authentication unmanaged. The operator uses the password from `connInfoSecretSource`
+  or reuses the current password from Aiven. If neither is available, reconciliation fails.
+- Add `--controllers` flag and `controllers` Helm value to choose which kinds the operator reconciles,
+  e.g. `Kafka,KafkaTopic` or `*,-Flink`.
+
 ## v0.47.0 - 2026-09-21
 
 - Add up to 10% jitter to the periodic reconcile interval.
