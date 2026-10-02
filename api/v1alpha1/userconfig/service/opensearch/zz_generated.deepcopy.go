@@ -859,8 +859,23 @@ func (in *Opensearch) DeepCopyInto(out *Opensearch) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.MlCommonsMaxModelOnNode != nil {
+		in, out := &in.MlCommonsMaxModelOnNode, &out.MlCommonsMaxModelOnNode
+		*out = new(int)
+		**out = **in
+	}
 	if in.MlCommonsModelAccessControlEnabled != nil {
 		in, out := &in.MlCommonsModelAccessControlEnabled, &out.MlCommonsModelAccessControlEnabled
+		*out = new(bool)
+		**out = **in
+	}
+	if in.MlCommonsModelAutoDeployEnable != nil {
+		in, out := &in.MlCommonsModelAutoDeployEnable, &out.MlCommonsModelAutoDeployEnable
+		*out = new(bool)
+		**out = **in
+	}
+	if in.MlCommonsModelAutoRedeployEnable != nil {
+		in, out := &in.MlCommonsModelAutoRedeployEnable, &out.MlCommonsModelAutoRedeployEnable
 		*out = new(bool)
 		**out = **in
 	}

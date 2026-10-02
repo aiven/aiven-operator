@@ -64,6 +64,11 @@ type DatadogUserConfig struct {
 	// Enable collection of PL/pgSQL function metrics from pg_stat_user_functions. Requires 'track_functions' to be set to 'pl' or 'all' in the service configuration.
 	DatadogFunctionMetricsEnabled *bool `groups:"create,update" json:"datadog_function_metrics_enabled,omitempty"`
 
+	// +kubebuilder:validation:MaxLength=63
+	// +kubebuilder:validation:Pattern=`^[_A-Za-z0-9][-_A-Za-z0-9]{0,62}$`
+	// Database the Datadog PostgreSQL check connects to. Relation metrics are collected only from this database. The main service database is used when unset. Database Monitoring collects query statistics from every database regardless of this option.
+	DatadogPgDbname *string `groups:"create,update" json:"datadog_pg_dbname,omitempty"`
+
 	// +kubebuilder:validation:MaxItems=32
 	// Relations to collect PostgreSQL relation metrics for, such as table size, index statistics, row counts, vacuum ages and locks. No relation metrics are collected when unset.
 	DatadogPgRelations []*DatadogPgRelations `groups:"create,update" json:"datadog_pg_relations,omitempty"`

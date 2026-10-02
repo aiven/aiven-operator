@@ -291,7 +291,7 @@ PostgreSQL specific user configuration options.
 - [`switchover_windows`](#spec.userConfig.switchover_windows-property){: name='spec.userConfig.switchover_windows-property'} (array of objects, MaxItems: 28). See below for [nested schema](#spec.userConfig.switchover_windows).
 - [`synchronous_replication`](#spec.userConfig.synchronous_replication-property){: name='spec.userConfig.synchronous_replication-property'} (string, Enum: `off`, `quorum`). This setting is deprecated. Use synchronous_commit instead. Any change to this setting will automatically update synchronous_commit. Setting the value to quorum changes synchronous_commit to remote_write, while setting it to off changes synchronous_commit to off.
 - [`timescaledb`](#spec.userConfig.timescaledb-property){: name='spec.userConfig.timescaledb-property'} (object). System-wide settings for the timescaledb extension. See below for [nested schema](#spec.userConfig.timescaledb).
-- [`variant`](#spec.userConfig.variant-property){: name='spec.userConfig.variant-property'} (string, Enum: `aiven`, `timescale`). Variant of the PostgreSQL service, may affect the features that are exposed by default.
+- [`variant`](#spec.userConfig.variant-property){: name='spec.userConfig.variant-property'} (string, Enum: `aiven`, `pg_lake`, `timescale`). Variant of the PostgreSQL service, may affect the features that are exposed by default.
 - [`work_mem`](#spec.userConfig.work_mem-property){: name='spec.userConfig.work_mem-property'} (integer, Minimum: 1, Maximum: 1024). Sets the maximum amount of memory to be used by a query operation (such as a sort or hash table) before writing to temporary disk files, in MB. The default is 1MB + 0.075% of total RAM (up to 32MB).
 
 ### ip_filter {: #spec.userConfig.ip_filter }

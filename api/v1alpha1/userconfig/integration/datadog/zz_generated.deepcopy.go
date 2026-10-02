@@ -74,6 +74,11 @@ func (in *DatadogUserConfig) DeepCopyInto(out *DatadogUserConfig) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.DatadogPgDbname != nil {
+		in, out := &in.DatadogPgDbname, &out.DatadogPgDbname
+		*out = new(string)
+		**out = **in
+	}
 	if in.DatadogPgRelations != nil {
 		in, out := &in.DatadogPgRelations, &out.DatadogPgRelations
 		*out = make([]*DatadogPgRelations, len(*in))

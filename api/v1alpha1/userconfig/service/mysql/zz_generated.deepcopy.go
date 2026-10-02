@@ -199,6 +199,26 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.InnodbMaxDirtyPagesPct != nil {
+		in, out := &in.InnodbMaxDirtyPagesPct, &out.InnodbMaxDirtyPagesPct
+		*out = new(float64)
+		**out = **in
+	}
+	if in.InnodbMaxDirtyPagesPctLwm != nil {
+		in, out := &in.InnodbMaxDirtyPagesPctLwm, &out.InnodbMaxDirtyPagesPctLwm
+		*out = new(float64)
+		**out = **in
+	}
+	if in.InnodbMaxPurgeLag != nil {
+		in, out := &in.InnodbMaxPurgeLag, &out.InnodbMaxPurgeLag
+		*out = new(int)
+		**out = **in
+	}
+	if in.InnodbMaxPurgeLagDelay != nil {
+		in, out := &in.InnodbMaxPurgeLagDelay, &out.InnodbMaxPurgeLagDelay
+		*out = new(int)
+		**out = **in
+	}
 	if in.InnodbOnlineAlterLogMaxSize != nil {
 		in, out := &in.InnodbOnlineAlterLogMaxSize, &out.InnodbOnlineAlterLogMaxSize
 		*out = new(int)

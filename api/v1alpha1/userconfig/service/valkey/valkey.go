@@ -127,6 +127,11 @@ type ValkeyUserConfig struct {
 	// Name of the basebackup to restore in forked service
 	RecoveryBasebackupName *string `groups:"create,update" json:"recovery_basebackup_name,omitempty"`
 
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=2
+	// Number of replicas per shard in the Valkey cluster. Only applies to cluster plans.
+	Replicas *int `groups:"create,update" json:"replicas,omitempty"`
+
 	// Store logs for the service so that they are available in the HTTP API and console.
 	ServiceLog *bool `groups:"create,update" json:"service_log,omitempty"`
 
@@ -135,6 +140,11 @@ type ValkeyUserConfig struct {
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
 	// Name of another service to fork from. This has effect only when a new service is being created.
 	ServiceToForkFrom *string `groups:"create" json:"service_to_fork_from,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=5
+	// Number of shards (primaries) in the Valkey cluster. Required for cluster plans.
+	ShardCount *int `groups:"create,update" json:"shard_count,omitempty"`
 
 	// Use static public IP addresses
 	StaticIps *bool `groups:"create,update" json:"static_ips,omitempty"`

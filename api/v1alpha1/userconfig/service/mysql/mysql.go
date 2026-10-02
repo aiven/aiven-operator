@@ -164,6 +164,26 @@ type Mysql struct {
 	// The size in bytes of the buffer that InnoDB uses to write to the log files on disk. Requests above 15% of the RAM provided by your service plan are rejected, because a larger buffer leaves less memory for the buffer pool and client connections.
 	InnodbLogBufferSize *int `groups:"create,update" json:"innodb_log_buffer_size,omitempty"`
 
+	// +kubebuilder:validation:Minimum=5
+	// +kubebuilder:validation:Maximum=99
+	// Percentage of dirty pages in the InnoDB buffer pool at which InnoDB starts flushing aggressively. Lowering it spreads write I/O more evenly and shortens crash recovery, at the cost of flushing pages that might have been modified again. Must stay at or above innodb_max_dirty_pages_pct_lwm. Default is 90.
+	InnodbMaxDirtyPagesPct *float64 `groups:"create,update" json:"innodb_max_dirty_pages_pct,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=99
+	// Percentage of dirty pages in the InnoDB buffer pool at which InnoDB starts pre-flushing, to keep the dirty page ratio from reaching innodb_max_dirty_pages_pct. 0 turns pre-flushing off. Cannot be set above innodb_max_dirty_pages_pct. Default is 10.
+	InnodbMaxDirtyPagesPctLwm *float64 `groups:"create,update" json:"innodb_max_dirty_pages_pct_lwm,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=4294967295
+	// Number of outstanding transactions the InnoDB purge operation may fall behind by before INSERT, UPDATE and DELETE are delayed to let it catch up. The delay applies per row and grows with the lag, and it is capped by innodb_max_purge_lag_delay, which has to be set as well for this option to have any effect. Default is 0, which never delays anything.
+	InnodbMaxPurgeLag *int `groups:"create,update" json:"innodb_max_purge_lag,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=10000000
+	// Cap in microseconds on the per-row delay innodb_max_purge_lag applies to INSERT, UPDATE and DELETE. MySQL clamps the delay to this value unconditionally, so while this is 0 no delay is ever applied and innodb_max_purge_lag on its own does nothing. Both options must be non-zero for either to take effect. Default is 0.
+	InnodbMaxPurgeLagDelay *int `groups:"create,update" json:"innodb_max_purge_lag_delay,omitempty"`
+
 	// +kubebuilder:validation:Minimum=65536
 	// +kubebuilder:validation:Maximum=1099511627776
 	// The upper limit in bytes on the size of the temporary log files used during online DDL operations for InnoDB tables.

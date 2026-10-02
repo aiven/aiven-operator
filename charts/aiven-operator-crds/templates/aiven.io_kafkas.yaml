@@ -417,6 +417,62 @@ spec:
                           maximum: 10
                           minimum: 1
                           type: integer
+                        group_consumer_heartbeat_interval_ms:
+                          description:
+                            "The heartbeat interval given to the members
+                            of a consumer group using the consumer rebalance protocol.
+                            Must be between group.consumer.min.heartbeat.interval.ms
+                            and group.consumer.max.heartbeat.interval.ms, and lower
+                            than group.consumer.session.timeout.ms. (Default: 5000 ms
+                            (5 seconds)) Requires Kafka 4.0 or later."
+                          maximum: 1800000
+                          minimum: 500
+                          type: integer
+                        group_consumer_max_heartbeat_interval_ms:
+                          description:
+                            "The maximum heartbeat interval allowed for consumer
+                            group members using the consumer rebalance protocol. Must
+                            not be less than group.consumer.min.heartbeat.interval.ms.
+                            (Default: 15000 ms (15 seconds)) Requires Kafka 4.0 or later."
+                          maximum: 1800000
+                          minimum: 500
+                          type: integer
+                        group_consumer_max_session_timeout_ms:
+                          description:
+                            "The maximum session timeout allowed for consumer
+                            group members using the consumer rebalance protocol. Must
+                            not be less than group.consumer.min.session.timeout.ms.
+                            (Default: 60000 ms (60 seconds)) Requires Kafka 4.0 or later."
+                          maximum: 1800000
+                          minimum: 1000
+                          type: integer
+                        group_consumer_min_heartbeat_interval_ms:
+                          description:
+                            "The minimum heartbeat interval allowed for consumer
+                            group members using the consumer rebalance protocol. Must
+                            not be greater than group.consumer.max.heartbeat.interval.ms.
+                            (Default: 5000 ms (5 seconds)) Requires Kafka 4.0 or later."
+                          maximum: 1800000
+                          minimum: 500
+                          type: integer
+                        group_consumer_min_session_timeout_ms:
+                          description:
+                            "The minimum session timeout allowed for consumer
+                            group members using the consumer rebalance protocol. Must
+                            not be greater than group.consumer.max.session.timeout.ms.
+                            (Default: 45000 ms (45 seconds)) Requires Kafka 4.0 or later."
+                          maximum: 1800000
+                          minimum: 1000
+                          type: integer
+                        group_consumer_session_timeout_ms:
+                          description:
+                            "The timeout used to detect consumer group member
+                            failures when using the consumer rebalance protocol. Must
+                            be between group.consumer.min.session.timeout.ms and group.consumer.max.session.timeout.ms.
+                            (Default: 45000 ms (45 seconds)) Requires Kafka 4.0 or later."
+                          maximum: 1800000
+                          minimum: 1000
+                          type: integer
                         group_coordinator_rebalance_protocols:
                           description:
                             The enabled consumer group rebalance protocols.

@@ -1367,6 +1367,7 @@ spec:
                         features that are exposed by default
                       enum:
                         - aiven
+                        - pg_lake
                         - timescale
                       type: string
                     work_mem:

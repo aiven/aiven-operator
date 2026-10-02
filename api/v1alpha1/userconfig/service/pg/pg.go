@@ -671,7 +671,7 @@ type PgUserConfig struct {
 	// System-wide settings for the timescaledb extension
 	Timescaledb *Timescaledb `groups:"create,update" json:"timescaledb,omitempty"`
 
-	// +kubebuilder:validation:Enum="aiven";"timescale"
+	// +kubebuilder:validation:Enum="aiven";"pg_lake";"timescale"
 	// Variant of the PostgreSQL service, may affect the features that are exposed by default
 	Variant *string `groups:"create,update" json:"variant,omitempty"`
 

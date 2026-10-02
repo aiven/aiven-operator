@@ -470,6 +470,16 @@ spec:
                         pg_stat_user_functions. Requires 'track_functions' to be set
                         to 'pl' or 'all' in the service configuration.
                       type: boolean
+                    datadog_pg_dbname:
+                      description:
+                        Database the Datadog PostgreSQL check connects to.
+                        Relation metrics are collected only from this database. The
+                        main service database is used when unset. Database Monitoring
+                        collects query statistics from every database regardless of
+                        this option.
+                      maxLength: 63
+                      pattern: ^[_A-Za-z0-9][-_A-Za-z0-9]{0,62}$
+                      type: string
                     datadog_pg_relations:
                       description:
                         Relations to collect PostgreSQL relation metrics
