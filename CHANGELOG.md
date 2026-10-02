@@ -2,6 +2,44 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `Kafka` field `userConfig.kafka.group_consumer_heartbeat_interval_ms`, type `integer`: The heartbeat
+  interval given to the members of a consumer group using the consumer rebalance protocol
+- Add `Kafka` field `userConfig.kafka.group_consumer_max_heartbeat_interval_ms`, type `integer`: The
+  maximum heartbeat interval allowed for consumer group members using the consumer rebalance protocol
+- Add `Kafka` field `userConfig.kafka.group_consumer_max_session_timeout_ms`, type `integer`: The maximum
+  session timeout allowed for consumer group members using the consumer rebalance protocol
+- Add `Kafka` field `userConfig.kafka.group_consumer_min_heartbeat_interval_ms`, type `integer`: The
+  minimum heartbeat interval allowed for consumer group members using the consumer rebalance protocol
+- Add `Kafka` field `userConfig.kafka.group_consumer_min_session_timeout_ms`, type `integer`: The minimum
+  session timeout allowed for consumer group members using the consumer rebalance protocol
+- Add `Kafka` field `userConfig.kafka.group_consumer_session_timeout_ms`, type `integer`: The timeout
+  used to detect consumer group member failures when using the consumer rebalance protocol
+- Add `MySQL` field `userConfig.mysql.innodb_max_dirty_pages_pct_lwm`, type `number`: Percentage of dirty
+  pages in the InnoDB buffer pool at which InnoDB starts pre-flushing, to keep the dirty page ratio
+  from reaching innodb_max_dirty_pages_pct
+- Add `MySQL` field `userConfig.mysql.innodb_max_dirty_pages_pct`, type `number`: Percentage of dirty
+  pages in the InnoDB buffer pool at which InnoDB starts flushing aggressively
+- Add `MySQL` field `userConfig.mysql.innodb_max_purge_lag_delay`, type `integer`: Cap in microseconds
+  on the per-row delay innodb_max_purge_lag applies to INSERT, UPDATE and DELETE
+- Add `MySQL` field `userConfig.mysql.innodb_max_purge_lag`, type `integer`: Number of outstanding transactions
+  the InnoDB purge operation may fall behind by before INSERT, UPDATE and DELETE are delayed
+  to let it catch up
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_max_model_on_node`, type `integer`: Maximum
+  number of ML models that can be deployed on a single ML node. Defaults to 10
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_model_auto_deploy_enable`, type `boolean`:
+  For externally hosted models only: automatically deploy a model on its first predict request instead
+  of requiring an explicit deploy call first
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_model_auto_redeploy_enable`, type `boolean`:
+  Automatically redeploy deployed or partially deployed models after ML nodes rejoin the cluster,
+  e.g
+- Change `PostgreSQL` field `userConfig.variant`: enum add `pg_lake`
+- Add `ServiceIntegration` field `datadog.datadog_pg_dbname`, type `string`: Database the Datadog PostgreSQL
+  check connects to
+- Add `Valkey` field `userConfig.replicas`, type `integer`: Number of replicas per shard in the Valkey
+  cluster. Only applies to cluster plans
+- Add `Valkey` field `userConfig.shard_count`, type `integer`: Number of shards (primaries) in the Valkey
+  cluster. Required for cluster plans
+
 ## v0.48.0 - 2026-10-01
 
 - **BREAKING**: `ServiceUser` now applies `spec.authentication` when creating Aiven users and

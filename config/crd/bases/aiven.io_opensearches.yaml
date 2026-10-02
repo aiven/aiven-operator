@@ -1169,11 +1169,29 @@ spec:
                             control access and permissions to the connector API using
                             backend_roles. Defaults to false.
                           type: boolean
+                        ml_commons_max_model_on_node:
+                          description:
+                            Maximum number of ML models that can be deployed
+                            on a single ML node. Defaults to 10.
+                          minimum: 1
+                          type: integer
                         ml_commons_model_access_control_enabled:
                           description:
                             Enable or disable model access control for ML
                             Commons. When enabled, access to ML models is controlled
                             by security permissions. Defaults to false.
+                          type: boolean
+                        ml_commons_model_auto_deploy_enable:
+                          description:
+                            "For externally hosted models only: automatically
+                            deploy a model on its first predict request instead of requiring
+                            an explicit deploy call first. Defaults to true."
+                          type: boolean
+                        ml_commons_model_auto_redeploy_enable:
+                          description:
+                            Automatically redeploy deployed or partially
+                            deployed models after ML nodes rejoin the cluster, e.g.
+                            after a node replacement. Defaults to true.
                           type: boolean
                         ml_commons_native_memory_threshold:
                           description:

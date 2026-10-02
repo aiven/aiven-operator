@@ -195,6 +195,36 @@ func (in *Kafka) DeepCopyInto(out *Kafka) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.GroupConsumerHeartbeatIntervalMs != nil {
+		in, out := &in.GroupConsumerHeartbeatIntervalMs, &out.GroupConsumerHeartbeatIntervalMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupConsumerMaxHeartbeatIntervalMs != nil {
+		in, out := &in.GroupConsumerMaxHeartbeatIntervalMs, &out.GroupConsumerMaxHeartbeatIntervalMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupConsumerMaxSessionTimeoutMs != nil {
+		in, out := &in.GroupConsumerMaxSessionTimeoutMs, &out.GroupConsumerMaxSessionTimeoutMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupConsumerMinHeartbeatIntervalMs != nil {
+		in, out := &in.GroupConsumerMinHeartbeatIntervalMs, &out.GroupConsumerMinHeartbeatIntervalMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupConsumerMinSessionTimeoutMs != nil {
+		in, out := &in.GroupConsumerMinSessionTimeoutMs, &out.GroupConsumerMinSessionTimeoutMs
+		*out = new(int)
+		**out = **in
+	}
+	if in.GroupConsumerSessionTimeoutMs != nil {
+		in, out := &in.GroupConsumerSessionTimeoutMs, &out.GroupConsumerSessionTimeoutMs
+		*out = new(int)
+		**out = **in
+	}
 	if in.GroupCoordinatorRebalanceProtocols != nil {
 		in, out := &in.GroupCoordinatorRebalanceProtocols, &out.GroupCoordinatorRebalanceProtocols
 		*out = new(string)

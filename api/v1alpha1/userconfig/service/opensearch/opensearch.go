@@ -831,8 +831,18 @@ type Opensearch struct {
 	// When set to true, the setting allows admins to control access and permissions to the connector API using backend_roles. Defaults to false.
 	MlCommonsConnectorAccessControlEnabled *bool `groups:"create,update" json:"ml_commons_connector_access_control_enabled,omitempty"`
 
+	// +kubebuilder:validation:Minimum=1
+	// Maximum number of ML models that can be deployed on a single ML node. Defaults to 10.
+	MlCommonsMaxModelOnNode *int `groups:"create,update" json:"ml_commons_max_model_on_node,omitempty"`
+
 	// Enable or disable model access control for ML Commons. When enabled, access to ML models is controlled by security permissions. Defaults to false.
 	MlCommonsModelAccessControlEnabled *bool `groups:"create,update" json:"ml_commons_model_access_control_enabled,omitempty"`
+
+	// For externally hosted models only: automatically deploy a model on its first predict request instead of requiring an explicit deploy call first. Defaults to true.
+	MlCommonsModelAutoDeployEnable *bool `groups:"create,update" json:"ml_commons_model_auto_deploy_enable,omitempty"`
+
+	// Automatically redeploy deployed or partially deployed models after ML nodes rejoin the cluster, e.g. after a node replacement. Defaults to true.
+	MlCommonsModelAutoRedeployEnable *bool `groups:"create,update" json:"ml_commons_model_auto_redeploy_enable,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=100

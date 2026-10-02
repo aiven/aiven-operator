@@ -220,6 +220,11 @@ func (in *ValkeyUserConfig) DeepCopyInto(out *ValkeyUserConfig) {
 		*out = new(string)
 		**out = **in
 	}
+	if in.Replicas != nil {
+		in, out := &in.Replicas, &out.Replicas
+		*out = new(int)
+		**out = **in
+	}
 	if in.ServiceLog != nil {
 		in, out := &in.ServiceLog, &out.ServiceLog
 		*out = new(bool)
@@ -228,6 +233,11 @@ func (in *ValkeyUserConfig) DeepCopyInto(out *ValkeyUserConfig) {
 	if in.ServiceToForkFrom != nil {
 		in, out := &in.ServiceToForkFrom, &out.ServiceToForkFrom
 		*out = new(string)
+		**out = **in
+	}
+	if in.ShardCount != nil {
+		in, out := &in.ShardCount, &out.ShardCount
+		*out = new(int)
 		**out = **in
 	}
 	if in.StaticIps != nil {

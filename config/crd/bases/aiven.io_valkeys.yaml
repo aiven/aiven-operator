@@ -425,6 +425,13 @@ spec:
                       maxLength: 128
                       pattern: ^[a-zA-Z0-9-_:.]+$
                       type: string
+                    replicas:
+                      description:
+                        Number of replicas per shard in the Valkey cluster.
+                        Only applies to cluster plans.
+                      maximum: 2
+                      minimum: 0
+                      type: integer
                     service_log:
                       description:
                         Store logs for the service so that they are available
@@ -440,6 +447,13 @@ spec:
                       x-kubernetes-validations:
                         - message: Value is immutable
                           rule: self == oldSelf
+                    shard_count:
+                      description:
+                        Number of shards (primaries) in the Valkey cluster.
+                        Required for cluster plans.
+                      maximum: 5
+                      minimum: 1
+                      type: integer
                     static_ips:
                       description: Use static public IP addresses
                       type: boolean
