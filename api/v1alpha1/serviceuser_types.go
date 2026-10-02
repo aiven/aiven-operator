@@ -36,6 +36,13 @@ type ServiceUserSpec struct {
 	// Password must be 8-256 characters long.
 	ConnInfoSecretSource *ConnInfoSecretSource `json:"connInfoSecretSource,omitempty"`
 
+	// +kubebuilder:validation:Enum=dynamic;public;private;privatelink
+	// Network route whose host and port are written to the connection secret.
+	// Set a route, including dynamic, to take the primary component on that
+	// route; for Kafka this also selects the SASL and schema registry host and port on it.
+	// The service must expose the selected route (for example, a PrivateLink connection must be established).
+	ConnInfoSecretRoute service.RouteType `json:"connInfoSecretRoute,omitempty"`
+
 	// AccessControl Service type specific access control rules for user.
 	// When this block is present, the operator manages the full access-control scope it contains.
 	AccessControl *ServiceUserAccessControl `json:"accessControl,omitempty"`

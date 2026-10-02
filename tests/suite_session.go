@@ -156,7 +156,10 @@ func (s *session) GetRunning(obj client.Object, keys ...string) error {
 					// Sometimes it is OK that API returns "not ready" condition.
 					// Retries "try again later" and "already exists" errors.
 					msg := c.Message
-					retry := strings.Contains(msg, "try again later") || strings.Contains(strings.ToLower(msg), "already exists")
+					// "waiting for an external change" is the route wait of a ServiceUser: it clears on
+					// its own once the route exists or the spec moves back to a route that does.
+					retry := strings.Contains(msg, "try again later") || strings.Contains(strings.ToLower(msg), "already exists") ||
+						strings.Contains(msg, "waiting for an external change")
 					return retry, errors.New(msg)
 				}
 			}

@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -63,3 +64,6 @@ type CreateResult = Observation
 type UpdateResult = Observation
 
 var errPreconditionNotMet = errors.New("preconditions are not met")
+
+// errPreconditionExternal is a precondition only an external change can satisfy.
+var errPreconditionExternal = fmt.Errorf("%w: waiting for an external change", errPreconditionNotMet)

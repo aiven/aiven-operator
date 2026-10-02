@@ -872,7 +872,7 @@ func TestReconciler_Reconcile(t *testing.T) {
 		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
 		require.Equal(t, []string{
 			"Normal InstanceFinalizerAdded instance finalizer added",
-			"Normal PreconditionsNotMet preconditions are not met, requeue",
+			"Normal PreconditionsNotMet preconditions are not met: some reason",
 		}, recorderEvents(recorder))
 	})
 
@@ -1466,12 +1466,36 @@ func TestReconciler_handleObserveError(t *testing.T) {
 		}
 
 		obj := &v1alpha1.ClickhouseUser{}
-		res, err := r.handleObserveError(t.Context(), obj, errPreconditionNotMet)
+		cause := fmt.Errorf("%w: component \"pg\" with route \"privatelink\" not found", errPreconditionNotMet)
+		res, err := r.handleObserveError(t.Context(), obj, cause)
 
 		require.NoError(t, err)
 		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
-		require.Equal(t, []string{"Normal PreconditionsNotMet preconditions are not met, requeue"}, recorderEvents(recorder))
+		events := recorderEvents(recorder)
+		require.Equal(t, []string{"Normal PreconditionsNotMet " + cause.Error()}, events)
 		require.Empty(t, normalizedConditions(obj.Status.Conditions))
+	})
+
+	t.Run("Requeues at the poll interval when an external precondition is not met", func(t *testing.T) {
+		recorder := record.NewFakeRecorder(10)
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Recorder:     recorder,
+				PollInterval: testPollInterval,
+			},
+		}
+
+		obj := &v1alpha1.ClickhouseUser{}
+		cause := fmt.Errorf("%w: component \"pg\" with route \"privatelink\" not found", errPreconditionExternal)
+		res, err := r.handleObserveError(t.Context(), obj, cause)
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
+		require.Equal(t, []string{"Warning PreconditionsNotMet " + cause.Error()}, recorderEvents(recorder))
+		cond := meta.FindStatusCondition(obj.Status.Conditions, ConditionTypeError)
+		require.NotNil(t, cond, "an external precondition must be visible in status")
+		require.Equal(t, string(errConditionPreconditions), cond.Reason)
+		require.Equal(t, cause.Error(), cond.Message)
 	})
 
 	t.Run("Requeues on retryable Aiven error", func(t *testing.T) {
@@ -2243,7 +2267,7 @@ func TestReconciler_createResource(t *testing.T) {
 		}
 
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
-		c.EXPECT().Create(mock.Anything, mock.Anything).Return(CreateResult{}, errPreconditionNotMet).Once()
+		c.EXPECT().Create(mock.Anything, mock.Anything).Return(CreateResult{}, fmt.Errorf("%w: some reason", errPreconditionNotMet)).Once()
 
 		res, err := r.createResource(t.Context(), c, obj)
 
@@ -2252,7 +2276,7 @@ func TestReconciler_createResource(t *testing.T) {
 		require.Empty(t, normalizedConditions(obj.Status.Conditions))
 		require.Equal(t, []string{
 			"Normal CreateOrUpdatedAtAiven about to create instance at aiven",
-			"Normal PreconditionsNotMet preconditions are not met, requeue",
+			"Normal PreconditionsNotMet preconditions are not met: some reason",
 		}, recorderEvents(recorder))
 	})
 
@@ -2433,7 +2457,7 @@ func TestReconciler_updateResource(t *testing.T) {
 		}
 
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
-		c.EXPECT().Update(mock.Anything, mock.Anything).Return(UpdateResult{}, errPreconditionNotMet).Once()
+		c.EXPECT().Update(mock.Anything, mock.Anything).Return(UpdateResult{}, fmt.Errorf("%w: some reason", errPreconditionNotMet)).Once()
 
 		res, err := r.updateResource(t.Context(), c, obj)
 
@@ -2442,7 +2466,7 @@ func TestReconciler_updateResource(t *testing.T) {
 		require.Empty(t, normalizedConditions(obj.Status.Conditions))
 		require.Equal(t, []string{
 			"Normal WaitingForInstanceToBeRunning waiting for the instance to be running",
-			"Normal PreconditionsNotMet preconditions are not met, requeue",
+			"Normal PreconditionsNotMet preconditions are not met: some reason",
 		}, recorderEvents(recorder))
 	})
 
