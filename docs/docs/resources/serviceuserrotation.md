@@ -180,9 +180,8 @@ ServiceUserRotationSpec defines the desired state of ServiceUserRotation.
 - [`connInfoSecretRoute`](#spec.connInfoSecretRoute-property){: name='spec.connInfoSecretRoute-property'} (string, Enum: `dynamic`, `public`, `private`, `privatelink`). Network route whose host and port are written to the connection secret.
     Set a route, including dynamic, to take the primary component on that
     route; for Kafka this also selects the SASL and schema registry host and port on it.
-    Unset keeps the selection of previous releases. While the service does not expose the
-    selected route (for example, before a PrivateLink connection is established), the Secret
-    is not created or updated and rotation pauses; the route is re-checked every poll interval.
+    While the service does not expose the selected route (for example, before a PrivateLink connection is established),
+    the Secret is not created or updated and rotation pauses; the route is re-checked every poll interval.
 
 ## authSecretRef {: #spec.authSecretRef }
 

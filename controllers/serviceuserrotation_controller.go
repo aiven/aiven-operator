@@ -137,8 +137,8 @@ func (r *ServiceUserRotationReconciler) reconcile(ctx context.Context, cr *v1alp
 		return err
 	}
 
-	// Pause before touching the Secret or any password: a rotation on a missing route would
-	// publish credentials with a host the workload cannot reach.
+	// Routes are listed only once the network access exists (PrivateLink
+	// pending), so wait here before ensureSecret or a password reset publishes a host the workload cannot reach.
 	if route := cr.Spec.ConnInfoSecretRoute; route != routeLegacy && route != service.RouteTypeDynamic {
 		if _, ok := serviceUserHostComponent(svc, route); !ok {
 			return errRouteNotFound(svc, route)

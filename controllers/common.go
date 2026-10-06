@@ -374,7 +374,7 @@ func findComponent(
 }
 
 // errRouteNotFound reports a connInfoSecretRoute the service does not expose; only an external
-// change (for example, a new PrivateLink connection) can satisfy it.
+// change (for example, a new PrivateLink connection) can resolve it.
 func errRouteNotFound(svc *service.ServiceGetOut, route service.RouteType) error {
 	return fmt.Errorf("%w: component %q with route %q not found on service %q",
 		errPreconditionExternal, svc.ServiceType, route, svc.ServiceName)
