@@ -128,9 +128,7 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.ref }}
           fetch-depth: 0
-      - uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
+      - uses: ./.github/actions/setup-go-cached
       - run: make test-tag tag=${{ matrix.name }}
         env:
           AIVEN_DEBUG: ${{ vars.AIVEN_DEBUG || 'false' }}
@@ -149,9 +147,7 @@ jobs:
         with:
           ref: ${{ inputs.ref || github.ref }}
           fetch-depth: 0
-      - uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
+      - uses: ./.github/actions/setup-go-cached
       - run: make sweep
         env:
           AIVEN_TOKEN: ${{ secrets.AIVEN_TOKEN }}

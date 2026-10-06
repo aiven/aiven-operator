@@ -26,6 +26,7 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
+          cache: false # trunk runs its own linters; leaves the Go cache to go-cache.yml
       - id: upgrade
         uses: trunk-io/trunk-action/upgrade@v1
         with:
@@ -47,6 +48,7 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
+          cache: false # trunk runs its own linters; leaves the Go cache to go-cache.yml
       - uses: trunk-io/trunk-action@v1
 
   report_statuses:

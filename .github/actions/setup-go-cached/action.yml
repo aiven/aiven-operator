@@ -1,0 +1,33 @@
+name: Set up Go with a restored cache
+description: >-
+  Install Go and restore the module cache, build cache and bin/ tools.
+
+inputs:
+  fallback:
+    description: >-
+      Fall back to the newest prefix-matched cache when the exact key is missing.
+    default: "true"
+
+outputs:
+  cache-hit:
+    description: '"true" when the cache for the current go.mod/go.sum/Makefile was restored exactly'
+    value: ${{ steps.restore.outputs.cache-hit }}
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-go@v7
+      with:
+        go-version-file: go.mod
+        cache: false
+
+    # Keep path and key in sync with the save step in go-cache.yml.
+    - id: restore
+      uses: actions/cache/restore@v6
+      with:
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+          bin
+        key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.mod', 'go.sum', 'Makefile') }}
+        restore-keys: ${{ inputs.fallback == 'true' && format('go-{0}-{1}-', runner.os, runner.arch) || '' }}

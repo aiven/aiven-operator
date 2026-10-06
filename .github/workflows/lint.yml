@@ -49,9 +49,7 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
-      - uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
+      - uses: ./.github/actions/setup-go-cached
       - name: Install Task
         uses: arduino/setup-task@v3
         with:
@@ -74,6 +72,7 @@ jobs:
       - uses: actions/setup-go@v7
         with:
           go-version-file: go.mod
+          cache: false # trunk runs its own linters; leaves the Go cache to go-cache.yml
       - uses: trunk-io/trunk-action@v1
         with:
           # fall back to a full check when invoked via workflow_call
@@ -92,9 +91,7 @@ jobs:
         with:
           ref: ${{ inputs.ref }}
           fetch-depth: 0
-      - uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
+      - uses: ./.github/actions/setup-go-cached
       - uses: github/codeql-action/init@v4
         with:
           languages: go

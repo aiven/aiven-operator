@@ -1,0 +1,63 @@
+name: go cache
+
+# The writer of the Go cache that .github/actions/setup-go-cached restores.
+# It runs on trusted refs only.
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - go.mod
+      - go.sum
+      - Makefile
+      - .github/actions/setup-go-cached/action.yml
+      - .github/workflows/go-cache.yml
+  workflow_dispatch: {}
+  # Re-warm after eviction (7 days unused, or the repo's 10 GB LRU). Exits early on an exact hit.
+  schedule:
+    - cron: 0 3 * * *
+
+permissions:
+  contents: read
+
+concurrency:
+  group: go-cache-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  warm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - id: go
+        uses: ./.github/actions/setup-go-cached
+        with:
+          fallback: "false" # build from scratch so the saved cache never carries superseded modules
+      - uses: arduino/setup-task@v3
+        if: steps.go.outputs.cache-hit != 'true'
+        with:
+          version: 3.x
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+
+      # Compile and link the tests without running them.
+      - name: Build
+        if: steps.go.outputs.cache-hit != 'true'
+        run: |
+          go mod download
+          make envtest
+          tags=$(task find-test-tags | sed 's/^matrix=//' | jq -r 'join(",")')
+          go test -count=1 -exec true -race -cover -coverpkg=./controllers -covermode=atomic -tags="suite,$tags" ./tests/...
+          go test -count=1 -exec true -race ./api/... ./controllers/... ./generators/...
+          go build ./...
+
+      - if: steps.go.outputs.cache-hit != 'true'
+        uses: actions/cache/save@v6
+        with:
+          path: |
+            ~/go/pkg/mod
+            ~/.cache/go-build
+            bin
+          key: go-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('go.mod', 'go.sum', 'Makefile') }}
+
+      - name: Report cache size
+        run: du -sh ~/go/pkg/mod ~/.cache/go-build bin
