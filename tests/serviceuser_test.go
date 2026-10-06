@@ -227,13 +227,13 @@ spec:
 const eventReasonPreconditionsNotMet = "PreconditionsNotMet"
 
 // hasPreconditionEvent reports a PreconditionsNotMet event on the ServiceUser whose message contains substr.
-func hasPreconditionEvent(ctx context.Context, userName, substr string) bool {
+func hasPreconditionEvent(ctx context.Context, kind, name, substr string) bool {
 	events := new(corev1.EventList)
 	if err := k8sClient.List(ctx, events, client.InNamespace(defaultNamespace)); err != nil {
 		return false
 	}
 	for _, e := range events.Items {
-		if e.InvolvedObject.Kind == "ServiceUser" && e.InvolvedObject.Name == userName &&
+		if e.InvolvedObject.Kind == kind && e.InvolvedObject.Name == name &&
 			e.Reason == eventReasonPreconditionsNotMet && strings.Contains(e.Message, substr) {
 			return true
 		}
@@ -337,7 +337,7 @@ func TestServiceUserPg(t *testing.T) {
 			c := meta.FindStatusCondition(plUser.Status.Conditions, controllers.ConditionTypeError)
 			return c != nil && c.Reason == "Preconditions" && strings.Contains(c.Message, `route "privatelink"`)
 		}, 5*time.Minute, 5*time.Second, "waiting for a route must set the Error condition naming the route")
-		require.Eventually(t, func() bool { return hasPreconditionEvent(ctx, plName, "privatelink") },
+		require.Eventually(t, func() bool { return hasPreconditionEvent(ctx, "ServiceUser", plName, "privatelink") },
 			time.Minute, time.Second, "ServiceUser should report a PreconditionsNotMet event naming the route")
 
 		// The user exists at Aiven, the secret does not, the resource is not ready
@@ -376,7 +376,7 @@ func TestServiceUserPg(t *testing.T) {
 	t.Run("RouteChangeKeepsSecret", func(t *testing.T) {
 		// Switching a running user to a route the service lacks leaves its published secret untouched.
 		require.NoError(t, s.Apply(getServiceUserPgYaml(cfg.Project, pgName, userName, cfg.PrimaryCloudName, "privatelink")))
-		require.Eventually(t, func() bool { return hasPreconditionEvent(ctx, userName, "privatelink") },
+		require.Eventually(t, func() bool { return hasPreconditionEvent(ctx, "ServiceUser", userName, "privatelink") },
 			5*time.Minute, 5*time.Second, "ServiceUser should report a PreconditionsNotMet event naming the route")
 
 		kept, err := s.GetSecret(userName + "-secret")

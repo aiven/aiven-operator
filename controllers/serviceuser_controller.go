@@ -382,8 +382,7 @@ func serviceUserSecretDetails(
 		if route == routeLegacy || route == service.RouteTypeDynamic {
 			return nil, fmt.Errorf("service component %q not found", svc.ServiceType)
 		}
-		return nil, fmt.Errorf("%w: component %q with route %q not found on service %q",
-			errPreconditionExternal, svc.ServiceType, route, svc.ServiceName)
+		return nil, errRouteNotFound(svc, route)
 	}
 
 	details := SecretDetails{

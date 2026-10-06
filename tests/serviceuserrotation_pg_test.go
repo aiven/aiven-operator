@@ -364,6 +364,42 @@ func TestServiceUserRotationPgExternalChanges(t *testing.T) {
 		s.waitSQL(next, "authenticated")
 		s.waitSQL(changed, "authenticated")
 	})
+
+	t.Run("route wait", func(t *testing.T) {
+		s := newPgRotationTest(t)
+		first := s.create()
+		require.Empty(t, s.rotation.Spec.ConnInfoSecretRoute, "the CRD must not default the route")
+
+		// A route the service does not expose pauses rotation and leaves the Secret untouched.
+		s.update(func(cr *v1alpha1.ServiceUserRotation) { cr.Spec.ConnInfoSecretRoute = service.RouteTypePrivatelink })
+		require.EventuallyWithT(t, func(c *assert.CollectT) {
+			ctx, cancel := context.WithTimeout(s.ctx, 10*time.Second)
+			defer cancel()
+			cr := &v1alpha1.ServiceUserRotation{}
+			require.NoError(c, k8sClient.Get(ctx, client.ObjectKeyFromObject(s.rotation), cr))
+			condition := meta.FindStatusCondition(cr.Status.Conditions, controllers.ConditionTypeError)
+			require.NotNil(c, condition, "rotation must report the missing route")
+			require.Equal(c, "Preconditions", condition.Reason)
+			require.Contains(c, condition.Message, `route "privatelink"`)
+			require.Equal(c, cr.Generation, condition.ObservedGeneration)
+			require.True(c, first.publishedAt.Truncate(time.Second).Equal(cr.Status.LastRotationAt.Time),
+				"waiting for the route must not reset the rotation interval")
+		}, rotationWait, rotationPoll)
+		require.Eventually(t, func() bool {
+			return hasPreconditionEvent(s.ctx, "ServiceUserRotation", s.rotation.Name, `route "privatelink"`)
+		}, time.Minute, time.Second, "rotation must report a PreconditionsNotMet event naming the route")
+		secret := &corev1.Secret{}
+		key := client.ObjectKey{Namespace: s.rotation.Namespace, Name: s.rotation.Spec.ConnInfoSecretTarget.Name}
+		require.NoError(t, k8sClient.Get(s.ctx, key, secret))
+		require.Equal(t, first.secret.Data, secret.Data, "waiting for the route must leave the published Secret untouched")
+
+		// Switching back to an exposed route resumes and clears the condition.
+		s.update(func(cr *v1alpha1.ServiceUserRotation) { cr.Spec.ConnInfoSecretRoute = service.RouteTypeDynamic })
+		resumed := s.refresh(first)
+		require.Equal(t, first.secret.Data[s.prefix+"HOST"], resumed.secret.Data[s.prefix+"HOST"])
+		require.Equal(t, first.secret.Data[s.prefix+"PORT"], resumed.secret.Data[s.prefix+"PORT"])
+		s.waitSQL(resumed, "authenticated")
+	})
 }
 
 func TestServiceUserRotationPgServiceUsers(t *testing.T) {

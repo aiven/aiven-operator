@@ -206,3 +206,47 @@ func TestKafkaAdapterNewSecret(t *testing.T) {
 	assert.Equal(t, want("kafka-privatelink-sasl", "8", "sr-privatelink", "10"), a.newSecret(svc(testComponents())).StringData)
 	assert.Equal(t, want("kafka-dynamic-sasl", "6", "sr-dynamic", "9"), a.newSecret(svc(reversed(testComponents()))).StringData)
 }
+
+func TestRefreshKafkaEndpointDetails(t *testing.T) {
+	const prefix = "P_"
+	optional := []string{"P_SASL_HOST", "P_SASL_PORT", "P_SCHEMA_REGISTRY_HOST", "P_SCHEMA_REGISTRY_PORT"}
+	stale := func() map[string][]byte {
+		data := map[string][]byte{"P_HOST": []byte("kept"), "unrelated": []byte("kept")}
+		for _, key := range optional {
+			data[key] = []byte("stale")
+		}
+		return data
+	}
+	endpoints := func(saslHost, saslPort, srHost, srPort string) map[string][]byte {
+		return map[string][]byte{
+			"P_HOST": []byte("kept"), "unrelated": []byte("kept"),
+			"P_SASL_HOST": []byte(saslHost), "P_SASL_PORT": []byte(saslPort),
+			"P_SCHEMA_REGISTRY_HOST": []byte(srHost), "P_SCHEMA_REGISTRY_PORT": []byte(srPort),
+		}
+	}
+	withoutSchemaRegistry := without(testComponents(), func(c service.ComponentOut) bool { return c.Component == "schema_registry" })
+
+	cases := []struct {
+		name       string
+		components []service.ComponentOut
+		route      service.RouteType
+		want       map[string][]byte
+	}{
+		{"legacy route keeps the last entry in API order", testComponents(), routeLegacy, endpoints("kafka-privatelink-sasl", "8", "sr-privatelink", "10")},
+		{"legacy route follows reversed API order", reversed(testComponents()), routeLegacy, endpoints("kafka-dynamic-sasl", "6", "sr-dynamic", "9")},
+		{"legacy route removes keys of a missing component", withoutSchemaRegistry, routeLegacy, map[string][]byte{
+			"P_HOST": []byte("kept"), "unrelated": []byte("kept"), "P_SASL_HOST": []byte("kafka-privatelink-sasl"), "P_SASL_PORT": []byte("8"),
+		}},
+		{"dynamic route picks the dynamic primaries", testComponents(), service.RouteTypeDynamic, endpoints("kafka-dynamic-sasl", "6", "sr-dynamic", "9")},
+		{"dynamic route ignores API order", reversed(testComponents()), service.RouteTypeDynamic, endpoints("kafka-dynamic-sasl", "6", "sr-dynamic", "9")},
+		{"privatelink route picks the privatelink primaries", reversed(testComponents()), service.RouteTypePrivatelink, endpoints("kafka-privatelink-sasl", "8", "sr-privatelink", "10")},
+		{"route without the components blanks the keys", testComponents(), service.RouteTypePublic, endpoints("", "", "", "")},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			data := stale()
+			refreshKafkaEndpointDetails(data, tc.components, tc.route, prefix)
+			assert.Equal(t, tc.want, data)
+		})
+	}
+}

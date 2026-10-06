@@ -373,6 +373,13 @@ func findComponent(
 	return nil, false
 }
 
+// errRouteNotFound reports a connInfoSecretRoute the service does not expose; only an external
+// change (for example, a new PrivateLink connection) can satisfy it.
+func errRouteNotFound(svc *service.ServiceGetOut, route service.RouteType) error {
+	return fmt.Errorf("%w: component %q with route %q not found on service %q",
+		errPreconditionExternal, svc.ServiceType, route, svc.ServiceName)
+}
+
 // getSecretPrefix returns user's prefix or kind name
 func getSecretPrefix(o objWithSecret) string {
 	target := o.GetConnInfoSecretTarget()

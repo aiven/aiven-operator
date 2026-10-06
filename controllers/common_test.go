@@ -130,3 +130,12 @@ func TestFindComponent(t *testing.T) {
 		})
 	}
 }
+
+func TestErrRouteNotFound(t *testing.T) {
+	svc := &service.ServiceGetOut{ServiceType: "pg", ServiceName: "my-pg"}
+	err := errRouteNotFound(svc, service.RouteTypePrivatelink)
+	require.ErrorIs(t, err, errPreconditionExternal)
+	require.ErrorIs(t, err, errPreconditionNotMet)
+	// The troubleshooting page quotes this text for both ServiceUser and ServiceUserRotation.
+	assert.Equal(t, `preconditions are not met: waiting for an external change: component "pg" with route "privatelink" not found on service "my-pg"`, err.Error())
+}

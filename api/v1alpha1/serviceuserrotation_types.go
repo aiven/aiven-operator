@@ -2,7 +2,10 @@
 
 package v1alpha1
 
-import metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+import (
+	"github.com/aiven/go-client-codegen/handler/service"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+)
 
 const serviceUserRotationDefaultSecretPrefix = "SERVICEUSER_"
 
@@ -34,6 +37,15 @@ type ServiceUserRotationSpec struct {
 	// and credentials. The Secret is controlled by this resource and must not be shared.
 	// A name is required; the name and effective key prefix are immutable. An empty prefix defaults to SERVICEUSER_.
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget"`
+
+	// +kubebuilder:validation:Enum=dynamic;public;private;privatelink
+	// Network route whose host and port are written to the connection secret.
+	// Set a route, including dynamic, to take the primary component on that
+	// route; for Kafka this also selects the SASL and schema registry host and port on it.
+	// Unset keeps the selection of previous releases. While the service does not expose the
+	// selected route (for example, before a PrivateLink connection is established), the Secret
+	// is not created or updated and rotation pauses; the route is re-checked every poll interval.
+	ConnInfoSecretRoute service.RouteType `json:"connInfoSecretRoute,omitempty"`
 }
 
 // ServiceUserRotationStatus reports observations of the users and published connection Secret.

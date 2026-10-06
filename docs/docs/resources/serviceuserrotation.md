@@ -20,31 +20,68 @@ This resource uses the following API operations, and for each operation, _any_ o
 | [ServiceGet](https://api.aiven.io/doc/#operation/ServiceGet) | `project:services:read` |
 | [ServiceUserCredentialsModify](https://api.aiven.io/doc/#operation/ServiceUserCredentialsModify) | `service:users:write` |
 
-## Usage example
+## Usage examples
 
-```yaml linenums="1"
-apiVersion: aiven.io/v1alpha1
-kind: ServiceUserRotation
-metadata:
-  name: application-users
-spec:
-  authSecretRef:
-    name: aiven-token
-    key: token
+	
+=== "privatelink"
 
-  project: my-aiven-project
-  serviceName: my-postgresql
+    ```yaml linenums="1"
+    # Writes the PrivateLink host and port to the connection Secret. The service must have
+    # a PrivateLink connection; until it does, the Secret is not created or updated, rotation
+    # pauses and the resource reports an Error condition and a PreconditionsNotMet event.
+    # Changing connInfoSecretRoute on an existing ServiceUserRotation rewrites the Secret; pods
+    # that consume it through environment variables pick up the new host only after a restart.
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceUserRotation
+    metadata:
+      name: application-users
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: my-aiven-project
+      serviceName: my-postgresql
+    
+      usernames:
+        - application-user-a
+        - application-user-b
+      rotationInterval: 720h
+    
+      connInfoSecretTarget:
+        name: application-database-credentials
+        prefix: SERVICEUSER_
+    
+      connInfoSecretRoute: privatelink
+    ```
 
-  # Create both users and configure their permissions before enabling rotation.
-  usernames:
-    - application-user-a
-    - application-user-b
-  rotationInterval: 720h
+	
+=== "example"
 
-  connInfoSecretTarget:
-    name: application-database-credentials
-    prefix: SERVICEUSER_
-```
+    ```yaml linenums="1"
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceUserRotation
+    metadata:
+      name: application-users
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      project: my-aiven-project
+      serviceName: my-postgresql
+    
+      # Create both users and configure their permissions before enabling rotation.
+      usernames:
+        - application-user-a
+        - application-user-b
+      rotationInterval: 720h
+    
+      connInfoSecretTarget:
+        name: application-database-credentials
+        prefix: SERVICEUSER_
+    ```
 
 Apply the resource with:
 
@@ -140,6 +177,12 @@ ServiceUserRotationSpec defines the desired state of ServiceUserRotation.
 **Optional**
 
 - [`authSecretRef`](#spec.authSecretRef-property){: name='spec.authSecretRef-property'} (object). Authentication reference to Aiven token in a secret. See below for [nested schema](#spec.authSecretRef).
+- [`connInfoSecretRoute`](#spec.connInfoSecretRoute-property){: name='spec.connInfoSecretRoute-property'} (string, Enum: `dynamic`, `public`, `private`, `privatelink`). Network route whose host and port are written to the connection secret.
+    Set a route, including dynamic, to take the primary component on that
+    route; for Kafka this also selects the SASL and schema registry host and port on it.
+    Unset keeps the selection of previous releases. While the service does not expose the
+    selected route (for example, before a PrivateLink connection is established), the Secret
+    is not created or updated and rotation pauses; the route is re-checked every poll interval.
 
 ## authSecretRef {: #spec.authSecretRef }
 

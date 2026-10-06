@@ -86,6 +86,14 @@ func (r *ServiceUserRotationReconciler) Reconcile(ctx context.Context, req ctrl.
 	}()
 
 	if err := r.reconcile(ctx, cr); err != nil {
+		if errors.Is(err, errPreconditionExternal) {
+			// The wait can last indefinitely and the resource otherwise looks healthy.
+			condition := getErrorCondition(errConditionPreconditions, err)
+			condition.ObservedGeneration = cr.Generation
+			meta.SetStatusCondition(cr.Conditions(), condition)
+			r.Recorder.Event(cr, corev1.EventTypeWarning, eventPreconditionsNotMet, err.Error())
+			return ctrl.Result{RequeueAfter: wait.Jitter(r.pollInterval(), pollJitterFactor)}, nil
+		}
 		if errors.Is(err, errPreconditionNotMet) {
 			r.Recorder.Event(cr, corev1.EventTypeNormal, eventPreconditionsNotMet, err.Error())
 			return ctrl.Result{RequeueAfter: requeueTimeout}, nil
@@ -127,6 +135,14 @@ func (r *ServiceUserRotationReconciler) reconcile(ctx context.Context, cr *v1alp
 	svc, err := getServiceIfOperational(ctx, cl, cr.Spec.Project, cr.Spec.ServiceName)
 	if err != nil {
 		return err
+	}
+
+	// Pause before touching the Secret or any password: a rotation on a missing route would
+	// publish credentials with a host the workload cannot reach.
+	if route := cr.Spec.ConnInfoSecretRoute; route != routeLegacy && route != service.RouteTypeDynamic {
+		if _, ok := serviceUserHostComponent(svc, route); !ok {
+			return errRouteNotFound(svc, route)
+		}
 	}
 
 	secret, err := r.ensureSecret(ctx, cr)
@@ -260,7 +276,7 @@ func (r *ServiceUserRotationReconciler) reconcileCredentials(ctx context.Context
 
 // refreshRotationSecret refreshes connection details for the Secret's published username.
 func refreshRotationSecret(cr *v1alpha1.ServiceUserRotation, secret *corev1.Secret, svc *service.ServiceGetOut, caCert string) error {
-	component, ok := serviceUserHostComponent(svc, routeLegacy)
+	component, ok := serviceUserHostComponent(svc, cr.Spec.ConnInfoSecretRoute)
 	if !ok {
 		return fmt.Errorf("service component %q not found", svc.ServiceType)
 	}
@@ -286,7 +302,7 @@ func refreshRotationSecret(cr *v1alpha1.ServiceUserRotation, secret *corev1.Secr
 		prefix + "CA_CERT":     caCert,
 	}
 	if svc.ServiceType == string(serviceTypeKafka) {
-		refreshKafkaEndpointDetails(secret.Data, svc.Components, prefix)
+		refreshKafkaEndpointDetails(secret.Data, svc.Components, cr.Spec.ConnInfoSecretRoute, prefix)
 	}
 	for key, value := range details {
 		secret.Data[key] = []byte(value)
