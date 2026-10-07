@@ -22,9 +22,7 @@ jobs:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 0
-      - uses: actions/setup-go@v7
-        with:
-          go-version-file: go.mod
+      - uses: ./.github/actions/setup-go-cached
       - name: install goimports
         run: |
           # Match the x/tools the module builds against, so `make fmt-imports` is reproducible.
