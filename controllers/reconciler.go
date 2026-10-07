@@ -295,7 +295,16 @@ func (r *Reconciler[T]) resolveK8sRefs(ctx context.Context, obj T) (requeue bool
 }
 
 // persistReconcileState persists status and metadata annotations changed during reconcile.
-func (r *Reconciler[T]) persistReconcileState(ctx context.Context, orig v1alpha1.AivenManagedObject, obj v1alpha1.AivenManagedObject) error {
+// A conflict is dropped: the object changed mid-reconcile, and that change queues
+// a fresh reconcile which recomputes and rewrites the state.
+func (r *Reconciler[T]) persistReconcileState(ctx context.Context, orig v1alpha1.AivenManagedObject, obj v1alpha1.AivenManagedObject) (err error) {
+	defer func() {
+		if apierrors.IsConflict(err) {
+			logr.FromContextOrDiscard(ctx).V(1).Info("object changed during reconcile, state is persisted by the next one", "error", err)
+			err = nil
+		}
+	}()
+
 	if equality.Semantic.DeepEqual(orig, obj) {
 		return nil
 	}

@@ -39,6 +39,8 @@
   cluster. Only applies to cluster plans
 - Add `Valkey` field `userConfig.shard_count`, type `integer`: Number of shards (primaries) in the Valkey
   cluster. Required for cluster plans
+- Fix `Reconciler error` ("the object has been modified") logged when a resource changed while the
+  operator was writing its status. The conflict is now ignored and the state is recomputed by the next reconcile.
 
 ## v0.48.0 - 2026-10-01
 

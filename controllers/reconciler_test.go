@@ -1173,6 +1173,78 @@ func TestReconciler_Reconcile(t *testing.T) {
 		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
 		require.Nil(t, meta.FindStatusCondition(*got.Conditions(), ConditionTypeError), "stale Error condition must be cleared on success")
 	})
+
+	t.Run("Drops a conflicting status write but returns other write errors", func(t *testing.T) {
+		conflict := apierrors.NewConflict(
+			schema.GroupResource{Group: v1alpha1.GroupVersion.Group, Resource: "clickhouseusers"},
+			"test-user",
+			assert.AnError,
+		)
+
+		cases := []struct {
+			name     string
+			writeErr error
+			wantErr  error
+		}{
+			{name: "conflict", writeErr: conflict},
+			{name: "other error", writeErr: assert.AnError, wantErr: assert.AnError},
+		}
+
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
+				obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+				k8sClient := fake.NewClientBuilder().
+					WithScheme(scheme).
+					WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+					WithObjects(obj).
+					WithInterceptorFuncs(interceptor.Funcs{
+						SubResourceUpdate: func(context.Context, crclient.Client, string, crclient.Object, ...crclient.SubResourceUpdateOption) error {
+							return tc.writeErr
+						},
+					}).
+					Build()
+
+				c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+				c.EXPECT().Observe(mock.Anything, mock.Anything).Return(Observation{}, nil).Once()
+				c.EXPECT().Create(mock.Anything, mock.Anything).Return(CreateResult{}, nil).Once()
+
+				m := &mock.Mock{}
+				t.Cleanup(func() { m.AssertExpectations(t) })
+				m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+					Return(avngen.NewMockClient(t), nil).
+					Once()
+
+				r := &Reconciler[*v1alpha1.ClickhouseUser]{
+					Controller: Controller{
+						Client:          k8sClient,
+						Scheme:          scheme,
+						Recorder:        record.NewFakeRecorder(10),
+						DefaultToken:    "default-token",
+						KubeVersion:     "v1.30.0",
+						OperatorVersion: "v0.0.0-test",
+						PollInterval:    testPollInterval,
+					},
+					newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+					newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+						return c
+					},
+					newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+				}
+
+				res, err := r.Reconcile(t.Context(), ctrl.Request{
+					NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+				})
+
+				require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
+				if tc.wantErr == nil {
+					require.NoError(t, err)
+				} else {
+					require.ErrorIs(t, err, tc.wantErr)
+				}
+			})
+		}
+	})
 }
 
 func TestReconciler_pollRequeue(t *testing.T) {
@@ -1713,7 +1785,7 @@ func TestReconciler_persistReconcileState(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("Returns conflict when status object is stale", func(t *testing.T) {
+	t.Run("Ignores conflict when status object is stale", func(t *testing.T) {
 		stored := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 
 		k8sClient := fake.NewClientBuilder().
@@ -1734,7 +1806,7 @@ func TestReconciler_persistReconcileState(t *testing.T) {
 		obj.Status.UUID = "uuid-after"
 
 		err := r.persistReconcileState(t.Context(), orig, obj)
-		require.True(t, apierrors.IsConflict(err), err)
+		require.NoError(t, err)
 	})
 
 	t.Run("Doesn't overwrite fresh spec when object is stale", func(t *testing.T) {
@@ -3115,6 +3187,52 @@ func TestReconciler_reconcileDeletion(t *testing.T) {
 				require.Equal(t, tc.events, recorderEvents(recorder))
 			})
 		}
+	})
+
+	t.Run("Requeues without error when the status write conflicts", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		obj.Finalizers = []string{instanceDeletionFinalizer}
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		// The dependencies path sets an Error condition, so the conflicting write is actually attempted.
+		c.EXPECT().Delete(mock.Anything, mock.Anything).Return(v1alpha1.ErrDeleteDependencies).Once()
+
+		writes := 0
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			WithInterceptorFuncs(interceptor.Funcs{
+				SubResourceUpdate: func(context.Context, crclient.Client, string, crclient.Object, ...crclient.SubResourceUpdateOption) error {
+					writes++
+					return apierrors.NewConflict(
+						schema.GroupResource{Group: v1alpha1.GroupVersion.Group, Resource: "clickhouseusers"},
+						obj.Name,
+						assert.AnError,
+					)
+				},
+			}).
+			Build()
+
+		r := newDeleteReconciler(
+			k8sClient,
+			record.NewFakeRecorder(10),
+			mockNewAivenGeneratedClient(m),
+			func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+		)
+
+		res, err := r.reconcileDeletion(t.Context(), obj)
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
+		require.Equal(t, 1, writes)
 	})
 
 	t.Run("Returns error for generic delete failures", func(t *testing.T) {
