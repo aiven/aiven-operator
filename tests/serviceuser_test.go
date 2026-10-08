@@ -15,8 +15,12 @@ import (
 	"github.com/avast/retry-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/api/meta"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
+	"github.com/aiven/aiven-operator/controllers"
 )
 
 func getServiceUserKafkaYaml(project, kafkaName, userName, cloudName string) string {
@@ -190,9 +194,14 @@ func TestServiceUserKafka(t *testing.T) {
 	}))
 }
 
-func getServiceUserPgYaml(project, pgName, userName, cloudName string) string {
+// getServiceUserPgYaml emits connInfoSecretRoute only when route is non-empty.
+func getServiceUserPgYaml(project, pgName, userName, cloudName, route string) string {
 	// secret name based on userName to avoid conflicts
 	secretName := userName + "-secret"
+	routeField := ""
+	if route != "" {
+		routeField = "\n  connInfoSecretRoute: " + route
+	}
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: ServiceUser
@@ -211,8 +220,25 @@ spec:
       baz: egg
 
   project: %[1]s
-  serviceName: %[2]s
-`, project, pgName, userName, cloudName, secretName)
+  serviceName: %[2]s%[6]s
+`, project, pgName, userName, cloudName, secretName, routeField)
+}
+
+const eventReasonPreconditionsNotMet = "PreconditionsNotMet"
+
+// hasPreconditionEvent reports a PreconditionsNotMet event on the ServiceUser whose message contains substr.
+func hasPreconditionEvent(ctx context.Context, kind, name, substr string) bool {
+	events := new(corev1.EventList)
+	if err := k8sClient.List(ctx, events, client.InNamespace(defaultNamespace)); err != nil {
+		return false
+	}
+	for _, e := range events.Items {
+		if e.InvolvedObject.Kind == kind && e.InvolvedObject.Name == name &&
+			e.Reason == eventReasonPreconditionsNotMet && strings.Contains(e.Message, substr) {
+			return true
+		}
+	}
+	return false
 }
 
 // TestServiceUserPg same as TestServiceUserKafka but runs with pg and expects the default port to be exposed
@@ -231,7 +257,7 @@ func TestServiceUserPg(t *testing.T) {
 	pgName := pg.GetName()
 	userName := randName("connection-pool")
 
-	yml := getServiceUserPgYaml(cfg.Project, pgName, userName, cfg.PrimaryCloudName)
+	yml := getServiceUserPgYaml(cfg.Project, pgName, userName, cfg.PrimaryCloudName, "")
 	s := NewSession(ctx, k8sClient)
 
 	// Cleans test afterward
@@ -257,6 +283,8 @@ func TestServiceUserPg(t *testing.T) {
 	assert.Equal(t, userName, user.GetName())
 	assert.Equal(t, userName, userAvn.Username)
 	assert.Equal(t, pgName, user.Spec.ServiceName)
+	// No CRD default: unset keeps the selection of previous releases
+	assert.Empty(t, user.Spec.ConnInfoSecretRoute)
 
 	// Validates Secret
 	secret, err := s.GetSecret(userName + "-secret")
@@ -274,6 +302,96 @@ func TestServiceUserPg(t *testing.T) {
 	// Default port is exposed
 	assert.NotEmpty(t, pgAvn.ServiceUriParams["port"])
 	assert.Equal(t, pgAvn.ServiceUriParams["port"], string(secret.Data["SERVICEUSER_PORT"]))
+
+	t.Run("ExplicitDynamicRoute", func(t *testing.T) {
+		// An explicit dynamic route writes the same host and port as the default.
+		dynName := randName("su-dynamic")
+		require.NoError(t, s.Apply(getServiceUserPgYaml(cfg.Project, pgName, dynName, cfg.PrimaryCloudName, "dynamic")))
+
+		dynUser := new(v1alpha1.ServiceUser)
+		require.NoError(t, s.GetRunning(dynUser, dynName))
+		assert.Equal(t, service.RouteTypeDynamic, dynUser.Spec.ConnInfoSecretRoute)
+
+		dynSecret, err := s.GetSecret(dynName + "-secret")
+		require.NoError(t, err)
+		assert.Equal(t, secret.Data["SERVICEUSER_HOST"], dynSecret.Data["SERVICEUSER_HOST"])
+		assert.Equal(t, secret.Data["SERVICEUSER_PORT"], dynSecret.Data["SERVICEUSER_PORT"])
+
+		assert.NoError(t, s.Delete(dynUser, func() error {
+			_, err := avnGen.ServiceUserGet(ctx, cfg.Project, pgName, dynName)
+			return err
+		}))
+	})
+
+	t.Run("MissingRouteWaits", func(t *testing.T) {
+		// A route the service does not expose creates the user but withholds the secret.
+		plName := randName("su-privatelink")
+		require.NoError(t, s.Apply(getServiceUserPgYaml(cfg.Project, pgName, plName, cfg.PrimaryCloudName, "privatelink")))
+
+		// The wait is visible in status, not only in events.
+		plUser := new(v1alpha1.ServiceUser)
+		require.Eventually(t, func() bool {
+			if err := k8sClient.Get(ctx, client.ObjectKey{Name: plName, Namespace: defaultNamespace}, plUser); err != nil {
+				return false
+			}
+			c := meta.FindStatusCondition(plUser.Status.Conditions, controllers.ConditionTypeError)
+			return c != nil && c.Reason == "Preconditions" && strings.Contains(c.Message, `route "privatelink"`)
+		}, 5*time.Minute, 5*time.Second, "waiting for a route must set the Error condition naming the route")
+		require.Eventually(t, func() bool { return hasPreconditionEvent(ctx, "ServiceUser", plName, "privatelink") },
+			time.Minute, time.Second, "ServiceUser should report a PreconditionsNotMet event naming the route")
+
+		// The user exists at Aiven, the secret does not, the resource is not ready
+		userAvn, err := getServiceUserWithRetry(ctx, avnGen, cfg.Project, pgName, plName)
+		require.NoError(t, err)
+		assert.Equal(t, plName, userAvn.Username)
+
+		_, err = s.GetSecret(plName + "-secret")
+		require.True(t, isNotFound(err), "secret must not be written before the route is available")
+		assert.False(t, controllers.IsReadyToUse(plUser))
+
+		// Switching to an available route writes the secret and clears the condition
+		require.NoError(t, s.Apply(getServiceUserPgYaml(cfg.Project, pgName, plName, cfg.PrimaryCloudName, "dynamic")))
+		require.NoError(t, s.GetRunning(plUser, plName))
+		assert.Equal(t, service.RouteTypeDynamic, plUser.Spec.ConnInfoSecretRoute)
+		assert.Nil(t, meta.FindStatusCondition(plUser.Status.Conditions, controllers.ConditionTypeError))
+
+		plSecret, err := s.GetSecret(plName + "-secret")
+		require.NoError(t, err)
+		assert.Equal(t, secret.Data["SERVICEUSER_HOST"], plSecret.Data["SERVICEUSER_HOST"])
+		assert.Equal(t, secret.Data["SERVICEUSER_PORT"], plSecret.Data["SERVICEUSER_PORT"])
+
+		assert.NoError(t, s.Delete(plUser, func() error {
+			_, err := avnGen.ServiceUserGet(ctx, cfg.Project, pgName, plName)
+			return err
+		}))
+	})
+
+	t.Run("InvalidRouteRejected", func(t *testing.T) {
+		// The CRD enum rejects unknown routes at admission
+		err := s.Apply(getServiceUserPgYaml(cfg.Project, pgName, randName("su-vpn"), cfg.PrimaryCloudName, "vpn"))
+		require.ErrorContains(t, err, `Unsupported value: "vpn"`)
+		require.ErrorContains(t, err, `"privatelink"`)
+	})
+
+	t.Run("RouteChangeKeepsSecret", func(t *testing.T) {
+		// Switching a running user to a route the service lacks leaves its published secret untouched.
+		require.NoError(t, s.Apply(getServiceUserPgYaml(cfg.Project, pgName, userName, cfg.PrimaryCloudName, "privatelink")))
+		require.Eventually(t, func() bool { return hasPreconditionEvent(ctx, "ServiceUser", userName, "privatelink") },
+			5*time.Minute, 5*time.Second, "ServiceUser should report a PreconditionsNotMet event naming the route")
+
+		kept, err := s.GetSecret(userName + "-secret")
+		require.NoError(t, err)
+		assert.Equal(t, secret.Data["SERVICEUSER_HOST"], kept.Data["SERVICEUSER_HOST"])
+		assert.Equal(t, secret.Data["SERVICEUSER_PORT"], kept.Data["SERVICEUSER_PORT"])
+
+		// Switching back recovers
+		require.NoError(t, s.Apply(getServiceUserPgYaml(cfg.Project, pgName, userName, cfg.PrimaryCloudName, "dynamic")))
+		require.NoError(t, s.GetRunning(user, userName))
+		kept, err = s.GetSecret(userName + "-secret")
+		require.NoError(t, err)
+		assert.Equal(t, secret.Data["SERVICEUSER_HOST"], kept.Data["SERVICEUSER_HOST"])
+		assert.Equal(t, secret.Data["SERVICEUSER_PORT"], kept.Data["SERVICEUSER_PORT"])
+	})
 
 	// We need to validate deletion,
 	// because we can get false positive here:

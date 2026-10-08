@@ -356,20 +356,35 @@ func (r *ServiceUserController) fetchUser(
 		}
 	}
 
-	idx := slices.IndexFunc(svc.Components, func(c service.ComponentOut) bool {
-		return c.Component == svc.ServiceType
-	})
-	if idx < 0 {
-		return nil, nil, fmt.Errorf("service component %q not found", svc.ServiceType)
-	}
-	component := &svc.Components[idx]
-
 	caCert, err := r.avnGen.ProjectKmsGetCA(ctx, user.Spec.Project)
 	if err != nil {
 		return nil, nil, fmt.Errorf("aiven client error %w", err)
 	}
 
-	prefix := getSecretPrefix(user)
+	details, err := serviceUserSecretDetails(ctx, svc, u, caCert, getSecretPrefix(user), user.Spec.ConnInfoSecretRoute)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	return u, details, nil
+}
+
+// serviceUserSecretDetails builds the secret from the service component on the given route.
+func serviceUserSecretDetails(
+	ctx context.Context,
+	svc *service.ServiceGetOut,
+	u *service.ServiceUserGetOut,
+	caCert, prefix string,
+	route service.RouteType,
+) (SecretDetails, error) {
+	component, ok := serviceUserHostComponent(svc, route)
+	if !ok {
+		if route == routeLegacy || route == service.RouteTypeDynamic {
+			return nil, fmt.Errorf("service component %q not found", svc.ServiceType)
+		}
+		return nil, errRouteNotFound(svc, route)
+	}
+
 	details := SecretDetails{
 		prefix + "HOST":        component.Host,
 		prefix + "PORT":        fmt.Sprintf("%d", component.Port),
@@ -381,10 +396,10 @@ func (r *ServiceUserController) fetchUser(
 	}
 
 	if svc.ServiceType != string(serviceTypeKafka) {
-		return u, details, nil
+		return details, nil
 	}
 
-	addKafkaEndpointDetails(details, svc.Components, prefix)
+	addKafkaEndpointDetails(details, svc.Components, route, prefix)
 
 	var kafkaConfig struct {
 		KafkaAuthenticationMethods *kafkauserconfig.KafkaAuthenticationMethods `json:"kafka_authentication_methods,omitempty"`
@@ -392,7 +407,7 @@ func (r *ServiceUserController) fetchUser(
 	}
 	if err := decodeMapInto(svc.UserConfig, &kafkaConfig); err != nil {
 		logr.FromContextOrDiscard(ctx).Error(err, "unable to decode Kafka user config, keeping existing optional Kafka endpoint keys")
-		return u, details, nil
+		return details, nil
 	}
 
 	// Temporary workaround until connection secret publishing removes stale keys.
@@ -408,7 +423,27 @@ func (r *ServiceUserController) fetchUser(
 		details[prefix+"SCHEMA_REGISTRY_PORT"] = ""
 	}
 
-	return u, details, nil
+	return details, nil
+}
+
+// serviceUserHostComponent picks the component behind HOST and PORT.
+func serviceUserHostComponent(svc *service.ServiceGetOut, route service.RouteType) (*service.ComponentOut, bool) {
+	if route == routeLegacy {
+		idx := slices.IndexFunc(svc.Components, func(c service.ComponentOut) bool { return c.Component == svc.ServiceType })
+		if idx < 0 {
+			return nil, false
+		}
+		return &svc.Components[idx], true
+	}
+	if svc.ServiceType == string(serviceTypeKafka) {
+		if c, ok := findComponent(svc.Components, svc.ServiceType, route, isCertificateComponent); ok {
+			return c, true
+		}
+		if c, ok := findSaslComponent(svc.Components, route); ok {
+			return c, true
+		}
+	}
+	return findComponent(svc.Components, svc.ServiceType, route, nil)
 }
 
 func buildServiceUserAccessControlIn(ac *v1alpha1.ServiceUserAccessControl) *service.AccessControlIn {

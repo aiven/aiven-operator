@@ -39,6 +39,17 @@
   cluster. Only applies to cluster plans
 - Add `Valkey` field `userConfig.shard_count`, type `integer`: Number of shards (primaries) in the Valkey
   cluster. Required for cluster plans
+- Add `ServiceUser` field `connInfoSecretRoute` (`dynamic`, `public`, `private`, `privatelink`):
+  the network route whose primary component supplies the host and port written to the connection
+  secret (for Kafka also the SASL and schema registry host and port, preferring the project CA SASL
+  listener when `letsencrypt_sasl` is enabled). Unset keeps the selection of previous releases, so
+  existing secrets are not rewritten on upgrade.
+- Add `ServiceUserRotation` field `connInfoSecretRoute` (`dynamic`, `public`, `private`, `privatelink`):
+  same semantics as on `ServiceUser`, except that a SASL listener or schema registry missing on the
+  route leaves its keys out of the Secret instead of writing them empty. While the service does not
+  expose the selected route, the Secret is not created or updated and rotation pauses, reporting an
+  `Error` condition with reason `Preconditions`; it resumes, including an overdue rotation, once the
+  route appears. Unset keeps the selection of previous releases.
 
 ## v0.48.0 - 2026-10-01
 

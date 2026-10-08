@@ -1,0 +1,28 @@
+# Writes the PrivateLink host and port to the connection Secret. The service must have
+# a PrivateLink connection; until it does, the Secret is not created or updated, rotation
+# pauses and the resource reports an Error condition and a PreconditionsNotMet event.
+# Changing connInfoSecretRoute on an existing ServiceUserRotation rewrites the Secret; pods
+# that consume it through environment variables pick up the new host only after a restart.
+
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUserRotation
+metadata:
+  name: application-users
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  project: my-aiven-project
+  serviceName: my-postgresql
+
+  usernames:
+    - application-user-a
+    - application-user-b
+  rotationInterval: 720h
+
+  connInfoSecretTarget:
+    name: application-database-credentials
+    prefix: SERVICEUSER_
+
+  connInfoSecretRoute: privatelink

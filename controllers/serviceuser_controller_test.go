@@ -38,6 +38,11 @@ spec:
   serviceName: test-service
 `
 
+// primaryComponent is the dynamic primary component HOST and PORT come from when no route is set.
+func primaryComponent(name, host string, port int) service.ComponentOut {
+	return service.ComponentOut{Component: name, Host: host, Port: port, Route: service.RouteTypeDynamic, Usage: service.UsageTypePrimary}
+}
+
 func Test_newServiceUserReconciler(t *testing.T) {
 	t.Parallel()
 
@@ -296,7 +301,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "kafka",
-				Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+				Components:  []service.ComponentOut{primaryComponent("kafka", "host", 9092)},
 			}, nil).Twice()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -343,7 +348,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "mysql",
-				Components:  []service.ComponentOut{{Component: "mysql", Host: "host", Port: 3306}},
+				Components:  []service.ComponentOut{primaryComponent("mysql", "host", 3306)},
 			}, nil).Twice()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -386,7 +391,7 @@ func TestServiceUserReconciler(t *testing.T) {
 				Return(&service.ServiceGetOut{
 					State:       service.ServiceStateTypeRunning,
 					ServiceType: "kafka",
-					Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+					Components:  []service.ComponentOut{primaryComponent("kafka", "host", 9092)},
 				}, nil).Twice()
 			avn.EXPECT().
 				ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -430,7 +435,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "valkey",
-				Components:  []service.ComponentOut{{Component: "valkey", Host: "host", Port: 6379}},
+				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
 			}, nil).Twice()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -469,7 +474,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "valkey",
-				Components:  []service.ComponentOut{{Component: "valkey", Host: "host", Port: 6379}},
+				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
 			}, nil).Twice()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -510,7 +515,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "kafka",
-				Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+				Components:  []service.ComponentOut{primaryComponent("kafka", "host", 9092)},
 			}, nil).Twice()
 		avn.EXPECT().
 			ServiceUserCredentialsModify(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name, mock.MatchedBy(func(in *service.ServiceUserCredentialsModifyIn) bool {
@@ -553,7 +558,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "valkey",
-				Components:  []service.ComponentOut{{Component: "valkey", Host: "host", Port: 6379}},
+				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
 			}, nil).Twice()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -604,7 +609,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "valkey",
-				Components:  []service.ComponentOut{{Component: "valkey", Host: "host", Port: 6379}},
+				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
 			}, nil).Twice()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -675,7 +680,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "valkey",
-				Components:  []service.ComponentOut{{Component: "valkey", Host: "host", Port: 6379}},
+				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
 			}, nil).Once()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -717,15 +722,19 @@ func TestServiceUserReconciler(t *testing.T) {
 						Component:                 "kafka",
 						Host:                      "kafka-cert.example.com",
 						Port:                      9092,
+						Route:                     service.RouteTypeDynamic,
+						Usage:                     service.UsageTypePrimary,
 						KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeCertificate,
 					},
 					{
 						Component:                 "kafka",
 						Host:                      "kafka-sasl.example.com",
 						Port:                      9093,
+						Route:                     service.RouteTypeDynamic,
+						Usage:                     service.UsageTypePrimary,
 						KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeSasl,
 					},
-					{Component: "schema_registry", Host: "schema.example.com", Port: 8081},
+					{Component: "schema_registry", Host: "schema.example.com", Port: 8081, Route: service.RouteTypeDynamic, Usage: service.UsageTypePrimary},
 				},
 			}, nil).Once()
 		avn.EXPECT().
@@ -776,6 +785,8 @@ func TestServiceUserReconciler(t *testing.T) {
 						Component:                 "kafka",
 						Host:                      "kafka-sasl.example.com",
 						Port:                      9093,
+						Route:                     service.RouteTypeDynamic,
+						Usage:                     service.UsageTypePrimary,
 						KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeSasl,
 					},
 				},
@@ -826,6 +837,8 @@ func TestServiceUserReconciler(t *testing.T) {
 						Component:                 "kafka",
 						Host:                      "kafka-cert.example.com",
 						Port:                      9092,
+						Route:                     service.RouteTypeDynamic,
+						Usage:                     service.UsageTypePrimary,
 						KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeCertificate,
 					},
 				},
@@ -880,6 +893,8 @@ func TestServiceUserReconciler(t *testing.T) {
 						Component:                 "kafka",
 						Host:                      "kafka-cert.example.com",
 						Port:                      9092,
+						Route:                     service.RouteTypeDynamic,
+						Usage:                     service.UsageTypePrimary,
 						KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeCertificate,
 					},
 				},
@@ -925,6 +940,8 @@ func TestServiceUserReconciler(t *testing.T) {
 						Component:                 "kafka",
 						Host:                      "kafka-cert.example.com",
 						Port:                      9092,
+						Route:                     service.RouteTypeDynamic,
+						Usage:                     service.UsageTypePrimary,
 						KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeCertificate,
 					},
 				},
@@ -963,7 +980,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "valkey",
-				Components:  []service.ComponentOut{{Component: "valkey", Host: "valkey.example.com", Port: 6379}},
+				Components:  []service.ComponentOut{primaryComponent("valkey", "valkey.example.com", 6379)},
 			}, nil).Once()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -982,6 +999,184 @@ func TestServiceUserReconciler(t *testing.T) {
 		require.NotContains(t, secret.Data, "SERVICEUSER_SCHEMA_REGISTRY_PORT")
 	})
 
+	t.Run("Waits with a precondition when the requested route has no component", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Annotations = map[string]string{processedGenerationAnnotation: "1", instanceIsRunningAnnotation: "true"}
+		user.Spec.ConnInfoSecretRoute = service.RouteTypePrivatelink
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "pg",
+				ServiceName: user.Spec.ServiceName,
+				Components:  []service.ComponentOut{primaryComponent("pg", "host", 5432)},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		// No ServiceUserCreate expectation: the user exists, only the secret waits for the route.
+		_, err := (&ServiceUserController{avnGen: avn}).Observe(t.Context(), user)
+		require.ErrorIs(t, err, errPreconditionNotMet)
+		require.ErrorContains(t, err, `route "privatelink"`)
+		require.ErrorContains(t, err, user.Spec.ServiceName)
+	})
+
+	t.Run("Create surfaces the precondition after creating the user", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Spec.ConnInfoSecretRoute = service.RouteTypePrivatelink
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceUserCreateOut{Username: user.Name}, nil).Once()
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "pg",
+				ServiceName: user.Spec.ServiceName,
+				Components:  []service.ComponentOut{primaryComponent("pg", "host", 5432)},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		scheme := runtime.NewScheme()
+		require.NoError(t, clientgoscheme.AddToScheme(scheme))
+		c := &ServiceUserController{Client: fake.NewClientBuilder().WithScheme(scheme).Build(), avnGen: avn}
+		_, err := c.Create(t.Context(), user)
+		require.ErrorIs(t, err, errPreconditionNotMet)
+		require.ErrorContains(t, err, `route "privatelink"`)
+	})
+
+	t.Run("Pushes nothing while the requested route is missing", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		// A rotation is stamped and access control drifted, but the route wait comes first.
+		user.Annotations = map[string]string{instanceIsRunningAnnotation: "true", secretSourceUpdatedAnnotation: "123"}
+		user.Spec.ConnInfoSecretRoute = service.RouteTypePrivatelink
+		user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{Name: "src", PasswordKey: "PASSWORD"}
+		user.Spec.AccessControl = &v1alpha1.ServiceUserAccessControl{ValkeyACLKeys: []string{"prefix_*:*"}}
+		src := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{Name: "src", Namespace: user.Namespace},
+			Data:       map[string][]byte{"PASSWORD": []byte("external-secret-password")},
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "valkey",
+				ServiceName: user.Spec.ServiceName,
+				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		// No ServiceUserCredentialsModify expectation: nothing is pushed while the route is missing.
+		r, res := runScenario(t, user, avn, src)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+		require.Contains(t, recorderEvents(r.Recorder.(*record.FakeRecorder)),
+			`Warning PreconditionsNotMet preconditions are not met: waiting for an external change: component "valkey" with route "privatelink" not found on service "`+user.Spec.ServiceName+`"`)
+
+		got := &v1alpha1.ServiceUser{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got))
+		require.NotContains(t, got.Annotations, processedGenerationAnnotation, "the wait must not mark the generation processed")
+		cond := meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError)
+		require.NotNil(t, cond)
+		require.Equal(t, string(errConditionPreconditions), cond.Reason)
+
+		secret := &corev1.Secret{}
+		err := r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret)
+		require.True(t, apierrors.IsNotFound(err), "secret must not be written while the route is missing")
+	})
+
+	t.Run("Pushes pending changes once the requested route appears", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Annotations = map[string]string{instanceIsRunningAnnotation: "true", secretSourceUpdatedAnnotation: "123"}
+		user.Spec.ConnInfoSecretRoute = service.RouteTypePrivatelink
+		user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{Name: "src", PasswordKey: "PASSWORD"}
+		user.Spec.AccessControl = &v1alpha1.ServiceUserAccessControl{ValkeyACLKeys: []string{"prefix_*:*"}}
+		srcPassword := "external-secret-password"
+		src := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{Name: "src", Namespace: user.Namespace},
+			Data:       map[string][]byte{"PASSWORD": []byte(srcPassword)},
+		}
+
+		withoutRoute := &service.ServiceGetOut{
+			State:       service.ServiceStateTypeRunning,
+			ServiceType: "valkey",
+			ServiceName: user.Spec.ServiceName,
+			Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
+		}
+		withRoute := &service.ServiceGetOut{
+			State:       service.ServiceStateTypeRunning,
+			ServiceType: "valkey",
+			ServiceName: user.Spec.ServiceName,
+			Components: []service.ComponentOut{
+				primaryComponent("valkey", "host", 6379),
+				{Component: "valkey", Host: "pl-host", Port: 26379, Route: service.RouteTypePrivatelink, Usage: service.UsageTypePrimary},
+			},
+		}
+
+		avn := avngen.NewMockClient(t)
+		// First reconcile waits; the second observes the route, updates and rebuilds the secret.
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(withoutRoute, nil).Once()
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(withRoute, nil).Twice()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Times(3)
+		avn.EXPECT().
+			ServiceUserCredentialsModify(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name, mock.MatchedBy(func(in *service.ServiceUserCredentialsModifyIn) bool {
+				return in.Operation == service.ServiceUserCredentialsModifyOperationTypeSetAccessControl &&
+					matchValkeyAccessControl(user.Spec.AccessControl)(in.AccessControl)
+			})).
+			Return(&service.ServiceUserCredentialsModifyOut{}, nil).Once()
+		avn.EXPECT().
+			ServiceUserCredentialsModify(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name, mock.MatchedBy(func(in *service.ServiceUserCredentialsModifyIn) bool {
+				return in.NewPassword != nil && *in.NewPassword == srcPassword &&
+					in.Operation == service.ServiceUserCredentialsModifyOperationTypeResetCredentials
+			})).
+			Return(&service.ServiceUserCredentialsModifyOut{}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Times(3)
+
+		r, res := runScenario(t, user, avn, src)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		res, err := r.Reconcile(t.Context(), ctrlruntime.Request{NamespacedName: types.NamespacedName{Name: user.Name, Namespace: user.Namespace}})
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.ServiceUser{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got))
+		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
+		require.Nil(t, meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError))
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+		require.Equal(t, []byte("pl-host"), secret.Data["SERVICEUSER_HOST"])
+		require.Equal(t, []byte("26379"), secret.Data["SERVICEUSER_PORT"])
+	})
+
 	t.Run("Retries transient not found for ready ServiceUser before treating it as absent", func(t *testing.T) {
 		synctest.Test(t, func(t *testing.T) {
 			user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
@@ -997,7 +1192,7 @@ func TestServiceUserReconciler(t *testing.T) {
 				Return(&service.ServiceGetOut{
 					State:       service.ServiceStateTypeRunning,
 					ServiceType: "kafka",
-					Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+					Components:  []service.ComponentOut{primaryComponent("kafka", "host", 9092)},
 				}, nil).Once()
 			avn.EXPECT().
 				ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -1031,7 +1226,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "kafka",
-				Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+				Components:  []service.ComponentOut{primaryComponent("kafka", "host", 9092)},
 			}, nil).Once()
 		// Observe path does not retry empty-password — single fetch.
 		avn.EXPECT().
@@ -1069,7 +1264,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "kafka",
-				Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+				Components:  []service.ComponentOut{primaryComponent("kafka", "host", 9092)},
 			}, nil).Twice()
 		// Observe sees empty.
 		avn.EXPECT().
@@ -1111,7 +1306,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "mysql",
-				Components:  []service.ComponentOut{{Component: "mysql", Host: "host", Port: 3306}},
+				Components:  []service.ComponentOut{primaryComponent("mysql", "host", 3306)},
 			}, nil).Once()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -1144,7 +1339,7 @@ func TestServiceUserReconciler(t *testing.T) {
 					Return(&service.ServiceGetOut{
 						State:       service.ServiceStateTypeRunning,
 						ServiceType: serviceType,
-						Components:  []service.ComponentOut{{Component: serviceType, Host: "host", Port: 1234}},
+						Components:  []service.ComponentOut{primaryComponent(serviceType, "host", 1234)},
 					}, nil).Once()
 				avn.EXPECT().
 					ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -1225,7 +1420,7 @@ func TestServiceUserReconciler(t *testing.T) {
 					Return(&service.ServiceGetOut{
 						State:       service.ServiceStateTypeRunning,
 						ServiceType: tc.serviceType,
-						Components:  []service.ComponentOut{{Component: tc.serviceType, Host: "host", Port: 3306}},
+						Components:  []service.ComponentOut{primaryComponent(tc.serviceType, "host", 3306)},
 					}, nil).Times(3)
 				avn.EXPECT().
 					ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Spec.Username).
@@ -1282,7 +1477,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "mysql",
-				Components:  []service.ComponentOut{{Component: "mysql", Host: "host", Port: 3306}},
+				Components:  []service.ComponentOut{primaryComponent("mysql", "host", 3306)},
 			}, nil).Twice()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -1323,7 +1518,7 @@ func TestServiceUserReconciler(t *testing.T) {
 					Return(&service.ServiceGetOut{
 						State:       service.ServiceStateTypeRunning,
 						ServiceType: "pg",
-						Components:  []service.ComponentOut{{Component: "pg", Host: "host", Port: 5432}},
+						Components:  []service.ComponentOut{primaryComponent("pg", "host", 5432)},
 					}, nil).Twice()
 				avn.EXPECT().
 					ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -1365,7 +1560,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "pg",
-				Components:  []service.ComponentOut{{Component: "pg", Host: "host", Port: 5432}},
+				Components:  []service.ComponentOut{primaryComponent("pg", "host", 5432)},
 			}, nil).Times(3)
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -1415,7 +1610,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "mysql",
-				Components:  []service.ComponentOut{{Component: "mysql", Host: "host", Port: 3306}},
+				Components:  []service.ComponentOut{primaryComponent("mysql", "host", 3306)},
 			}, nil).Once()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -1457,7 +1652,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "mysql",
-				Components:  []service.ComponentOut{{Component: "mysql", Host: "host", Port: 3306}},
+				Components:  []service.ComponentOut{primaryComponent("mysql", "host", 3306)},
 			}, nil).Times(3)
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -1520,7 +1715,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "valkey",
-				Components:  []service.ComponentOut{{Component: "valkey", Host: "host", Port: 6379}},
+				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
 			}, nil).Twice()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -1569,7 +1764,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "kafka",
-				Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+				Components:  []service.ComponentOut{primaryComponent("kafka", "host", 9092)},
 			}, nil).Once()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -1623,7 +1818,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "kafka",
-				Components:  []service.ComponentOut{{Component: "kafka", Host: "host", Port: 9092}},
+				Components:  []service.ComponentOut{primaryComponent("kafka", "host", 9092)},
 			}, nil).Twice()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Spec.Username).
@@ -1752,5 +1947,201 @@ func TestServiceUserReconciler(t *testing.T) {
 		got := &v1alpha1.ServiceUser{}
 		err := r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got)
 		require.True(t, apierrors.IsNotFound(err))
+	})
+}
+
+func TestServiceUserSecretDetails(t *testing.T) {
+	accessCert, accessKey := "cert", "key"
+	u := &service.ServiceUserGetOut{Username: "alice", Password: "pw", AccessCert: &accessCert, AccessKey: &accessKey}
+	base := func(host, port string) SecretDetails {
+		return SecretDetails{
+			"P_HOST": host, "P_PORT": port, "P_USERNAME": "alice", "P_PASSWORD": "pw",
+			"P_ACCESS_CERT": "cert", "P_ACCESS_KEY": "key", "P_CA_CERT": "ca",
+		}
+	}
+	withSasl := func(d SecretDetails, host, port string) SecretDetails {
+		d["P_SASL_HOST"], d["P_SASL_PORT"] = host, port
+		return d
+	}
+	withSchemaRegistry := func(d SecretDetails, host, port string) SecretDetails {
+		d["P_SCHEMA_REGISTRY_HOST"], d["P_SCHEMA_REGISTRY_PORT"] = host, port
+		return d
+	}
+	withKafka := func(d SecretDetails, saslHost, saslPort, srHost, srPort string) SecretDetails {
+		return withSchemaRegistry(withSasl(d, saslHost, saslPort), srHost, srPort)
+	}
+	droppingComponent := func(name string) func() []service.ComponentOut {
+		return func() []service.ComponentOut {
+			return without(testComponents(), func(c service.ComponentOut) bool { return c.Component == name })
+		}
+	}
+	droppingKafkaAuth := func(auth service.KafkaAuthenticationMethodType) func() []service.ComponentOut {
+		return func() []service.ComponentOut {
+			return without(testComponents(), func(c service.ComponentOut) bool { return c.KafkaAuthenticationMethod == auth })
+		}
+	}
+
+	cases := []struct {
+		name         string
+		serviceType  string
+		route        service.RouteType             // spec value; empty keeps the legacy selection
+		components   func() []service.ComponentOut // nil means testComponents
+		userConfig   map[string]any
+		want         SecretDetails
+		wantReversed SecretDetails // legacy cases only: the selection follows API order
+		wantErr      []string
+		hardErr      bool // wantErr is not a precondition
+	}{
+		{
+			name: "unset route keeps the legacy pg selection: first entry in API order", serviceType: "pg",
+			want: base("pg-dynamic-primary", "1"), wantReversed: base("pg-public-primary", "4"),
+		},
+		{name: "dynamic pg", serviceType: "pg", route: service.RouteTypeDynamic, want: base("pg-dynamic-primary", "1")},
+		{name: "privatelink pg", serviceType: "pg", route: service.RouteTypePrivatelink, want: base("pg-privatelink-primary", "3")},
+		{name: "public pg", serviceType: "pg", route: service.RouteTypePublic, want: base("pg-public-primary", "4")},
+		{
+			name: "unset route keeps the legacy kafka selection: first kafka, last sasl and schema registry", serviceType: "kafka",
+			want:         withKafka(base("kafka-dynamic-cert", "5"), "kafka-privatelink-sasl", "8", "sr-privatelink", "10"),
+			wantReversed: withKafka(base("kafka-privatelink-sasl", "8"), "kafka-dynamic-sasl", "6", "sr-dynamic", "9"),
+		},
+		{
+			name: "unset route with letsencrypt sasl takes whichever sasl entry is listed last", serviceType: "kafka",
+			components:   func() []service.ComponentOut { return withLetsencryptSasl(testComponents()) },
+			want:         withKafka(base("kafka-dynamic-cert", "5"), "kafka-privatelink-sasl-letsencrypt", "12", "sr-privatelink", "10"),
+			wantReversed: withKafka(base("kafka-privatelink-sasl-letsencrypt", "12"), "kafka-dynamic-sasl", "6", "sr-dynamic", "9"),
+		},
+		{
+			name: "dynamic kafka picks the dynamic primary entries", serviceType: "kafka", route: service.RouteTypeDynamic,
+			want: withKafka(base("kafka-dynamic-cert", "5"), "kafka-dynamic-sasl", "6", "sr-dynamic", "9"),
+		},
+		{
+			name: "privatelink kafka", serviceType: "kafka", route: service.RouteTypePrivatelink,
+			want: withKafka(base("kafka-privatelink-cert", "7"), "kafka-privatelink-sasl", "8", "sr-privatelink", "10"),
+		},
+		{
+			name: "kafka without certificate auth takes the sasl entry for HOST", serviceType: "kafka", route: service.RouteTypePrivatelink,
+			components: droppingKafkaAuth(service.KafkaAuthenticationMethodTypeCertificate),
+			want:       withKafka(base("kafka-privatelink-sasl", "8"), "kafka-privatelink-sasl", "8", "sr-privatelink", "10"),
+		},
+		{
+			name: "kafka with letsencrypt sasl keeps the project CA sasl entry", serviceType: "kafka", route: service.RouteTypeDynamic,
+			components: func() []service.ComponentOut { return withLetsencryptSasl(testComponents()) },
+			want:       withKafka(base("kafka-dynamic-cert", "5"), "kafka-dynamic-sasl", "6", "sr-dynamic", "9"),
+		},
+		{
+			name: "kafka privatelink with letsencrypt sasl keeps the project CA sasl entry", serviceType: "kafka", route: service.RouteTypePrivatelink,
+			components: func() []service.ComponentOut { return withLetsencryptSasl(testComponents()) },
+			want:       withKafka(base("kafka-privatelink-cert", "7"), "kafka-privatelink-sasl", "8", "sr-privatelink", "10"),
+		},
+		{
+			name: "kafka without certificate auth and with letsencrypt sasl takes the project CA sasl entry for HOST", serviceType: "kafka", route: service.RouteTypePrivatelink,
+			components: func() []service.ComponentOut {
+				return withLetsencryptSasl(droppingKafkaAuth(service.KafkaAuthenticationMethodTypeCertificate)())
+			},
+			want: withKafka(base("kafka-privatelink-sasl", "8"), "kafka-privatelink-sasl", "8", "sr-privatelink", "10"),
+		},
+		{
+			name: "kafka dynamic without schema registry blanks the schema registry keys", serviceType: "kafka", route: service.RouteTypeDynamic,
+			components: droppingComponent("schema_registry"),
+			want:       withKafka(base("kafka-dynamic-cert", "5"), "kafka-dynamic-sasl", "6", "", ""),
+		},
+		{
+			name: "kafka privatelink without schema registry blanks the schema registry keys", serviceType: "kafka", route: service.RouteTypePrivatelink,
+			components: droppingComponent("schema_registry"),
+			want:       withKafka(base("kafka-privatelink-cert", "7"), "kafka-privatelink-sasl", "8", "", ""),
+		},
+		{
+			name: "kafka blanks disabled sasl and schema registry", serviceType: "kafka", route: service.RouteTypePrivatelink,
+			userConfig: map[string]any{"kafka_authentication_methods": map[string]any{"sasl": false}, "schema_registry": false},
+			want:       withKafka(base("kafka-privatelink-cert", "7"), "", "", "", ""),
+		},
+		{
+			name: "missing route is a precondition", serviceType: "pg", route: service.RouteTypePrivate,
+			wantErr: []string{`component "pg"`, `route "private"`, `service "svc"`},
+		},
+		{
+			name: "missing route is a precondition for kafka", serviceType: "kafka", route: service.RouteTypePrivate,
+			wantErr: []string{`component "kafka"`, `route "private"`, `service "svc"`},
+		},
+		{
+			name: "missing component on the unset route is an error", serviceType: "mysql",
+			wantErr: []string{`service component "mysql" not found`}, hardErr: true,
+		},
+		{
+			name: "missing component on the dynamic route is an error", serviceType: "mysql", route: service.RouteTypeDynamic,
+			wantErr: []string{`service component "mysql" not found`}, hardErr: true,
+		},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			components := tc.components
+			if components == nil {
+				components = testComponents
+			}
+			run := func(components []service.ComponentOut) (SecretDetails, error) {
+				svc := &service.ServiceGetOut{ServiceType: tc.serviceType, ServiceName: "svc", Components: components, UserConfig: tc.userConfig}
+				return serviceUserSecretDetails(t.Context(), svc, u, "ca", "P_", tc.route)
+			}
+			listed, err := run(components())
+			rev, errRev := run(reversed(components()))
+
+			if tc.wantErr != nil {
+				for _, e := range []error{err, errRev} {
+					if tc.hardErr {
+						require.NotErrorIs(t, e, errPreconditionNotMet)
+					} else {
+						require.ErrorIs(t, e, errPreconditionNotMet)
+					}
+					for _, want := range tc.wantErr {
+						require.ErrorContains(t, e, want)
+					}
+				}
+				require.Nil(t, listed)
+				require.Nil(t, rev)
+				return
+			}
+
+			require.NoError(t, err)
+			require.NoError(t, errRev)
+			require.Equal(t, tc.want, listed)
+			if tc.wantReversed != nil {
+				require.Equal(t, tc.wantReversed, rev, "the legacy selection follows API order")
+				return
+			}
+			require.Equal(t, listed, rev)
+		})
+	}
+
+	// Real API data: with two PrivateLink connections every listener is listed once per
+	// connection, so the route alone does not identify a component. The operator takes the first
+	// in API order (connection 1) and, unlike every case above, the choice depends on that order.
+	t.Run("recorded kafka with two privatelink connections takes the first connection", func(t *testing.T) {
+		const pl1 = "privatelink-1-rt-pl-kafka-aiven-ci-kubernetes-operator.c.aivencloud.com"
+		const pl2 = "privatelink-2-rt-pl-kafka-aiven-ci-kubernetes-operator.c.aivencloud.com"
+		run := func(components []service.ComponentOut, route service.RouteType) SecretDetails {
+			svc := &service.ServiceGetOut{ServiceType: "kafka", ServiceName: "svc", Components: components}
+			details, err := serviceUserSecretDetails(t.Context(), svc, u, "ca", "P_", route)
+			require.NoError(t, err)
+			return details
+		}
+
+		require.Equal(t,
+			withKafka(base(pl1, "23220"), pl1, "23224", pl1, "14614"),
+			run(recordedKafkaPrivatelinkComponents(), service.RouteTypePrivatelink))
+		require.Equal(t,
+			withKafka(base(pl2, "23228"), pl2, "23232", pl2, "14614"),
+			run(reversed(recordedKafkaPrivatelinkComponents()), service.RouteTypePrivatelink),
+			"ties between connections follow API order")
+		require.Equal(t,
+			withKafka(base("rt-pl-kafka-aiven-ci-kubernetes-operator.c.aivencloud.com", "14611"),
+				"rt-pl-kafka-aiven-ci-kubernetes-operator.c.aivencloud.com", "14622",
+				"rt-pl-kafka-aiven-ci-kubernetes-operator.c.aivencloud.com", "14614"),
+			run(recordedKafkaPrivatelinkComponents(), service.RouteTypeDynamic),
+			"the dynamic route is unaffected by the privatelink entries")
+		require.Equal(t,
+			withKafka(base("rt-pl-kafka-aiven-ci-kubernetes-operator.c.aivencloud.com", "14611"), pl2, "23232", pl2, "14614"),
+			run(recordedKafkaPrivatelinkComponents(), routeLegacy),
+			"the unset route keeps the pre-field secret: dynamic HOST, SASL and schema registry from the last listed connection")
 	})
 }

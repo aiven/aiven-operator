@@ -93,6 +93,35 @@ This resource uses the following API operations, and for each operation, _any_ o
     ```
 
 	
+=== "privatelink"
+
+    ```yaml linenums="1"
+    # Writes the PrivateLink host and port to the connection secret. The service must have
+    # a PrivateLink connection; until it does, the user is created on Aiven but the secret is
+    # not created or updated and the resource reports a PreconditionsNotMet event. Changing
+    # connInfoSecretRoute on an existing ServiceUser rewrites the secret; pods that consume it
+    # through environment variables pick up the new host only after a restart.
+    
+    apiVersion: aiven.io/v1alpha1
+    kind: ServiceUser
+    metadata:
+      name: my-service-user
+    spec:
+      authSecretRef:
+        name: aiven-token
+        key: token
+    
+      connInfoSecretTarget:
+        name: service-user-secret
+        prefix: MY_SECRET_PREFIX_
+    
+      connInfoSecretRoute: privatelink
+    
+      project: aiven-project-name
+      serviceName: my-service-name
+    ```
+
+	
 === "example"
 
     ```yaml linenums="1"
@@ -210,6 +239,10 @@ ServiceUserSpec defines the desired state of ServiceUser.
     Changing the method resets the user credentials: the password from connInfoSecretSource is used,
     otherwise the current password is reused.
     Leave unset to keep authentication unmanaged.
+- [`connInfoSecretRoute`](#spec.connInfoSecretRoute-property){: name='spec.connInfoSecretRoute-property'} (string, Enum: `dynamic`, `public`, `private`, `privatelink`). Network route whose host and port are written to the connection secret.
+    Set a route, including dynamic, to take the primary component on that
+    route; for Kafka this also selects the SASL and schema registry host and port on it.
+    The service must expose the selected route (for example, a PrivateLink connection must be established).
 - [`connInfoSecretSource`](#spec.connInfoSecretSource-property){: name='spec.connInfoSecretSource-property'} (object). ConnInfoSecretSource declares the password the operator should enforce on the user.
     Direct password changes in the database will be reverted on the next reconcile cycle.
     To rotate, update the source secret.
