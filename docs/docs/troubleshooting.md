@@ -116,6 +116,17 @@ Look for these annotations:
 
 **Actual behavior**: Once a resource/secret is ready, the operator stops continuous reconciliation. Manual changes in the Aiven console will **not** trigger automatic recreation.
 
+### ServiceUser has no connection secret or the secret has the wrong host
+
+`kubectl describe serviceuser <name>` shows an `Error` condition with reason `Preconditions` and a
+`PreconditionsNotMet` warning event such as
+`component "pg" with route "privatelink" not found on service "my-pg"`: the service does not expose
+the route set in `spec.connInfoSecretRoute`. Establish the PrivateLink connection or set the route
+back to `dynamic`. Note that not every cloud lists a `private` route (a service in a Google Cloud
+project VPC has none), so `private` can wait forever there. An existing secret keeps its previous
+host until then. The route is re-checked once per poll interval (`--poll-interval`, 10 minutes by
+default); to pick it up sooner, force a reconciliation as described below.
+
 ### How to Force Reconciliation
 
 If you need to force the operator to reconcile a resource (for example, after manually deleting it from Aiven), you have several options:
