@@ -105,6 +105,18 @@ spec:
                     - caching_sha2_password
                     - mysql_native_password
                   type: string
+                connInfoSecretRoute:
+                  description: |-
+                    Network route whose host and port are written to the connection secret.
+                    Set a route, including dynamic, to take the primary component on that
+                    route; for Kafka this also selects the SASL and schema registry host and port on it.
+                    The service must expose the selected route (for example, a PrivateLink connection must be established).
+                  enum:
+                    - dynamic
+                    - public
+                    - private
+                    - privatelink
+                  type: string
                 connInfoSecretSource:
                   description: |-
                     ConnInfoSecretSource declares the password the operator should enforce on the user.

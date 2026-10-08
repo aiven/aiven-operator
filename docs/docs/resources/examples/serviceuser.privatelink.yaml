@@ -1,0 +1,23 @@
+# Writes the PrivateLink host and port to the connection secret. The service must have
+# a PrivateLink connection; until it does, the user is created on Aiven but the secret is
+# not created or updated and the resource reports a PreconditionsNotMet event. Changing
+# connInfoSecretRoute on an existing ServiceUser rewrites the secret; pods that consume it
+# through environment variables pick up the new host only after a restart.
+
+apiVersion: aiven.io/v1alpha1
+kind: ServiceUser
+metadata:
+  name: my-service-user
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: service-user-secret
+    prefix: MY_SECRET_PREFIX_
+
+  connInfoSecretRoute: privatelink
+
+  project: aiven-project-name
+  serviceName: my-service-name

@@ -349,6 +349,30 @@ func connectionSecretName(o objWithSecret) string {
 	return o.GetName()
 }
 
+// routeLegacy is an unset connInfoSecretRoute: components are selected the way before the field was added.
+const routeLegacy service.RouteType = ""
+
+// findComponent returns the service component with the given name and route that satisfies
+// match (nil matches any), or false when there is none.
+func findComponent(
+	components []service.ComponentOut,
+	name string,
+	route service.RouteType,
+	match func(service.ComponentOut) bool,
+) (*service.ComponentOut, bool) {
+	for i := range components {
+		c := &components[i]
+		if c.Component != name || c.Route != route || c.Usage != service.UsageTypePrimary {
+			continue
+		}
+		if match != nil && !match(*c) {
+			continue
+		}
+		return c, true
+	}
+	return nil, false
+}
+
 // getSecretPrefix returns user's prefix or kind name
 func getSecretPrefix(o objWithSecret) string {
 	target := o.GetConnInfoSecretTarget()
