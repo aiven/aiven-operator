@@ -240,7 +240,12 @@ func TestRefreshKafkaEndpointDetails(t *testing.T) {
 		{"dynamic route picks the dynamic primaries", testComponents(), service.RouteTypeDynamic, endpoints("kafka-dynamic-sasl", "6", "sr-dynamic", "9")},
 		{"dynamic route ignores API order", reversed(testComponents()), service.RouteTypeDynamic, endpoints("kafka-dynamic-sasl", "6", "sr-dynamic", "9")},
 		{"privatelink route picks the privatelink primaries", reversed(testComponents()), service.RouteTypePrivatelink, endpoints("kafka-privatelink-sasl", "8", "sr-privatelink", "10")},
-		{"route without the components blanks the keys", testComponents(), service.RouteTypePublic, endpoints("", "", "", "")},
+		{"route without the components removes the keys", testComponents(), service.RouteTypePublic, map[string][]byte{
+			"P_HOST": []byte("kept"), "unrelated": []byte("kept"),
+		}},
+		{"route without schema registry removes only its keys", withoutSchemaRegistry, service.RouteTypePrivatelink, map[string][]byte{
+			"P_HOST": []byte("kept"), "unrelated": []byte("kept"), "P_SASL_HOST": []byte("kafka-privatelink-sasl"), "P_SASL_PORT": []byte("8"),
+		}},
 	}
 	for _, tc := range cases {
 		t.Run(tc.name, func(t *testing.T) {

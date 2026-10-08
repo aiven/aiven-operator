@@ -188,7 +188,8 @@ func isCertificateComponent(c service.ComponentOut) bool {
 }
 
 // refreshKafkaEndpointDetails replaces optional Kafka endpoints in existing Secret data with
-// those on the given route.
+// those on the given route. Keys of a component missing on the route are left out: they are
+// deleted first, so no blank value is needed to clear a stale one.
 func refreshKafkaEndpointDetails(data map[string][]byte, components []service.ComponentOut, route service.RouteType, prefix string) {
 	for _, key := range []string{
 		prefix + "SASL_HOST",
@@ -201,6 +202,9 @@ func refreshKafkaEndpointDetails(data map[string][]byte, components []service.Co
 	details := make(SecretDetails)
 	addKafkaEndpointDetails(details, components, route, prefix)
 	for key, value := range details {
+		if value == "" {
+			continue
+		}
 		data[key] = []byte(value)
 	}
 }
