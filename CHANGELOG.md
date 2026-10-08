@@ -39,6 +39,11 @@
   cluster. Only applies to cluster plans
 - Add `Valkey` field `userConfig.shard_count`, type `integer`: Number of shards (primaries) in the Valkey
   cluster. Required for cluster plans
+- Add `ServiceUser` field `connInfoSecretRoute` (`dynamic`, `public`, `private`, `privatelink`):
+  the network route whose primary component supplies the host and port written to the connection
+  secret (for Kafka also the SASL and schema registry host and port, preferring the project CA SASL
+  listener when `letsencrypt_sasl` is enabled). Unset keeps the selection of previous releases, so
+  existing secrets are not rewritten on upgrade.
 
 ## v0.48.0 - 2026-10-01
 
