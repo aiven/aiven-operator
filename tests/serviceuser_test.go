@@ -224,9 +224,7 @@ func TestServiceUserPg(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, releasePG, err := sharedResources.AcquirePostgreSQL(ctx, shared)
-	require.NoError(t, err)
-	defer releasePG()
+	pg := sharedResources.AcquirePostgreSQL(t, shared)
 
 	pgName := pg.GetName()
 	userName := randName("connection-pool")
@@ -294,9 +292,7 @@ func TestServiceUserCustomCredentials(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, releasePG, err := sharedResources.AcquirePostgreSQL(ctx, shared)
-	require.NoError(t, err)
-	defer releasePG()
+	pg := sharedResources.AcquirePostgreSQL(t, shared)
 
 	pgName := pg.GetName()
 	s := NewSession(ctx, k8sClient)
@@ -376,9 +372,7 @@ func TestServiceUserSpecUsername(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, releasePG, err := sharedResources.AcquirePostgreSQL(ctx, shared)
-	require.NoError(t, err)
-	defer releasePG()
+	pg := sharedResources.AcquirePostgreSQL(t, shared)
 
 	pgName := pg.GetName()
 	s := NewSession(ctx, k8sClient)
@@ -475,9 +469,7 @@ func TestServiceUserAvnadminPasswordReset(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, releasePG, err := sharedResources.AcquirePostgreSQL(ctx, exclusive)
-	require.NoError(t, err)
-	defer releasePG()
+	pg := sharedResources.AcquirePostgreSQL(t, exclusive)
 
 	pgName := pg.GetName()
 	s := NewSession(ctx, k8sClient)

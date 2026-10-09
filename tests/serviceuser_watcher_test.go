@@ -24,9 +24,7 @@ func TestServiceUserSecretWatch(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, release, err := sharedResources.AcquirePostgreSQL(ctx, shared)
-	require.NoError(t, err)
-	defer release()
+	pg := sharedResources.AcquirePostgreSQL(t, shared)
 
 	serviceName := pg.GetName()
 	s := NewSession(ctx, k8sClient)

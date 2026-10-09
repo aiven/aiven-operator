@@ -28,9 +28,7 @@ func TestClickhouseUser(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, release, err := sharedResources.AcquireClickhouse(ctx, shared)
-	require.NoError(t, err)
-	defer release()
+	ch := sharedResources.AcquireClickhouse(t, shared)
 
 	chName := ch.GetName()
 	userName := randName("clickhouse-user")
@@ -151,9 +149,7 @@ func TestClickhouseUserPreservesSecretPasswordOnUpdate(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, release, err := sharedResources.AcquireClickhouse(ctx, shared)
-	require.NoError(t, err)
-	defer release()
+	ch := sharedResources.AcquireClickhouse(t, shared)
 
 	chName := ch.GetName()
 	userName := randName("chu-secret-compat")
@@ -243,9 +239,7 @@ func TestClickhouseUserDeletionPolicyOrphan(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, release, err := sharedResources.AcquireClickhouse(ctx, shared)
-	require.NoError(t, err)
-	defer release()
+	ch := sharedResources.AcquireClickhouse(t, shared)
 
 	chName := ch.GetName()
 	userName := randName("chu-orphan")
@@ -378,9 +372,7 @@ func TestClickhouseUserCustomCredentials(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, release, err := sharedResources.AcquireClickhouse(ctx, shared)
-	require.NoError(t, err)
-	defer release()
+	ch := sharedResources.AcquireClickhouse(t, shared)
 
 	chName := ch.GetName()
 	s := NewSession(ctx, k8sClient)

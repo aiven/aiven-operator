@@ -26,11 +26,7 @@ import (
 
 func TestServiceUserRotationKafka(t *testing.T) {
 	t.Parallel()
-	acquireCtx, cancelAcquire := testCtx()
-	kafka, release, err := sharedResources.AcquireKafka(acquireCtx, shared)
-	cancelAcquire()
-	require.NoError(t, err)
-	t.Cleanup(release)
+	kafka := sharedResources.AcquireKafka(t, shared)
 	waitRotationKafkaSASLEndpoint(t, kafka)
 	s := newRotationTest(t, kafka.Name)
 	first := s.create()

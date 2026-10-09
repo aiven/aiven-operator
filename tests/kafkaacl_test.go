@@ -64,9 +64,7 @@ func TestKafkaACL(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafkaService, releaseKafka, err := sharedResources.AcquireKafka(ctx, shared)
-	require.NoError(t, err)
-	defer releaseKafka()
+	kafkaService := sharedResources.AcquireKafka(t, shared)
 
 	kafkaName := kafkaService.GetName()
 	topicName := randName("kafka-topic")

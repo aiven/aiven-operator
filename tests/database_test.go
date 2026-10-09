@@ -24,9 +24,7 @@ func TestDatabase(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, release, err := sharedResources.AcquirePostgreSQL(ctx, shared)
-	require.NoError(t, err)
-	defer release()
+	pg := sharedResources.AcquirePostgreSQL(t, shared)
 
 	// Cleans test afterward
 	s := NewSession(ctx, k8sClient)
@@ -81,9 +79,7 @@ func TestDatabase_databaseName(t *testing.T) {
 	defer cancel()
 
 	// GIVEN
-	pg, release, err := sharedResources.AcquirePostgreSQL(ctx, shared)
-	require.NoError(t, err)
-	defer release()
+	pg := sharedResources.AcquirePostgreSQL(t, shared)
 
 	s := NewSession(ctx, k8sClient)
 
@@ -212,9 +208,7 @@ func TestDatabase_terminationProtection(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, release, err := sharedResources.AcquirePostgreSQL(ctx, shared)
-	require.NoError(t, err)
-	defer release()
+	pg := sharedResources.AcquirePostgreSQL(t, shared)
 
 	s := NewSession(ctx, k8sClient)
 	defer s.Destroy(t)
@@ -246,7 +240,7 @@ spec:
 
 	// WHEN we attempt to delete the Kubernetes resource.
 	// THEN the admission webhook rejects the request immediately.
-	err = k8sClient.Delete(ctx, db)
+	err := k8sClient.Delete(ctx, db)
 	require.ErrorContains(t, err, "termination protection")
 
 	// AND the database still exists on Aiven.

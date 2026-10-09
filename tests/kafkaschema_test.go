@@ -29,9 +29,7 @@ func TestKafkaSchema(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx, shared)
-	require.NoError(t, err)
-	defer releaseKafka()
+	kafka := sharedResources.AcquireKafka(t, shared)
 
 	kafkaName := kafka.GetName()
 	schemaName := randName("kafka-schema")
@@ -173,9 +171,7 @@ func TestKafkaSchemaCompatibilityLoosening(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx, shared)
-	require.NoError(t, err)
-	defer releaseKafka()
+	kafka := sharedResources.AcquireKafka(t, shared)
 
 	kafkaName := kafka.GetName()
 	schemaName := randName("kafka-schema-compat")
@@ -223,9 +219,7 @@ func TestKafkaSchemaCompatibilityRevertToGlobalDefault(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx, shared)
-	require.NoError(t, err)
-	defer releaseKafka()
+	kafka := sharedResources.AcquireKafka(t, shared)
 
 	kafkaName := kafka.GetName()
 	schemaName := randName("kafka-schema-revert")
@@ -286,9 +280,7 @@ func TestKafkaSchemaReferences(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx, shared)
-	require.NoError(t, err)
-	defer releaseKafka()
+	kafka := sharedResources.AcquireKafka(t, shared)
 
 	kafkaName := kafka.GetName()
 	s := NewSession(ctx, k8sClient)

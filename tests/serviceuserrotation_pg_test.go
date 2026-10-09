@@ -428,11 +428,7 @@ type pgRotationTest struct {
 
 func newPgRotationTest(t *testing.T) *pgRotationTest {
 	t.Helper()
-	acquireCtx, cancelAcquire := testCtx()
-	pg, release, err := sharedResources.AcquirePostgreSQL(acquireCtx, shared)
-	cancelAcquire()
-	require.NoError(t, err)
-	t.Cleanup(release)
+	pg := sharedResources.AcquirePostgreSQL(t, shared)
 
 	s := &pgRotationTest{rotationTest: newRotationTest(t, pg.Name)}
 	secret, err := s.session.GetSecret(pg.Name)

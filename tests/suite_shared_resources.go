@@ -7,7 +7,9 @@ import (
 	"fmt"
 	"log"
 	"sync"
+	"testing"
 
+	"github.com/stretchr/testify/require"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -19,9 +21,9 @@ import (
 // SharedResources creates and manages shared resources that can be used across multiple tests.
 // Destroys all the resources on Destroy() on session teardown.
 type SharedResources interface {
-	AcquirePostgreSQL(ctx context.Context, mode access) (*v1alpha1.PostgreSQL, func(), error)
-	AcquireClickhouse(ctx context.Context, mode access) (*v1alpha1.Clickhouse, func(), error)
-	AcquireKafka(ctx context.Context, mode access) (*v1alpha1.Kafka, func(), error)
+	AcquirePostgreSQL(t testing.TB, mode access) *v1alpha1.PostgreSQL
+	AcquireClickhouse(t testing.TB, mode access) *v1alpha1.Clickhouse
+	AcquireKafka(t testing.TB, mode access) *v1alpha1.Kafka
 	Destroy() error
 }
 
@@ -52,7 +54,7 @@ func NewSharedResources(ctx context.Context, k8sClient client.Client) SharedReso
 	return s
 }
 
-func (s *sharedResourcesImpl) AcquirePostgreSQL(ctx context.Context, mode access) (*v1alpha1.PostgreSQL, func(), error) {
+func (s *sharedResourcesImpl) AcquirePostgreSQL(t testing.TB, mode access) *v1alpha1.PostgreSQL {
 	obj := &v1alpha1.PostgreSQL{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "aiven.io/v1alpha1",
@@ -62,10 +64,10 @@ func (s *sharedResourcesImpl) AcquirePostgreSQL(ctx context.Context, mode access
 	obj.Spec.Plan = "startup-4"
 	obj.Spec.Project = cfg.Project
 	obj.Spec.CloudName = cfg.PrimaryCloudName
-	return acquire(ctx, s, "PostgreSQL", obj, mode)
+	return acquire(t, s, "PostgreSQL", obj, mode)
 }
 
-func (s *sharedResourcesImpl) AcquireClickhouse(ctx context.Context, mode access) (*v1alpha1.Clickhouse, func(), error) {
+func (s *sharedResourcesImpl) AcquireClickhouse(t testing.TB, mode access) *v1alpha1.Clickhouse {
 	obj := &v1alpha1.Clickhouse{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "aiven.io/v1alpha1",
@@ -78,10 +80,10 @@ func (s *sharedResourcesImpl) AcquireClickhouse(ctx context.Context, mode access
 	obj.Spec.UserConfig = &clickhouseuserconfig.ClickhouseUserConfig{
 		ClickhouseVersion: anyPointer("25.3"),
 	}
-	return acquire(ctx, s, "Clickhouse", obj, mode)
+	return acquire(t, s, "Clickhouse", obj, mode)
 }
 
-func (s *sharedResourcesImpl) AcquireKafka(ctx context.Context, mode access) (*v1alpha1.Kafka, func(), error) {
+func (s *sharedResourcesImpl) AcquireKafka(t testing.TB, mode access) *v1alpha1.Kafka {
 	obj := &v1alpha1.Kafka{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "aiven.io/v1alpha1",
@@ -99,17 +101,15 @@ func (s *sharedResourcesImpl) AcquireKafka(ctx context.Context, mode access) (*v
 		},
 		KafkaSaslMechanisms: &kafkauserconfig.KafkaSaslMechanisms{Plain: anyPointer(true)},
 	}
-	return acquire(ctx, s, "Kafka", obj, mode)
+	return acquire(t, s, "Kafka", obj, mode)
 }
 
-// acquire returns a copy of a shared resource: first call creates the resource.
-// todo: listen for context cancellation and release the lock if it happens
-func acquire[T client.Object](_ context.Context, s *sharedResourcesImpl, key string, obj T, mode access) (T, func(), error) {
+// acquire returns a copy of a shared resource, held until the test ends: first call creates the resource.
+func acquire[T client.Object](t testing.TB, s *sharedResourcesImpl, key string, obj T, mode access) T {
+	t.Helper()
 	v, _ := s.resources.LoadOrStore(key, new(sharedResource))
 	r := v.(*sharedResource)
-	if err := r.ensure(s.session, key, obj); err != nil {
-		return obj, nil, err
-	}
+	require.NoError(t, r.ensure(s.session, key, obj))
 
 	lock, unlock, held := r.lock.RLock, r.lock.RUnlock, "shared"
 	if mode == exclusive {
@@ -120,12 +120,12 @@ func acquire[T client.Object](_ context.Context, s *sharedResourcesImpl, key str
 
 	// Each test gets its own copy, so concurrent holders can Get into it without racing.
 	got := r.obj.DeepCopyObject().(T)
-	releaseFunc := func() {
+	t.Cleanup(func() {
 		log.Printf("SHARED RESOURCE RELEASE: Releasing shared resource %q (name: %s, %s)", key, got.GetName(), held)
 		unlock()
 		log.Printf("SHARED RESOURCE RELEASE: Released shared resource %q", key)
-	}
-	return got, releaseFunc, nil
+	})
+	return got
 }
 
 // ensure creates the resource once; a failed attempt is retried by the next caller.
