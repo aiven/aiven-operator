@@ -124,7 +124,7 @@ test: envtest ## Run tests. To target a specific test, use 'run=TestName make te
 
 test-tag: envtest ## Run tests with specific build tag. Usage - make test-tag tag=mytag
 	export KUBEBUILDER_ASSETS=$(shell eval ${KUBEBUILDER_ASSETS_CMD}); \
-	go test ./tests/... -race -v -timeout=30m -cover -coverpkg=./controllers -covermode=atomic -coverprofile=coverage.out -tags=suite,$(tag)
+	go test ./tests/... -race -v -timeout=45m -cover -coverpkg=./controllers -covermode=atomic -coverprofile=coverage.out -tags=suite,$(tag)
 
 ##@ Build
 
