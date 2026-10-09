@@ -39,6 +39,8 @@
   cluster. Only applies to cluster plans
 - Add `Valkey` field `userConfig.shard_count`, type `integer`: Number of shards (primaries) in the Valkey
   cluster. Required for cluster plans
+- Add `KafkaConnect` field `userConfig.custom_plugins`, type `array`: Install custom plugins uploaded
+  via the custom file service
 
 ## v0.48.0 - 2026-10-01
 

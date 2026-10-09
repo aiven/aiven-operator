@@ -809,7 +809,7 @@ type KafkaUserConfig struct {
 	// Kafka SASL mechanisms
 	KafkaSaslMechanisms *KafkaSaslMechanisms `groups:"create,update" json:"kafka_sasl_mechanisms,omitempty"`
 
-	// Available versions: `4.0`, `4.1`, `4.2`. Newer versions may also be available.
+	// Available versions: `4.0`, `4.1`, `4.2`, `4.3`. Newer versions may also be available.
 	// Kafka major version. Deprecated values: `4.1`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 

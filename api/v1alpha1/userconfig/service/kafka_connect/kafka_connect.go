@@ -3,6 +3,21 @@
 
 package kafkaconnectuserconfig
 
+// Install a custom plugin uploaded via the custom file service.
+type CustomPlugins struct {
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=64
+	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
+	// The name of the custom plugin as specified during upload
+	PluginName string `groups:"create,update" json:"plugin_name"`
+
+	// +kubebuilder:validation:MinLength=1
+	// +kubebuilder:validation:MaxLength=32
+	// +kubebuilder:validation:Pattern=`(?i)^(latest|v?(?:(?:(?P<epoch>[0-9]+)!)?(?P<release>[0-9]+(?:\.[0-9]+)*)(?P<pre>[-_\.]?(?P<pre_l>alpha|a|beta|b|preview|pre|c|rc)[-_\.]?(?P<pre_n>[0-9]+)?)?(?P<post>(?:-(?P<post_n1>[0-9]+))|(?:[-_\.]?(?P<post_l>post|rev|r)[-_\.]?(?P<post_n2>[0-9]+)?))?(?P<dev>[-_\.]?(?P<dev_l>dev)[-_\.]?(?P<dev_n>[0-9]+)?)?)(?:\+(?P<local>[a-z0-9]+(?:[-_\.][a-z0-9]+)*))?)$`
+	// The version to install. Use a semver version (e.g. '1.0.0') or 'latest' to always use the most recent version.
+	PluginVersion string `groups:"create,update" json:"plugin_version"`
+}
+
 // CIDR address block, either as a string, or in a dict with an optional description field
 type IpFilter struct {
 	// +kubebuilder:validation:MaxLength=1024
@@ -236,6 +251,10 @@ type KafkaConnectUserConfig struct {
 	// +kubebuilder:deprecatedversion:warning="additional_backup_regions is deprecated"
 	// Deprecated. Additional Cloud Regions for Backup Replication
 	AdditionalBackupRegions []string `groups:"create,update" json:"additional_backup_regions,omitempty"`
+
+	// +kubebuilder:validation:MaxItems=10
+	// Install custom plugins uploaded via the custom file service.
+	CustomPlugins []*CustomPlugins `groups:"create,update" json:"custom_plugins,omitempty"`
 
 	// Allow-list of HTTPS URLs used to validate GCP credential_source requests for Kafka Connect.
 	GcpAuthAllowedUrls []string `groups:"create,update" json:"gcp_auth_allowed_urls,omitempty"`

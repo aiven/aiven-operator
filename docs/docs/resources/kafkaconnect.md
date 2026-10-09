@@ -177,6 +177,7 @@ KafkaConnect specific user configuration options.
 **Optional**
 
 - [`additional_backup_regions`](#spec.userConfig.additional_backup_regions-property){: name='spec.userConfig.additional_backup_regions-property'} (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.
+- [`custom_plugins`](#spec.userConfig.custom_plugins-property){: name='spec.userConfig.custom_plugins-property'} (array of objects, MaxItems: 10). Install custom plugins uploaded via the custom file service. See below for [nested schema](#spec.userConfig.custom_plugins).
 - [`gcp_auth_allowed_urls`](#spec.userConfig.gcp_auth_allowed_urls-property){: name='spec.userConfig.gcp_auth_allowed_urls-property'} (array of strings). Allow-list of HTTPS URLs used to validate GCP credential_source requests for Kafka Connect.
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`kafka_connect`](#spec.userConfig.kafka_connect-property){: name='spec.userConfig.kafka_connect-property'} (object). Kafka Connect configuration values. See below for [nested schema](#spec.userConfig.kafka_connect).
@@ -189,6 +190,17 @@ KafkaConnect specific user configuration options.
 - [`secret_providers`](#spec.userConfig.secret_providers-property){: name='spec.userConfig.secret_providers-property'} (array of objects). Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name>}. See below for [nested schema](#spec.userConfig.secret_providers).
 - [`service_log`](#spec.userConfig.service_log-property){: name='spec.userConfig.service_log-property'} (boolean). Store logs for the service so that they are available in the HTTP API and console.
 - [`static_ips`](#spec.userConfig.static_ips-property){: name='spec.userConfig.static_ips-property'} (boolean). Use static public IP addresses.
+
+### custom_plugins {: #spec.userConfig.custom_plugins }
+
+_Appears on [`spec.userConfig`](#spec.userConfig)._
+
+Install a custom plugin uploaded via the custom file service.
+
+**Required**
+
+- [`plugin_name`](#spec.userConfig.custom_plugins.plugin_name-property){: name='spec.userConfig.custom_plugins.plugin_name-property'} (string, Pattern: `^[^\r\n]*$`, MinLength: 1, MaxLength: 64). The name of the custom plugin as specified during upload.
+- [`plugin_version`](#spec.userConfig.custom_plugins.plugin_version-property){: name='spec.userConfig.custom_plugins.plugin_version-property'} (string, MinLength: 1, MaxLength: 32). The version to install. Use a semver version (e.g. `1.0.0`) or `latest` to always use the most recent version.
 
 ### ip_filter {: #spec.userConfig.ip_filter }
 
