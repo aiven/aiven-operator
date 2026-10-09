@@ -269,7 +269,7 @@ func TestServiceIntegrationAutoscaler(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, releasePostgreSQL, err := sharedResources.AcquirePostgreSQL(ctx)
+	pg, releasePostgreSQL, err := sharedResources.AcquirePostgreSQLExclusive(ctx)
 	require.NoError(t, err)
 	defer releasePostgreSQL()
 
@@ -349,7 +349,7 @@ func TestServiceIntegrationAutoscalerRef(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, releasePostgreSQL, err := sharedResources.AcquirePostgreSQL(ctx)
+	pg, releasePostgreSQL, err := sharedResources.AcquirePostgreSQLExclusive(ctx)
 	require.NoError(t, err)
 	defer releasePostgreSQL()
 
@@ -562,11 +562,11 @@ func TestServiceIntegrationAdoptExisting(t *testing.T) {
 
 	ctx := context.Background()
 
-	ch, releaseClickhouse, err := sharedResources.AcquireClickhouse(ctx)
+	ch, releaseClickhouse, err := sharedResources.AcquireClickhouseExclusive(ctx)
 	require.NoError(t, err)
 	defer releaseClickhouse()
 
-	pg, releasePostgreSQL, err := sharedResources.AcquirePostgreSQL(ctx)
+	pg, releasePostgreSQL, err := sharedResources.AcquirePostgreSQLExclusive(ctx)
 	require.NoError(t, err)
 	defer releasePostgreSQL()
 

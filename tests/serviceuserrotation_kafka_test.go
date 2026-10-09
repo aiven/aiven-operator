@@ -20,11 +20,8 @@ import (
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"k8s.io/client-go/util/retry"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
-	kafkauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka"
 )
 
 func TestServiceUserRotationKafka(t *testing.T) {
@@ -34,7 +31,7 @@ func TestServiceUserRotationKafka(t *testing.T) {
 	cancelAcquire()
 	require.NoError(t, err)
 	t.Cleanup(release)
-	enableRotationKafkaSASL(t, kafka)
+	waitRotationKafkaSASLEndpoint(t, kafka)
 	s := newRotationTest(t, kafka.Name)
 	first := s.create()
 	waitRotationKafka(t, s, first)
@@ -60,59 +57,20 @@ func TestServiceUserRotationKafka(t *testing.T) {
 	waitRotationKafkaSASL(t, s, first, "password rejected")
 }
 
-func enableRotationKafkaSASL(t *testing.T, kafka *v1alpha1.Kafka) {
+// waitRotationKafkaSASLEndpoint waits for the SASL endpoint the shared Kafka is created with.
+func waitRotationKafkaSASLEndpoint(t *testing.T, kafka *v1alpha1.Kafka) {
 	t.Helper()
 	ctx, cancel := testCtx()
 	defer cancel()
-	current := &v1alpha1.Kafka{}
-	require.NoError(t, k8sClient.Get(ctx, client.ObjectKeyFromObject(kafka), current))
-	orig := current.Spec.UserConfig.DeepCopy()
-	t.Cleanup(func() {
-		ctx, cancel := context.WithTimeout(context.Background(), deleteTimeout)
-		defer cancel()
-		assert.NoError(t, retry.RetryOnConflict(retry.DefaultRetry, func() error {
-			cr := &v1alpha1.Kafka{}
-			if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(kafka), cr); err != nil {
-				return err
-			}
-			cr.Spec.UserConfig = orig
-			return k8sClient.Update(ctx, cr)
-		}))
-	})
-	require.NoError(t, retry.RetryOnConflict(retry.DefaultRetry, func() error {
-		cr := &v1alpha1.Kafka{}
-		if err := k8sClient.Get(ctx, client.ObjectKeyFromObject(kafka), cr); err != nil {
-			return err
-		}
-		if cr.Spec.UserConfig == nil {
-			cr.Spec.UserConfig = &kafkauserconfig.KafkaUserConfig{}
-		}
-		cr.Spec.UserConfig.KafkaAuthenticationMethods = &kafkauserconfig.KafkaAuthenticationMethods{
-			Certificate: new(true), Sasl: new(true),
-		}
-		if cr.Spec.UserConfig.KafkaSaslMechanisms == nil {
-			cr.Spec.UserConfig.KafkaSaslMechanisms = &kafkauserconfig.KafkaSaslMechanisms{}
-		}
-		cr.Spec.UserConfig.KafkaSaslMechanisms.Plain = new(true)
-		return k8sClient.Update(ctx, cr)
-	}))
 	require.EventuallyWithT(t, func(c *assert.CollectT) {
 		attemptCtx, cancelAttempt := context.WithTimeout(ctx, 10*time.Second)
 		defer cancelAttempt()
 		svc, err := avnGen.ServiceGet(attemptCtx, kafka.Spec.Project, kafka.Name)
 		require.NoError(c, err)
-		assert.Contains(c, serviceRunningStatesAiven, svc.State)
-		methods, ok := svc.UserConfig["kafka_authentication_methods"].(map[string]any)
-		require.True(c, ok)
-		assert.Equal(c, true, methods["sasl"])
-		assert.Equal(c, true, methods["certificate"])
-		mechanisms, ok := svc.UserConfig["kafka_sasl_mechanisms"].(map[string]any)
-		require.True(c, ok)
-		assert.Equal(c, true, mechanisms["plain"])
 		assert.True(c, slices.ContainsFunc(svc.Components, func(component service.ComponentOut) bool {
 			return component.Component == "kafka" && component.KafkaAuthenticationMethod == service.KafkaAuthenticationMethodTypeSasl
 		}), "Kafka must expose a SASL endpoint")
-	}, waitRunningTimeout, rotationPoll)
+	}, time.Minute, rotationPoll)
 }
 
 func waitRotationKafkaSASL(t *testing.T, s *rotationTest, publication *rotationPublication, expected string) {

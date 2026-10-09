@@ -119,8 +119,8 @@ func TestClickhouseGrant(t *testing.T) {
 	defer releaseCH()
 
 	chName := ch.GetName()
-	userName := "clickhouse-user"
-	dbName := "clickhouse-db"
+	userName := randName("clickhouse-user")
+	dbName := randName("clickhouse-db")
 	roleName := randName("writer")
 
 	yml := getClickhouseGrantYaml(cfg.Project, chName, cfg.PrimaryCloudName, dbName, userName, roleName)

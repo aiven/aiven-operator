@@ -475,7 +475,7 @@ func TestServiceUserAvnadminPasswordReset(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, releasePG, err := sharedResources.AcquirePostgreSQL(ctx)
+	pg, releasePG, err := sharedResources.AcquirePostgreSQLExclusive(ctx)
 	require.NoError(t, err)
 	defer releasePG()
 
