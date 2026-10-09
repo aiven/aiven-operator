@@ -24,7 +24,7 @@ func TestDatabase(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, release, err := sharedResources.AcquirePostgreSQL(ctx)
+	pg, release, err := sharedResources.AcquirePostgreSQL(ctx, shared)
 	require.NoError(t, err)
 	defer release()
 
@@ -81,7 +81,7 @@ func TestDatabase_databaseName(t *testing.T) {
 	defer cancel()
 
 	// GIVEN
-	pg, release, err := sharedResources.AcquirePostgreSQL(ctx)
+	pg, release, err := sharedResources.AcquirePostgreSQL(ctx, shared)
 	require.NoError(t, err)
 	defer release()
 
@@ -212,7 +212,7 @@ func TestDatabase_terminationProtection(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, release, err := sharedResources.AcquirePostgreSQL(ctx)
+	pg, release, err := sharedResources.AcquirePostgreSQL(ctx, shared)
 	require.NoError(t, err)
 	defer release()
 

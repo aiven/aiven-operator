@@ -114,7 +114,7 @@ func TestClickhouseGrant(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, releaseCH, err := sharedResources.AcquireClickhouse(ctx)
+	ch, releaseCH, err := sharedResources.AcquireClickhouse(ctx, shared)
 	require.NoError(t, err)
 	defer releaseCH()
 

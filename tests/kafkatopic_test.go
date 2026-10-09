@@ -65,7 +65,7 @@ func TestKafkaTopic(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ks, releaseKafka, err := sharedResources.AcquireKafka(ctx)
+	ks, releaseKafka, err := sharedResources.AcquireKafka(ctx, shared)
 	require.NoError(t, err)
 	defer releaseKafka()
 

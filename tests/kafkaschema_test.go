@@ -29,7 +29,7 @@ func TestKafkaSchema(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx)
+	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx, shared)
 	require.NoError(t, err)
 	defer releaseKafka()
 
@@ -173,7 +173,7 @@ func TestKafkaSchemaCompatibilityLoosening(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx)
+	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx, shared)
 	require.NoError(t, err)
 	defer releaseKafka()
 
@@ -223,7 +223,7 @@ func TestKafkaSchemaCompatibilityRevertToGlobalDefault(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx)
+	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx, shared)
 	require.NoError(t, err)
 	defer releaseKafka()
 
@@ -286,7 +286,7 @@ func TestKafkaSchemaReferences(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx)
+	kafka, releaseKafka, err := sharedResources.AcquireKafka(ctx, shared)
 	require.NoError(t, err)
 	defer releaseKafka()
 

@@ -24,7 +24,7 @@ func TestServiceUserSecretWatch(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pg, release, err := sharedResources.AcquirePostgreSQL(ctx)
+	pg, release, err := sharedResources.AcquirePostgreSQL(ctx, shared)
 	require.NoError(t, err)
 	defer release()
 

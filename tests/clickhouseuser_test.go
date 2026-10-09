@@ -28,7 +28,7 @@ func TestClickhouseUser(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, release, err := sharedResources.AcquireClickhouse(ctx)
+	ch, release, err := sharedResources.AcquireClickhouse(ctx, shared)
 	require.NoError(t, err)
 	defer release()
 
@@ -151,7 +151,7 @@ func TestClickhouseUserPreservesSecretPasswordOnUpdate(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, release, err := sharedResources.AcquireClickhouse(ctx)
+	ch, release, err := sharedResources.AcquireClickhouse(ctx, shared)
 	require.NoError(t, err)
 	defer release()
 
@@ -243,7 +243,7 @@ func TestClickhouseUserDeletionPolicyOrphan(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, release, err := sharedResources.AcquireClickhouse(ctx)
+	ch, release, err := sharedResources.AcquireClickhouse(ctx, shared)
 	require.NoError(t, err)
 	defer release()
 
@@ -378,7 +378,7 @@ func TestClickhouseUserCustomCredentials(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, release, err := sharedResources.AcquireClickhouse(ctx)
+	ch, release, err := sharedResources.AcquireClickhouse(ctx, shared)
 	require.NoError(t, err)
 	defer release()
 

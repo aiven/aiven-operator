@@ -168,7 +168,7 @@ func TestConnectionPoolWithReuseInboundUser(t *testing.T) {
 		s.Destroy(t)
 	}()
 
-	pg, releasePG, err := sharedResources.AcquirePostgreSQL(ctx)
+	pg, releasePG, err := sharedResources.AcquirePostgreSQL(ctx, shared)
 	require.NoError(t, err)
 	defer releasePG()
 

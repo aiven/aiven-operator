@@ -18,16 +18,21 @@ import (
 
 // SharedResources creates and manages shared resources that can be used across multiple tests.
 // Destroys all the resources on Destroy() on session teardown.
-// AcquireX holds the service shared with other tests; AcquireXExclusive holds it alone,
-// for tests that change service-level state (user config, avnadmin, integration counts).
 type SharedResources interface {
-	AcquirePostgreSQL(ctx context.Context) (*v1alpha1.PostgreSQL, func(), error)
-	AcquirePostgreSQLExclusive(ctx context.Context) (*v1alpha1.PostgreSQL, func(), error)
-	AcquireClickhouse(ctx context.Context) (*v1alpha1.Clickhouse, func(), error)
-	AcquireClickhouseExclusive(ctx context.Context) (*v1alpha1.Clickhouse, func(), error)
-	AcquireKafka(ctx context.Context) (*v1alpha1.Kafka, func(), error)
+	AcquirePostgreSQL(ctx context.Context, mode access) (*v1alpha1.PostgreSQL, func(), error)
+	AcquireClickhouse(ctx context.Context, mode access) (*v1alpha1.Clickhouse, func(), error)
+	AcquireKafka(ctx context.Context, mode access) (*v1alpha1.Kafka, func(), error)
 	Destroy() error
 }
+
+// access is how a test holds a shared resource: shared with other tests, or exclusive,
+// for tests that change service-level state (user config, avnadmin, integration counts).
+type access bool
+
+const (
+	shared    access = false
+	exclusive access = true
+)
 
 type sharedResourcesImpl struct {
 	resources sync.Map // map[string]*sharedResource
@@ -47,15 +52,7 @@ func NewSharedResources(ctx context.Context, k8sClient client.Client) SharedReso
 	return s
 }
 
-func (s *sharedResourcesImpl) AcquirePostgreSQL(ctx context.Context) (*v1alpha1.PostgreSQL, func(), error) {
-	return s.acquirePostgreSQL(ctx, false)
-}
-
-func (s *sharedResourcesImpl) AcquirePostgreSQLExclusive(ctx context.Context) (*v1alpha1.PostgreSQL, func(), error) {
-	return s.acquirePostgreSQL(ctx, true)
-}
-
-func (s *sharedResourcesImpl) acquirePostgreSQL(ctx context.Context, exclusive bool) (*v1alpha1.PostgreSQL, func(), error) {
+func (s *sharedResourcesImpl) AcquirePostgreSQL(ctx context.Context, mode access) (*v1alpha1.PostgreSQL, func(), error) {
 	obj := &v1alpha1.PostgreSQL{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "aiven.io/v1alpha1",
@@ -65,18 +62,10 @@ func (s *sharedResourcesImpl) acquirePostgreSQL(ctx context.Context, exclusive b
 	obj.Spec.Plan = "startup-4"
 	obj.Spec.Project = cfg.Project
 	obj.Spec.CloudName = cfg.PrimaryCloudName
-	return acquire(ctx, s, "PostgreSQL", obj, exclusive)
+	return acquire(ctx, s, "PostgreSQL", obj, mode)
 }
 
-func (s *sharedResourcesImpl) AcquireClickhouse(ctx context.Context) (*v1alpha1.Clickhouse, func(), error) {
-	return s.acquireClickhouse(ctx, false)
-}
-
-func (s *sharedResourcesImpl) AcquireClickhouseExclusive(ctx context.Context) (*v1alpha1.Clickhouse, func(), error) {
-	return s.acquireClickhouse(ctx, true)
-}
-
-func (s *sharedResourcesImpl) acquireClickhouse(ctx context.Context, exclusive bool) (*v1alpha1.Clickhouse, func(), error) {
+func (s *sharedResourcesImpl) AcquireClickhouse(ctx context.Context, mode access) (*v1alpha1.Clickhouse, func(), error) {
 	obj := &v1alpha1.Clickhouse{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "aiven.io/v1alpha1",
@@ -89,10 +78,10 @@ func (s *sharedResourcesImpl) acquireClickhouse(ctx context.Context, exclusive b
 	obj.Spec.UserConfig = &clickhouseuserconfig.ClickhouseUserConfig{
 		ClickhouseVersion: anyPointer("25.3"),
 	}
-	return acquire(ctx, s, "Clickhouse", obj, exclusive)
+	return acquire(ctx, s, "Clickhouse", obj, mode)
 }
 
-func (s *sharedResourcesImpl) AcquireKafka(ctx context.Context) (*v1alpha1.Kafka, func(), error) {
+func (s *sharedResourcesImpl) AcquireKafka(ctx context.Context, mode access) (*v1alpha1.Kafka, func(), error) {
 	obj := &v1alpha1.Kafka{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "aiven.io/v1alpha1",
@@ -110,29 +99,29 @@ func (s *sharedResourcesImpl) AcquireKafka(ctx context.Context) (*v1alpha1.Kafka
 		},
 		KafkaSaslMechanisms: &kafkauserconfig.KafkaSaslMechanisms{Plain: anyPointer(true)},
 	}
-	return acquire(ctx, s, "Kafka", obj, false)
+	return acquire(ctx, s, "Kafka", obj, mode)
 }
 
 // acquire returns a copy of a shared resource: first call creates the resource.
 // todo: listen for context cancellation and release the lock if it happens
-func acquire[T client.Object](_ context.Context, s *sharedResourcesImpl, key string, obj T, exclusive bool) (T, func(), error) {
+func acquire[T client.Object](_ context.Context, s *sharedResourcesImpl, key string, obj T, mode access) (T, func(), error) {
 	v, _ := s.resources.LoadOrStore(key, new(sharedResource))
 	r := v.(*sharedResource)
 	if err := r.ensure(s.session, key, obj); err != nil {
 		return obj, nil, err
 	}
 
-	lock, unlock, mode := r.lock.RLock, r.lock.RUnlock, "shared"
-	if exclusive {
-		lock, unlock, mode = r.lock.Lock, r.lock.Unlock, "exclusive"
+	lock, unlock, held := r.lock.RLock, r.lock.RUnlock, "shared"
+	if mode == exclusive {
+		lock, unlock, held = r.lock.Lock, r.lock.Unlock, "exclusive"
 	}
 	lock()
-	log.Printf("Locked shared resource %q (%s)", key, mode)
+	log.Printf("Locked shared resource %q (%s)", key, held)
 
 	// Each test gets its own copy, so concurrent holders can Get into it without racing.
 	got := r.obj.DeepCopyObject().(T)
 	releaseFunc := func() {
-		log.Printf("SHARED RESOURCE RELEASE: Releasing shared resource %q (name: %s, %s)", key, got.GetName(), mode)
+		log.Printf("SHARED RESOURCE RELEASE: Releasing shared resource %q (name: %s, %s)", key, got.GetName(), held)
 		unlock()
 		log.Printf("SHARED RESOURCE RELEASE: Released shared resource %q", key)
 	}

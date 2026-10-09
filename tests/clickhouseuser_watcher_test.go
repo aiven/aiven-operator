@@ -24,7 +24,7 @@ func TestClickhouseUserSecretWatch(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, release, err := sharedResources.AcquireClickhouse(ctx)
+	ch, release, err := sharedResources.AcquireClickhouse(ctx, shared)
 	require.NoError(t, err)
 	defer release()
 
