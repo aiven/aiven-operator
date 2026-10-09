@@ -196,6 +196,38 @@ spec:
                         type: string
                       maxItems: 1
                       type: array
+                    custom_plugins:
+                      description:
+                        Install custom plugins uploaded via the custom file
+                        service.
+                      items:
+                        description:
+                          Install a custom plugin uploaded via the custom
+                          file service.
+                        properties:
+                          plugin_name:
+                            description:
+                              The name of the custom plugin as specified
+                              during upload
+                            maxLength: 64
+                            minLength: 1
+                            pattern: ^[^\r\n]*$
+                            type: string
+                          plugin_version:
+                            description:
+                              The version to install. Use a semver version
+                              (e.g. '1.0.0') or 'latest' to always use the most recent
+                              version.
+                            maxLength: 32
+                            minLength: 1
+                            pattern: (?i)^(latest|v?(?:(?:(?P<epoch>[0-9]+)!)?(?P<release>[0-9]+(?:\.[0-9]+)*)(?P<pre>[-_\.]?(?P<pre_l>alpha|a|beta|b|preview|pre|c|rc)[-_\.]?(?P<pre_n>[0-9]+)?)?(?P<post>(?:-(?P<post_n1>[0-9]+))|(?:[-_\.]?(?P<post_l>post|rev|r)[-_\.]?(?P<post_n2>[0-9]+)?))?(?P<dev>[-_\.]?(?P<dev_l>dev)[-_\.]?(?P<dev_n>[0-9]+)?)?)(?:\+(?P<local>[a-z0-9]+(?:[-_\.][a-z0-9]+)*))?)$
+                            type: string
+                        required:
+                          - plugin_name
+                          - plugin_version
+                        type: object
+                      maxItems: 10
+                      type: array
                     gcp_auth_allowed_urls:
                       description:
                         Allow-list of HTTPS URLs used to validate GCP credential_source

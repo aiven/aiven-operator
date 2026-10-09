@@ -256,7 +256,7 @@ Kafka specific user configuration options.
 - [`kafka_rest_authorization`](#spec.userConfig.kafka_rest_authorization-property){: name='spec.userConfig.kafka_rest_authorization-property'} (boolean). Enable authorization in Kafka-REST service.
 - [`kafka_rest_config`](#spec.userConfig.kafka_rest_config-property){: name='spec.userConfig.kafka_rest_config-property'} (object). Kafka REST configuration. See below for [nested schema](#spec.userConfig.kafka_rest_config).
 - [`kafka_sasl_mechanisms`](#spec.userConfig.kafka_sasl_mechanisms-property){: name='spec.userConfig.kafka_sasl_mechanisms-property'} (object). Kafka SASL mechanisms. See below for [nested schema](#spec.userConfig.kafka_sasl_mechanisms).
-- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string). Available versions: `4.0`, `4.1`, `4.2`. Newer versions may also be available.
+- [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string). Available versions: `4.0`, `4.1`, `4.2`, `4.3`. Newer versions may also be available.
     Kafka major version. Deprecated values: `4.1`.
 - [`karapace_version`](#spec.userConfig.karapace_version-property){: name='spec.userConfig.karapace_version-property'} (string). Available versions: `6.2.1`, `6.2.2`, `6.2.3`. Newer versions may also be available.
     Select a Karapace version for this service, or select Latest to use the latest available version automatically. New versions become available after installation during a maintenance update.
