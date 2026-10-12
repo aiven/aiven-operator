@@ -27,11 +27,11 @@ func TestOrganizationProject(t *testing.T) {
 	require.NotEmpty(t, account.OrganizationId)
 	organizationID := account.OrganizationId
 
-	// Picks a real billing group that belongs to the test organization.
-	billingGroups, err := avnGen.OrganizationBillingGroupList(ctx, organizationID)
+	// Picks the test project's billing group, so other suites' groups in the organization aren't mutated.
+	testProject, err := avnGen.ProjectGet(ctx, cfg.Project)
 	require.NoError(t, err)
-	require.NotEmpty(t, billingGroups, "no billing group found for organization %q", organizationID)
-	billingGroupID := billingGroups[0].BillingGroupId
+	billingGroupID := testProject.BillingGroupId
+	require.NotEmpty(t, billingGroupID, "no billing group found for project %q", cfg.Project)
 
 	name := randName("org-project")
 	projectID := name

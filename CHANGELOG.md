@@ -46,6 +46,8 @@
   secret (for Kafka also the SASL and schema registry host and port, preferring the project CA SASL
   listener when `letsencrypt_sasl` is enabled). Unset keeps the selection of previous releases, so
   existing secrets are not rewritten on upgrade.
+- Fix `Reconciler error` ("the object has been modified") logged when a resource changed while the
+  operator was writing its status. The conflict is now ignored and the state is recomputed by the next reconcile.
 
 ## v0.48.0 - 2026-10-01
 

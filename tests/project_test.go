@@ -19,15 +19,10 @@ func TestProject(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	account, err := avnGen.AccountGet(ctx, cfg.AccountID)
+	testProject, err := avnGen.ProjectGet(ctx, cfg.Project)
 	require.NoError(t, err)
-	require.NotEmpty(t, account.OrganizationId)
-
-	// Pins an existing billing group so a failed run can't strand an auto-created one.
-	billingGroups, err := avnGen.OrganizationBillingGroupList(ctx, account.OrganizationId)
-	require.NoError(t, err)
-	require.NotEmpty(t, billingGroups, "no billing group found for organization %q", account.OrganizationId)
-	billingGroupID := billingGroups[0].BillingGroupId
+	billingGroupID := testProject.BillingGroupId
+	require.NotEmpty(t, billingGroupID, "no billing group found for project %q", cfg.Project)
 
 	name := randName("project")
 	yml, err := loadExampleYaml("project.yaml", map[string]string{
