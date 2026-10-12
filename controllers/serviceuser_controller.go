@@ -377,13 +377,9 @@ func serviceUserSecretDetails(
 	caCert, prefix string,
 	route service.RouteType,
 ) (SecretDetails, error) {
-	component, ok := serviceUserHostComponent(svc, route)
-	if !ok {
-		if route == routeLegacy || route == service.RouteTypeDynamic {
-			return nil, fmt.Errorf("service component %q not found", svc.ServiceType)
-		}
-		return nil, fmt.Errorf("%w: component %q with route %q not found on service %q",
-			errPreconditionExternal, svc.ServiceType, route, svc.ServiceName)
+	component, err := resolveHostComponent(svc, route)
+	if err != nil {
+		return nil, err
 	}
 
 	details := SecretDetails{
@@ -425,26 +421,6 @@ func serviceUserSecretDetails(
 	}
 
 	return details, nil
-}
-
-// serviceUserHostComponent picks the component behind HOST and PORT.
-func serviceUserHostComponent(svc *service.ServiceGetOut, route service.RouteType) (*service.ComponentOut, bool) {
-	if route == routeLegacy {
-		idx := slices.IndexFunc(svc.Components, func(c service.ComponentOut) bool { return c.Component == svc.ServiceType })
-		if idx < 0 {
-			return nil, false
-		}
-		return &svc.Components[idx], true
-	}
-	if svc.ServiceType == string(serviceTypeKafka) {
-		if c, ok := findComponent(svc.Components, svc.ServiceType, route, isCertificateComponent); ok {
-			return c, true
-		}
-		if c, ok := findSaslComponent(svc.Components, route); ok {
-			return c, true
-		}
-	}
-	return findComponent(svc.Components, svc.ServiceType, route, nil)
 }
 
 func buildServiceUserAccessControlIn(ac *v1alpha1.ServiceUserAccessControl) *service.AccessControlIn {

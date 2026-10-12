@@ -2,7 +2,9 @@
 # a PrivateLink connection; until it does, the user is created on Aiven but the secret is
 # not created or updated and the resource reports a PreconditionsNotMet event. Changing
 # connInfoSecretRoute on an existing ServiceUser rewrites the secret; pods that consume it
-# through environment variables pick up the new host only after a restart.
+# through environment variables pick up the new host only after a restart. With several
+# PrivateLink connections, the endpoints of one connection are published; selecting a
+# connection is not supported.
 
 apiVersion: aiven.io/v1alpha1
 kind: ServiceUser

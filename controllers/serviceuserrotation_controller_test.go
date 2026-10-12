@@ -70,6 +70,7 @@ func TestServiceUserRotationReconciler(t *testing.T) {
 			api: avngen.NewMockClient(t),
 			service: &service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
+				ServiceName: cr.Spec.ServiceName,
 				ServiceType: "pg",
 				Components:  []service.ComponentOut{primaryComponent("pg", "db.example.com", 5432)},
 			},
@@ -435,23 +436,18 @@ func TestServiceUserRotationReconciler(t *testing.T) {
 			require.Equal(t, s.rotation.Spec.RotationInterval.Duration, res.RequeueAfter)
 		})
 
-		t.Run("Retries when the service component is missing", func(t *testing.T) {
+		t.Run("Retries when the service component is missing without a Secret or a password reset", func(t *testing.T) {
 			s := newRotationScenario(t)
 			username, password := s.rotation.Spec.Usernames[0], "generated-1"
 			components := slices.Clone(s.service.Components)
 			s.service.Components = nil
 			s.expectService()
-			s.expectReset(username, password)
-			s.expectCA()
 
 			res, err := s.reconcile(t)
-			require.ErrorContains(t, err, "service component")
+			require.EqualError(t, err, `service component "pg" not found`)
 			s.requireFailure(t, res, err)
-			require.Equal(t, map[string][]byte{
-				"aiven-rotation-desired-username": []byte(username),
-				"aiven-rotation-desired-password": []byte(password),
-			}, s.secret(t).Data)
-			require.Equal(t, 1, s.generated)
+			require.True(t, apierrors.IsNotFound(s.client.Get(t.Context(), s.secretKey(), &corev1.Secret{})))
+			require.Zero(t, s.generated)
 
 			s.service.Components = components
 			s.now = s.now.Add(time.Minute)
@@ -617,10 +613,9 @@ func TestServiceUserRotationReconciler(t *testing.T) {
 			components := slices.Clone(s.service.Components)
 			s.service.Components = nil
 			s.expectService()
-			s.expectCA()
 
 			res, err := s.reconcile(t)
-			require.ErrorContains(t, err, "service component")
+			require.EqualError(t, err, `service component "pg" not found`)
 			s.requireFailure(t, res, err)
 			require.Equal(t, before, s.secret(t).Data)
 			require.Equal(t, 1, s.generated)
@@ -1566,6 +1561,189 @@ func TestServiceUserRotationReconciler(t *testing.T) {
 		s.publishInitial(t)
 		require.Equal(t, []byte("generated-1"), s.secret(t).Data["SERVICEUSER_PASSWORD"])
 		require.Empty(t, s.object(t).Spec.ConnInfoSecretTarget.Prefix)
+	})
+
+	t.Run("Connection secret route", func(t *testing.T) {
+		privatelinkPg := service.ComponentOut{Component: "pg", Host: "pl.example.com", Port: 15432, Route: service.RouteTypePrivatelink, Usage: service.UsageTypePrimary}
+		setRoute := func(route service.RouteType) func(*v1alpha1.ServiceUserRotation) {
+			return func(cr *v1alpha1.ServiceUserRotation) { cr.Spec.ConnInfoSecretRoute = route }
+		}
+		requireWaiting := func(t *testing.T, s *rotationScenario, res ctrlruntime.Result, err error) {
+			t.Helper()
+			require.NoError(t, err)
+			poll := s.r.pollInterval()
+			require.GreaterOrEqual(t, res.RequeueAfter, poll)
+			require.Less(t, res.RequeueAfter, time.Duration(float64(poll)*(1+pollJitterFactor)))
+			cr := s.object(t)
+			require.Len(t, cr.Status.Conditions, 1)
+			condition := meta.FindStatusCondition(cr.Status.Conditions, ConditionTypeError)
+			require.NotNil(t, condition)
+			require.Equal(t, string(errConditionPreconditions), condition.Reason)
+			require.Contains(t, condition.Message, `component "`+s.service.ServiceType+`" with route "privatelink" not found on service "`+s.rotation.Spec.ServiceName+`"`)
+			require.Equal(t, cr.Generation, condition.ObservedGeneration)
+			require.Equal(t, []string{"Warning PreconditionsNotMet " + condition.Message}, recorderEvents(s.recorder))
+		}
+
+		for _, reverse := range []bool{false, true} {
+			t.Run(fmt.Sprintf("Publishes the privatelink host for pg/reversed=%t", reverse), func(t *testing.T) {
+				s := newRotationScenario(t)
+				s.configure(t, setRoute(service.RouteTypePrivatelink))
+				s.service.Components = append(s.service.Components, privatelinkPg)
+				if reverse {
+					slices.Reverse(s.service.Components)
+				}
+				s.publishInitial(t)
+				secret := s.secret(t)
+				require.Equal(t, []byte("pl.example.com"), secret.Data[s.prefix()+"HOST"])
+				require.Equal(t, []byte("15432"), secret.Data[s.prefix()+"PORT"])
+			})
+		}
+
+		t.Run("Publishes privatelink Kafka endpoints", func(t *testing.T) {
+			s := newRotationScenario(t)
+			s.configure(t, setRoute(service.RouteTypePrivatelink))
+			s.useKafka()
+			s.service.Components = append(s.service.Components,
+				service.ComponentOut{Component: "kafka", Host: "pl-kafka.example.com", Port: 19092, Route: service.RouteTypePrivatelink, Usage: service.UsageTypePrimary, KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeCertificate},
+				service.ComponentOut{Component: "kafka", Host: "pl-sasl.example.com", Port: 19093, Route: service.RouteTypePrivatelink, Usage: service.UsageTypePrimary, KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeSasl},
+				service.ComponentOut{Component: "schema_registry", Host: "pl-schema.example.com", Port: 18081, Route: service.RouteTypePrivatelink, Usage: service.UsageTypePrimary},
+			)
+			slices.Reverse(s.service.Components)
+			s.publishInitial(t)
+			secret := s.secret(t)
+			require.Equal(t, []byte("pl-kafka.example.com"), secret.Data[s.prefix()+"HOST"])
+			require.Equal(t, []byte("19092"), secret.Data[s.prefix()+"PORT"])
+			require.Equal(t, []byte("pl-sasl.example.com"), secret.Data[s.prefix()+"SASL_HOST"])
+			require.Equal(t, []byte("19093"), secret.Data[s.prefix()+"SASL_PORT"])
+			require.Equal(t, []byte("pl-schema.example.com"), secret.Data[s.prefix()+"SCHEMA_REGISTRY_HOST"])
+			require.Equal(t, []byte("18081"), secret.Data[s.prefix()+"SCHEMA_REGISTRY_PORT"])
+		})
+
+		t.Run("Publishes every Kafka endpoint from one PrivateLink connection", func(t *testing.T) {
+			// Real API data: two connections list every listener twice. The lowest connection ID
+			// supplies HOST, SASL and schema registry even when the API lists the other one first.
+			const pl1 = "privatelink-1-rt-pl-kafka-aiven-ci-kubernetes-operator.c.aivencloud.com"
+			s := newRotationScenario(t)
+			s.configure(t, setRoute(service.RouteTypePrivatelink))
+			s.useKafka()
+			s.service.Components = reversed(recordedKafkaPrivatelinkComponents())
+			s.publishInitial(t)
+			requireConnection1 := func(t *testing.T, secret *corev1.Secret) {
+				t.Helper()
+				require.Equal(t, []byte(pl1), secret.Data[s.prefix()+"HOST"])
+				require.Equal(t, []byte("23220"), secret.Data[s.prefix()+"PORT"])
+				require.Equal(t, []byte(pl1), secret.Data[s.prefix()+"SASL_HOST"])
+				require.Equal(t, []byte("23224"), secret.Data[s.prefix()+"SASL_PORT"])
+				require.Equal(t, []byte(pl1), secret.Data[s.prefix()+"SCHEMA_REGISTRY_HOST"])
+				require.Equal(t, []byte("14614"), secret.Data[s.prefix()+"SCHEMA_REGISTRY_PORT"])
+			}
+			requireConnection1(t, s.secret(t))
+
+			// The refresh on the next poll sees the API order change and keeps the same connection.
+			s.service.Components = recordedKafkaPrivatelinkComponents()
+			s.now = s.now.Add(time.Minute)
+			s.expectService()
+			s.expectCA()
+			_, err := s.reconcile(t)
+			require.NoError(t, err)
+			requireConnection1(t, s.secret(t))
+			require.Equal(t, 1, s.generated)
+		})
+
+		t.Run("Waits without a Secret when the route is missing", func(t *testing.T) {
+			s := newRotationScenario(t)
+			s.configure(t, setRoute(service.RouteTypePrivatelink))
+			s.expectService()
+			res, err := s.reconcile(t)
+			requireWaiting(t, s, res, err)
+			require.True(t, apierrors.IsNotFound(s.client.Get(t.Context(), s.secretKey(), &corev1.Secret{})))
+			cr := s.object(t)
+			require.Empty(t, cr.Status.ActiveUsername)
+			require.True(t, cr.Status.LastRotationAt.IsZero())
+			require.Zero(t, s.generated)
+
+			// The route appears: the first publication proceeds and clears the condition.
+			s.service.Components = append(s.service.Components, privatelinkPg)
+			s.publishInitial(t)
+			require.Equal(t, []byte("pl.example.com"), s.secret(t).Data[s.prefix()+"HOST"])
+		})
+
+		t.Run("Waits without a Secret or a password reset when Kafka has no dynamic listener", func(t *testing.T) {
+			// The API normally refuses a Kafka with no authentication method, so a missing dynamic primary is a defensive case.
+			s := newRotationScenario(t)
+			s.configure(t, setRoute(service.RouteTypeDynamic))
+			s.useKafka()
+			s.service.Components = without(s.service.Components, func(c service.ComponentOut) bool { return c.Component == "kafka" })
+			s.expectService()
+			res, err := s.reconcile(t)
+			require.NoError(t, err)
+			require.True(t, apierrors.IsNotFound(s.client.Get(t.Context(), s.secretKey(), &corev1.Secret{})))
+			require.Zero(t, s.generated)
+			condition := meta.FindStatusCondition(s.object(t).Status.Conditions, ConditionTypeError)
+			require.NotNil(t, condition)
+			require.Equal(t, string(errConditionPreconditions), condition.Reason)
+			require.Contains(t, condition.Message, `component "kafka" with route "dynamic" not found`)
+			require.GreaterOrEqual(t, res.RequeueAfter, s.r.pollInterval())
+		})
+
+		t.Run("Pauses an overdue rotation and keeps the Secret while the route is missing, then resumes", func(t *testing.T) {
+			s := newRotationScenario(t)
+			s.publishInitial(t)
+			before := s.secret(t)
+			status := s.object(t).Status
+
+			s.configure(t, setRoute(service.RouteTypePrivatelink))
+			s.now = s.now.Add(s.rotation.Spec.RotationInterval.Duration + time.Minute)
+			s.expectService()
+			res, err := s.reconcile(t)
+			requireWaiting(t, s, res, err)
+			after := s.secret(t)
+			require.Equal(t, before.ResourceVersion, after.ResourceVersion, "waiting must not touch the Secret")
+			require.Equal(t, before.Data, after.Data)
+			cr := s.object(t)
+			require.Equal(t, status.ActiveUsername, cr.Status.ActiveUsername)
+			require.Equal(t, status.LastRotationAt, cr.Status.LastRotationAt)
+			require.Equal(t, status.NextRotationAt, cr.Status.NextRotationAt)
+			require.Equal(t, 1, s.generated)
+
+			s.service.Components = append(s.service.Components, privatelinkPg)
+			s.expectService()
+			s.expectReset(s.rotation.Spec.Usernames[1], "generated-2")
+			s.expectCA()
+			res, err = s.reconcile(t)
+			require.NoError(t, err)
+			require.Equal(t, s.rotation.Spec.RotationInterval.Duration, res.RequeueAfter)
+			secret := s.requirePublished(t, s.rotation.Spec.Usernames[1], "generated-2", s.now)
+			require.Equal(t, []byte("pl.example.com"), secret.Data[s.prefix()+"HOST"])
+			require.Equal(t, []byte("15432"), secret.Data[s.prefix()+"PORT"])
+		})
+
+		t.Run("Unset route keeps the legacy selection and dynamic picks the certificate listener", func(t *testing.T) {
+			for _, tc := range []struct {
+				route    service.RouteType
+				reverse  bool
+				wantHost string
+			}{
+				{routeLegacy, false, "kafka.example.com"},
+				{routeLegacy, true, "sasl.example.com"}, // first kafka entry in API order
+				{service.RouteTypeDynamic, false, "kafka.example.com"},
+				{service.RouteTypeDynamic, true, "kafka.example.com"},
+			} {
+				t.Run(fmt.Sprintf("route=%q/reversed=%t", tc.route, tc.reverse), func(t *testing.T) {
+					s := newRotationScenario(t)
+					s.configure(t, setRoute(tc.route))
+					s.useKafka()
+					if tc.reverse {
+						slices.Reverse(s.service.Components)
+					}
+					s.publishInitial(t)
+					secret := s.secret(t)
+					require.Equal(t, []byte(tc.wantHost), secret.Data[s.prefix()+"HOST"])
+					require.Equal(t, []byte("sasl.example.com"), secret.Data[s.prefix()+"SASL_HOST"])
+					require.Equal(t, []byte("schema.example.com"), secret.Data[s.prefix()+"SCHEMA_REGISTRY_HOST"])
+				})
+			}
+		})
 	})
 
 	t.Run("Deletion", func(t *testing.T) {

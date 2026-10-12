@@ -86,6 +86,14 @@ func (r *ServiceUserRotationReconciler) Reconcile(ctx context.Context, req ctrl.
 	}()
 
 	if err := r.reconcile(ctx, cr); err != nil {
+		if errors.Is(err, errPreconditionExternal) {
+			// The wait can last indefinitely and the resource otherwise looks healthy.
+			condition := getErrorCondition(errConditionPreconditions, err)
+			condition.ObservedGeneration = cr.Generation
+			meta.SetStatusCondition(cr.Conditions(), condition)
+			r.Recorder.Event(cr, corev1.EventTypeWarning, eventPreconditionsNotMet, err.Error())
+			return ctrl.Result{RequeueAfter: wait.Jitter(r.pollInterval(), pollJitterFactor)}, nil
+		}
 		if errors.Is(err, errPreconditionNotMet) {
 			r.Recorder.Event(cr, corev1.EventTypeNormal, eventPreconditionsNotMet, err.Error())
 			return ctrl.Result{RequeueAfter: requeueTimeout}, nil
@@ -129,12 +137,18 @@ func (r *ServiceUserRotationReconciler) reconcile(ctx context.Context, cr *v1alp
 		return err
 	}
 
+	// Resolve the endpoint before any write: a missing one must not reset a password.
+	component, err := resolveHostComponent(svc, cr.Spec.ConnInfoSecretRoute)
+	if err != nil {
+		return err
+	}
+
 	secret, err := r.ensureSecret(ctx, cr)
 	if err != nil {
 		return err
 	}
 
-	return r.reconcileCredentials(ctx, cl, cr, secret, svc)
+	return r.reconcileCredentials(ctx, cl, cr, secret, svc, component)
 }
 
 func (r *ServiceUserRotationReconciler) pollInterval() time.Duration {
@@ -183,7 +197,7 @@ func serviceUserRotationPublishedAt(secret *corev1.Secret) (time.Time, error) {
 }
 
 // reconcileCredentials publishes a new rotation or refreshes the current connection details.
-func (r *ServiceUserRotationReconciler) reconcileCredentials(ctx context.Context, cl avngen.Client, cr *v1alpha1.ServiceUserRotation, secret *corev1.Secret, svc *service.ServiceGetOut) error {
+func (r *ServiceUserRotationReconciler) reconcileCredentials(ctx context.Context, cl avngen.Client, cr *v1alpha1.ServiceUserRotation, secret *corev1.Secret, svc *service.ServiceGetOut, component *service.ComponentOut) error {
 	orig := secret.DeepCopy()
 
 	publishedAt, err := serviceUserRotationPublishedAt(secret)
@@ -200,7 +214,7 @@ func (r *ServiceUserRotationReconciler) reconcileCredentials(ctx context.Context
 		return fmt.Errorf("getting project CA certificate: %w", err)
 	}
 	if !publishedAt.IsZero() {
-		if err := refreshRotationSecret(cr, secret, svc, caCert); err != nil {
+		if err := refreshRotationSecret(cr, secret, svc, component, caCert); err != nil {
 			return err
 		}
 	}
@@ -233,7 +247,7 @@ func (r *ServiceUserRotationReconciler) reconcileCredentials(ctx context.Context
 		svc.Users = result.Users
 		secret.Data[getSecretPrefix(cr)+"USERNAME"] = secret.Data[serviceUserRotationDesiredUsernameKey]
 		secret.Data[getSecretPrefix(cr)+"PASSWORD"] = secret.Data[serviceUserRotationDesiredPasswordKey]
-		if err := refreshRotationSecret(cr, secret, svc, caCert); err != nil {
+		if err := refreshRotationSecret(cr, secret, svc, component, caCert); err != nil {
 			return err
 		}
 
@@ -259,12 +273,7 @@ func (r *ServiceUserRotationReconciler) reconcileCredentials(ctx context.Context
 }
 
 // refreshRotationSecret refreshes connection details for the Secret's published username.
-func refreshRotationSecret(cr *v1alpha1.ServiceUserRotation, secret *corev1.Secret, svc *service.ServiceGetOut, caCert string) error {
-	component, ok := serviceUserHostComponent(svc, routeLegacy)
-	if !ok {
-		return fmt.Errorf("service component %q not found", svc.ServiceType)
-	}
-
+func refreshRotationSecret(cr *v1alpha1.ServiceUserRotation, secret *corev1.Secret, svc *service.ServiceGetOut, component *service.ComponentOut, caCert string) error {
 	prefix := getSecretPrefix(cr)
 	username := string(secret.Data[prefix+"USERNAME"])
 	idx := slices.IndexFunc(svc.Users, func(u service.UserOut) bool { return u.Username == username })
@@ -286,7 +295,7 @@ func refreshRotationSecret(cr *v1alpha1.ServiceUserRotation, secret *corev1.Secr
 		prefix + "CA_CERT":     caCert,
 	}
 	if svc.ServiceType == string(serviceTypeKafka) {
-		refreshKafkaEndpointDetails(secret.Data, svc.Components, prefix)
+		refreshKafkaEndpointDetails(secret.Data, svc.Components, cr.Spec.ConnInfoSecretRoute, prefix)
 	}
 	for key, value := range details {
 		secret.Data[key] = []byte(value)

@@ -130,3 +130,40 @@ func TestFindComponent(t *testing.T) {
 		})
 	}
 }
+
+func TestErrRouteNotFound(t *testing.T) {
+	svc := &service.ServiceGetOut{ServiceType: "pg", ServiceName: "my-pg"}
+	err := errRouteNotFound(svc, service.RouteTypePrivatelink)
+	require.ErrorIs(t, err, errPreconditionExternal)
+	require.ErrorIs(t, err, errPreconditionNotMet)
+	// The troubleshooting page quotes this text for both ServiceUser and ServiceUserRotation.
+	assert.Equal(t, `preconditions are not met: waiting for an external change: component "pg" with route "privatelink" not found on service "my-pg"`, err.Error())
+}
+
+func TestResolveHostComponent(t *testing.T) {
+	svc := &service.ServiceGetOut{ServiceType: "pg", ServiceName: "my-pg", Components: []service.ComponentOut{
+		{Component: "pg", Host: "pl.example.com", Port: 15432, Route: service.RouteTypePrivatelink, Usage: service.UsageTypePrimary},
+	}}
+
+	t.Run("returns the component on the route", func(t *testing.T) {
+		for _, route := range []service.RouteType{routeLegacy, service.RouteTypePrivatelink} {
+			c, err := resolveHostComponent(svc, route)
+			require.NoError(t, err, "route %q", route)
+			assert.Equal(t, "pl.example.com", c.Host)
+		}
+	})
+
+	t.Run("a set route the service lacks is an external precondition", func(t *testing.T) {
+		for _, route := range []service.RouteType{service.RouteTypeDynamic, service.RouteTypePublic, service.RouteTypePrivate} {
+			_, err := resolveHostComponent(svc, route)
+			require.ErrorIs(t, err, errPreconditionExternal, "route %q", route)
+			assert.ErrorContains(t, err, `route "`+string(route)+`"`)
+		}
+	})
+
+	t.Run("the unset route keeps the hard error of previous releases", func(t *testing.T) {
+		_, err := resolveHostComponent(&service.ServiceGetOut{ServiceType: "pg", ServiceName: "my-pg"}, routeLegacy)
+		require.NotErrorIs(t, err, errPreconditionNotMet)
+		assert.EqualError(t, err, `service component "pg" not found`)
+	})
+}

@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"reflect"
+	"slices"
 	"strconv"
 	"strings"
 
@@ -371,6 +372,67 @@ func findComponent(
 		return c, true
 	}
 	return nil, false
+}
+
+// onOneConnection keeps the route components of a single PrivateLink connection, the one with the lowest ID.
+func onOneConnection(components []service.ComponentOut, route service.RouteType) []service.ComponentOut {
+	var id *string
+	for i := range components {
+		c := &components[i]
+		if c.Route != route || c.PrivatelinkConnectionId == nil {
+			continue
+		}
+		if id == nil || *c.PrivatelinkConnectionId < *id {
+			id = c.PrivatelinkConnectionId
+		}
+	}
+	if id == nil {
+		return components
+	}
+	return slices.DeleteFunc(slices.Clone(components), func(c service.ComponentOut) bool {
+		return c.Route == route && c.PrivatelinkConnectionId != nil && *c.PrivatelinkConnectionId != *id
+	})
+}
+
+// errRouteNotFound reports a connInfoSecretRoute the service does not expose; only an external
+// change (for example, a new PrivateLink connection) can resolve it.
+func errRouteNotFound(svc *service.ServiceGetOut, route service.RouteType) error {
+	return fmt.Errorf("%w: component %q with route %q not found on service %q",
+		errPreconditionExternal, svc.ServiceType, route, svc.ServiceName)
+}
+
+// serviceUserHostComponent picks the component behind HOST and PORT.
+func serviceUserHostComponent(svc *service.ServiceGetOut, route service.RouteType) (*service.ComponentOut, bool) {
+	if route == routeLegacy {
+		idx := slices.IndexFunc(svc.Components, func(c service.ComponentOut) bool { return c.Component == svc.ServiceType })
+		if idx < 0 {
+			return nil, false
+		}
+		return &svc.Components[idx], true
+	}
+	components := onOneConnection(svc.Components, route)
+	if svc.ServiceType == string(serviceTypeKafka) {
+		if c, ok := findComponent(components, svc.ServiceType, route, isCertificateComponent); ok {
+			return c, true
+		}
+		if c, ok := findSaslComponent(components, route); ok {
+			return c, true
+		}
+	}
+	return findComponent(components, svc.ServiceType, route, nil)
+}
+
+// resolveHostComponent returns the component whose host and port go into the connection secret.
+func resolveHostComponent(svc *service.ServiceGetOut, route service.RouteType) (*service.ComponentOut, error) {
+	component, ok := serviceUserHostComponent(svc, route)
+	switch {
+	case ok:
+		return component, nil
+	case route == routeLegacy:
+		return nil, fmt.Errorf("service component %q not found", svc.ServiceType)
+	default:
+		return nil, errRouteNotFound(svc, route)
+	}
 }
 
 // getSecretPrefix returns user's prefix or kind name

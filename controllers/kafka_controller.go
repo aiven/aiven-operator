@@ -159,6 +159,7 @@ func addKafkaEndpointDetails(details SecretDetails, components []service.Compone
 		details[prefix+portKey] = strconv.Itoa(c.Port)
 	}
 
+	components = onOneConnection(components, route)
 	c, ok := findSaslComponent(components, route)
 	set("SASL_HOST", "SASL_PORT", c, ok)
 	c, ok = findComponent(components, "schema_registry", route, nil)
@@ -187,8 +188,9 @@ func isCertificateComponent(c service.ComponentOut) bool {
 	return c.KafkaAuthenticationMethod == service.KafkaAuthenticationMethodTypeCertificate
 }
 
-// refreshKafkaEndpointDetails replaces optional Kafka endpoints in existing Secret data.
-func refreshKafkaEndpointDetails(data map[string][]byte, components []service.ComponentOut, prefix string) {
+// refreshKafkaEndpointDetails replaces optional Kafka endpoints in existing Secret data with
+// those on the given route.
+func refreshKafkaEndpointDetails(data map[string][]byte, components []service.ComponentOut, route service.RouteType, prefix string) {
 	for _, key := range []string{
 		prefix + "SASL_HOST",
 		prefix + "SASL_PORT",
@@ -198,8 +200,11 @@ func refreshKafkaEndpointDetails(data map[string][]byte, components []service.Co
 		delete(data, key)
 	}
 	details := make(SecretDetails)
-	addKafkaEndpointDetails(details, components, routeLegacy, prefix)
+	addKafkaEndpointDetails(details, components, route, prefix)
 	for key, value := range details {
+		if value == "" {
+			continue
+		}
 		data[key] = []byte(value)
 	}
 }

@@ -116,16 +116,22 @@ Look for these annotations:
 
 **Actual behavior**: Once a resource/secret is ready, the operator stops continuous reconciliation. Manual changes in the Aiven console will **not** trigger automatic recreation.
 
-### ServiceUser has no connection secret or the secret has the wrong host
+### ServiceUser or ServiceUserRotation has no connection secret or the secret has the wrong host
 
-`kubectl describe serviceuser <name>` shows an `Error` condition with reason `Preconditions` and a
-`PreconditionsNotMet` warning event such as
+`kubectl describe serviceuser <name>` (or `serviceuserrotation <name>`) shows an `Error` condition
+with reason `Preconditions` and a `PreconditionsNotMet` warning event such as
 `component "pg" with route "privatelink" not found on service "my-pg"`: the service does not expose
 the route set in `spec.connInfoSecretRoute`. Establish the PrivateLink connection or set the route
-back to `dynamic`. Note that not every cloud lists a `private` route (a service in a Google Cloud
-project VPC has none), so `private` can wait forever there. An existing secret keeps its previous
-host until then. The route is re-checked once per poll interval (`--poll-interval`, 10 minutes by
-default); to pick it up sooner, force a reconciliation as described below.
+back to `dynamic`. Note that `private` and `public` are not always listed: a service in a project VPC
+has no `private` route on any cloud, and most clouds outside a VPC do not list one either; `public`
+and `private` are listed only while `public_access` or `private_access` is enabled for that component
+in the service's `userConfig`. Selecting an unlisted route waits forever. Even `dynamic` is reported
+the same way if the service lists no primary component for it. An existing secret keeps
+its previous host until then; for `ServiceUserRotation` the rotation schedule also pauses until the
+route is available. The route is re-checked once per poll interval (`--poll-interval`, 10 minutes by
+default); to pick it up sooner, force a reconciliation as described below. With
+`spec.connInfoSecretRoute` unset, the same situation is reported as in previous releases, with the
+message `service component "kafka" not found`.
 
 ### How to Force Reconciliation
 
