@@ -41,6 +41,11 @@
   cluster. Required for cluster plans
 - Add `KafkaConnect` field `userConfig.custom_plugins`, type `array`: Install custom plugins uploaded
   via the custom file service
+- Add `ServiceUser` field `connInfoSecretRoute` (`dynamic`, `public`, `private`, `privatelink`):
+  the network route whose primary component supplies the host and port written to the connection
+  secret (for Kafka also the SASL and schema registry host and port, preferring the project CA SASL
+  listener when `letsencrypt_sasl` is enabled). Unset keeps the selection of previous releases, so
+  existing secrets are not rewritten on upgrade.
 
 ## v0.48.0 - 2026-10-01
 

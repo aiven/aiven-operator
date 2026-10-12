@@ -260,11 +260,10 @@ func (r *ServiceUserRotationReconciler) reconcileCredentials(ctx context.Context
 
 // refreshRotationSecret refreshes connection details for the Secret's published username.
 func refreshRotationSecret(cr *v1alpha1.ServiceUserRotation, secret *corev1.Secret, svc *service.ServiceGetOut, caCert string) error {
-	componentIdx := slices.IndexFunc(svc.Components, func(c service.ComponentOut) bool { return c.Component == svc.ServiceType })
-	if componentIdx < 0 {
+	component, ok := serviceUserHostComponent(svc, routeLegacy)
+	if !ok {
 		return fmt.Errorf("service component %q not found", svc.ServiceType)
 	}
-	component := &svc.Components[componentIdx]
 
 	prefix := getSecretPrefix(cr)
 	username := string(secret.Data[prefix+"USERNAME"])

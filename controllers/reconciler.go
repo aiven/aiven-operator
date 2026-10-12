@@ -229,11 +229,8 @@ func (r *Reconciler[T]) handleObserveError(ctx context.Context, obj T, err error
 		return r.pollRequeue(), nil
 	}
 
-	if errors.Is(err, errPreconditionNotMet) {
-		const msg = "preconditions are not met, requeue"
-		r.Recorder.Event(obj, corev1.EventTypeNormal, eventPreconditionsNotMet, msg)
-		logr.FromContextOrDiscard(ctx).V(1).Info(msg)
-		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
+	if res, ok := r.handlePreconditionNotMet(ctx, obj, err); ok {
+		return res, nil
 	}
 
 	if isRetryableAivenError(err) {
@@ -619,9 +616,14 @@ func (r *Reconciler[T]) handlePreconditionNotMet(ctx context.Context, obj T, err
 	if !errors.Is(err, errPreconditionNotMet) {
 		return ctrl.Result{}, false
 	}
-	const msg = "preconditions are not met, requeue"
-	r.Recorder.Event(obj, corev1.EventTypeNormal, eventPreconditionsNotMet, msg)
-	logr.FromContextOrDiscard(ctx).V(1).Info(msg, "error", err)
+	logr.FromContextOrDiscard(ctx).V(1).Info("preconditions are not met, requeue", "error", err)
+	if errors.Is(err, errPreconditionExternal) {
+		// The wait can last indefinitely and the resource otherwise looks healthy.
+		r.Recorder.Event(obj, corev1.EventTypeWarning, eventPreconditionsNotMet, err.Error())
+		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionPreconditions, err))
+		return r.pollRequeue(), true
+	}
+	r.Recorder.Event(obj, corev1.EventTypeNormal, eventPreconditionsNotMet, err.Error())
 	return ctrl.Result{RequeueAfter: requeueTimeout}, true
 }
 

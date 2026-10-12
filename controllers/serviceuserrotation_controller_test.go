@@ -71,7 +71,7 @@ func TestServiceUserRotationReconciler(t *testing.T) {
 			service: &service.ServiceGetOut{
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "pg",
-				Components:  []service.ComponentOut{{Component: "pg", Host: "db.example.com", Port: 5432}},
+				Components:  []service.ComponentOut{primaryComponent("pg", "db.example.com", 5432)},
 			},
 			recorder: record.NewFakeRecorder(100),
 			// Exercise subsecond precision and a non-UTC offset on every publication.
@@ -1728,9 +1728,9 @@ func (s *rotationScenario) requireFailure(t *testing.T, result ctrlruntime.Resul
 func (s *rotationScenario) useKafka() {
 	s.service.ServiceType = "kafka"
 	s.service.Components = []service.ComponentOut{
-		{Component: "kafka", Host: "kafka.example.com", Port: 9092, KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeCertificate},
-		{Component: "kafka", Host: "sasl.example.com", Port: 9093, KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeSasl},
-		{Component: "schema_registry", Host: "schema.example.com", Port: 8081},
+		{Component: "kafka", Host: "kafka.example.com", Port: 9092, Route: service.RouteTypeDynamic, Usage: service.UsageTypePrimary, KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeCertificate},
+		{Component: "kafka", Host: "sasl.example.com", Port: 9093, Route: service.RouteTypeDynamic, Usage: service.UsageTypePrimary, KafkaAuthenticationMethod: service.KafkaAuthenticationMethodTypeSasl},
+		{Component: "schema_registry", Host: "schema.example.com", Port: 8081, Route: service.RouteTypeDynamic, Usage: service.UsageTypePrimary},
 	}
 	for i := range s.service.Users {
 		s.service.Users[i].AccessCert = new("observed-certificate-" + s.service.Users[i].Username)
