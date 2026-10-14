@@ -41,6 +41,7 @@ type ServiceUserSpec struct {
 	// Set a route, including dynamic, to take the primary component on that
 	// route; for Kafka this also selects the SASL and schema registry host and port on it.
 	// The service must expose the selected route (for example, a PrivateLink connection must be established).
+	// With several PrivateLink connections, the endpoints of one connection (the lowest connection ID) are published.
 	ConnInfoSecretRoute service.RouteType `json:"connInfoSecretRoute,omitempty"`
 
 	// AccessControl Service type specific access control rules for user.

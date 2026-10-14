@@ -2068,8 +2068,9 @@ func TestServiceUserSecretDetails(t *testing.T) {
 			wantErr: []string{`service component "mysql" not found`}, hardErr: true,
 		},
 		{
-			name: "missing component on the dynamic route is an error", serviceType: "mysql", route: service.RouteTypeDynamic,
-			wantErr: []string{`service component "mysql" not found`}, hardErr: true,
+			// The API normally refuses a Kafka with no authentication method, so a missing dynamic primary is a defensive case.
+			name: "missing component on the dynamic route is a precondition", serviceType: "mysql", route: service.RouteTypeDynamic,
+			wantErr: []string{`component "mysql"`, `route "dynamic"`, `service "svc"`},
 		},
 	}
 
@@ -2114,9 +2115,9 @@ func TestServiceUserSecretDetails(t *testing.T) {
 	}
 
 	// Real API data: with two PrivateLink connections every listener is listed once per
-	// connection, so the route alone does not identify a component. The operator takes the first
-	// in API order (connection 1) and, unlike every case above, the choice depends on that order.
-	t.Run("recorded kafka with two privatelink connections takes the first connection", func(t *testing.T) {
+	// connection, so the route alone does not identify a component. The operator takes the
+	// connection with the lowest ID, so the choice does not depend on API order.
+	t.Run("recorded kafka with two privatelink connections takes the lowest connection ID", func(t *testing.T) {
 		const pl1 = "privatelink-1-rt-pl-kafka-aiven-ci-kubernetes-operator.c.aivencloud.com"
 		const pl2 = "privatelink-2-rt-pl-kafka-aiven-ci-kubernetes-operator.c.aivencloud.com"
 		run := func(components []service.ComponentOut, route service.RouteType) SecretDetails {
@@ -2130,9 +2131,19 @@ func TestServiceUserSecretDetails(t *testing.T) {
 			withKafka(base(pl1, "23220"), pl1, "23224", pl1, "14614"),
 			run(recordedKafkaPrivatelinkComponents(), service.RouteTypePrivatelink))
 		require.Equal(t,
-			withKafka(base(pl2, "23228"), pl2, "23232", pl2, "14614"),
+			withKafka(base(pl1, "23220"), pl1, "23224", pl1, "14614"),
 			run(reversed(recordedKafkaPrivatelinkComponents()), service.RouteTypePrivatelink),
-			"ties between connections follow API order")
+			"the lowest connection ID wins regardless of API order")
+
+		// Connection 1 is listed first, but its SASL and schema registry entries come after
+		// connection 2's: every endpoint still comes from connection 1.
+		interleaved := recordedKafkaPrivatelinkComponents()
+		interleaved[4], interleaved[5] = interleaved[5], interleaved[4]
+		interleaved[7], interleaved[8] = interleaved[8], interleaved[7]
+		require.Equal(t,
+			withKafka(base(pl1, "23220"), pl1, "23224", pl1, "14614"),
+			run(interleaved, service.RouteTypePrivatelink),
+			"HOST, SASL and schema registry come from the same connection")
 		require.Equal(t,
 			withKafka(base("rt-pl-kafka-aiven-ci-kubernetes-operator.c.aivencloud.com", "14611"),
 				"rt-pl-kafka-aiven-ci-kubernetes-operator.c.aivencloud.com", "14622",

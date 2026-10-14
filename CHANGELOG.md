@@ -41,11 +41,13 @@
   cluster. Required for cluster plans
 - Add `KafkaConnect` field `userConfig.custom_plugins`, type `array`: Install custom plugins uploaded
   via the custom file service
-- Add `ServiceUser` field `connInfoSecretRoute` (`dynamic`, `public`, `private`, `privatelink`):
-  the network route whose primary component supplies the host and port written to the connection
-  secret (for Kafka also the SASL and schema registry host and port, preferring the project CA SASL
-  listener when `letsencrypt_sasl` is enabled). Unset keeps the selection of previous releases, so
-  existing secrets are not rewritten on upgrade.
+- Add `connInfoSecretRoute` (`dynamic`, `public`, `private`, `privatelink`) to `ServiceUser` and
+  `ServiceUserRotation`. It selects the service endpoint published to the connection Secret as
+  `HOST` and `PORT`; for Kafka also `SASL_HOST`/`SASL_PORT` and `SCHEMA_REGISTRY_HOST`/`SCHEMA_REGISTRY_PORT`.
+  Set `privatelink` to publish the PrivateLink endpoint. Until the service exposes the chosen route,
+  the Secret is left untouched and the resource reports an `Error` condition with reason
+  `Preconditions`; a `ServiceUserRotation` also pauses rotation and runs as soon as the route appears.
+  Leaving the field unset keeps the behavior of previous releases, so existing Secrets are not rewritten on upgrade.
 - Fix `Reconciler error` ("the object has been modified") logged when a resource changed while the
   operator was writing its status. The conflict is now ignored and the state is recomputed by the next reconcile.
 

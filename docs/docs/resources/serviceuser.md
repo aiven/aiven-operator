@@ -100,7 +100,9 @@ This resource uses the following API operations, and for each operation, _any_ o
     # a PrivateLink connection; until it does, the user is created on Aiven but the secret is
     # not created or updated and the resource reports a PreconditionsNotMet event. Changing
     # connInfoSecretRoute on an existing ServiceUser rewrites the secret; pods that consume it
-    # through environment variables pick up the new host only after a restart.
+    # through environment variables pick up the new host only after a restart. With several
+    # PrivateLink connections, the endpoints of one connection are published; selecting a
+    # connection is not supported.
     
     apiVersion: aiven.io/v1alpha1
     kind: ServiceUser
@@ -243,6 +245,7 @@ ServiceUserSpec defines the desired state of ServiceUser.
     Set a route, including dynamic, to take the primary component on that
     route; for Kafka this also selects the SASL and schema registry host and port on it.
     The service must expose the selected route (for example, a PrivateLink connection must be established).
+    With several PrivateLink connections, the endpoints of one connection (the lowest connection ID) are published.
 - [`connInfoSecretSource`](#spec.connInfoSecretSource-property){: name='spec.connInfoSecretSource-property'} (object). ConnInfoSecretSource declares the password the operator should enforce on the user.
     Direct password changes in the database will be reverted on the next reconcile cycle.
     To rotate, update the source secret.
