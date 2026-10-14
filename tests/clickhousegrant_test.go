@@ -114,13 +114,11 @@ func TestClickhouseGrant(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	ch, releaseCH, err := sharedResources.AcquireClickhouse(ctx)
-	require.NoError(t, err)
-	defer releaseCH()
+	ch := sharedResources.AcquireClickhouse(t, shared)
 
 	chName := ch.GetName()
-	userName := "clickhouse-user"
-	dbName := "clickhouse-db"
+	userName := randName("clickhouse-user")
+	dbName := randName("clickhouse-db")
 	roleName := randName("writer")
 
 	yml := getClickhouseGrantYaml(cfg.Project, chName, cfg.PrimaryCloudName, dbName, userName, roleName)
