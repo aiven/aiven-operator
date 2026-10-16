@@ -844,6 +844,21 @@ func (in *Opensearch) DeepCopyInto(out *Opensearch) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.KnnCacheItemExpiryEnabled != nil {
+		in, out := &in.KnnCacheItemExpiryEnabled, &out.KnnCacheItemExpiryEnabled
+		*out = new(bool)
+		**out = **in
+	}
+	if in.KnnCacheItemExpiryMinutes != nil {
+		in, out := &in.KnnCacheItemExpiryMinutes, &out.KnnCacheItemExpiryMinutes
+		*out = new(int)
+		**out = **in
+	}
+	if in.KnnCircuitBreakerUnsetPercentage != nil {
+		in, out := &in.KnnCircuitBreakerUnsetPercentage, &out.KnnCircuitBreakerUnsetPercentage
+		*out = new(float64)
+		**out = **in
+	}
 	if in.KnnMemoryCircuitBreakerEnabled != nil {
 		in, out := &in.KnnMemoryCircuitBreakerEnabled, &out.KnnMemoryCircuitBreakerEnabled
 		*out = new(bool)
