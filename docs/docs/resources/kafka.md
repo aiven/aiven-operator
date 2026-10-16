@@ -258,7 +258,7 @@ Kafka specific user configuration options.
 - [`kafka_sasl_mechanisms`](#spec.userConfig.kafka_sasl_mechanisms-property){: name='spec.userConfig.kafka_sasl_mechanisms-property'} (object). Kafka SASL mechanisms. See below for [nested schema](#spec.userConfig.kafka_sasl_mechanisms).
 - [`kafka_version`](#spec.userConfig.kafka_version-property){: name='spec.userConfig.kafka_version-property'} (string). Available versions: `4.0`, `4.1`, `4.2`, `4.3`. Newer versions may also be available.
     Kafka major version. Deprecated values: `4.1`.
-- [`karapace_version`](#spec.userConfig.karapace_version-property){: name='spec.userConfig.karapace_version-property'} (string). Available versions: `6.2.1`, `6.2.2`, `6.2.3`. Newer versions may also be available.
+- [`karapace_version`](#spec.userConfig.karapace_version-property){: name='spec.userConfig.karapace_version-property'} (string). Available versions: `6.2.1`, `6.2.2`, `6.2.3`, `6.2.4`. Newer versions may also be available.
     Select a Karapace version for this service, or select Latest to use the latest available version automatically. New versions become available after installation during a maintenance update.
 - [`letsencrypt_sasl`](#spec.userConfig.letsencrypt_sasl-property){: name='spec.userConfig.letsencrypt_sasl-property'} (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication. (Default: False).
 - [`letsencrypt_sasl_privatelink`](#spec.userConfig.letsencrypt_sasl_privatelink-property){: name='spec.userConfig.letsencrypt_sasl_privatelink-property'} (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication via Privatelink. (Default: False).

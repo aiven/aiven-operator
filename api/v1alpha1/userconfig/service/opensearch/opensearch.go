@@ -820,6 +820,19 @@ type Opensearch struct {
 	// How long audit history indices are kept in days.
 	IsmHistoryRolloverRetentionPeriod *int `groups:"create,update" json:"ism_history_rollover_retention_period,omitempty"`
 
+	// Enable or disable removing KNN graphs from the cache when they are idle. Disabled by default.
+	KnnCacheItemExpiryEnabled *bool `groups:"create,update" json:"knn_cache_item_expiry_enabled,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=10080
+	// If enabled, the amount of time in minutes a KNN graph can be idle in the cache before being evicted.
+	KnnCacheItemExpiryMinutes *int `groups:"create,update" json:"knn_cache_item_expiry_minutes,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=100
+	// The native memory usage, as a percentage below the KNN memory circuit breaker limit, at which a tripped circuit breaker resets. Defaults to 5%.
+	KnnCircuitBreakerUnsetPercentage *float64 `groups:"create,update" json:"knn_circuit_breaker_unset_percentage,omitempty"`
+
 	// Enable or disable KNN memory circuit breaker. Defaults to true.
 	KnnMemoryCircuitBreakerEnabled *bool `groups:"create,update" json:"knn_memory_circuit_breaker_enabled,omitempty"`
 
@@ -1163,7 +1176,7 @@ type OpensearchUserConfig struct {
 	// OpenSearch Dashboards settings
 	OpensearchDashboards *OpensearchDashboards `groups:"create,update" json:"opensearch_dashboards,omitempty"`
 
-	// Available versions: `2`, `2.19`, `3.3`, `3.6`. Newer versions may also be available.
+	// Available versions: `2`, `2.19`, `3.3`, `3.6`, `3.8`. Newer versions may also be available.
 	// OpenSearch version. Deprecated values: `2`
 	OpensearchVersion *string `groups:"create,update" json:"opensearch_version,omitempty"`
 

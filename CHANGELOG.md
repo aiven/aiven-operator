@@ -50,6 +50,13 @@
   Leaving the field unset keeps the behavior of previous releases, so existing Secrets are not rewritten on upgrade.
 - Fix `Reconciler error` ("the object has been modified") logged when a resource changed while the
   operator was writing its status. The conflict is now ignored and the state is recomputed by the next reconcile.
+- Add `OpenSearch` field `userConfig.opensearch.knn_cache_item_expiry_enabled`, type `boolean`: Enable
+  or disable removing KNN graphs from the cache when they are idle. Disabled by default
+- Add `OpenSearch` field `userConfig.opensearch.knn_cache_item_expiry_minutes`, type `integer`: If enabled,
+  the amount of time in minutes a KNN graph can be idle in the cache before being evicted
+- Add `OpenSearch` field `userConfig.opensearch.knn_circuit_breaker_unset_percentage`, type `number`:
+  The native memory usage, as a percentage below the KNN memory circuit breaker limit, at which a tripped
+  circuit breaker resets
 
 ## v0.48.0 - 2026-10-01
 

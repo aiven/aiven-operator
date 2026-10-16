@@ -813,7 +813,7 @@ type KafkaUserConfig struct {
 	// Kafka major version. Deprecated values: `4.1`
 	KafkaVersion *string `groups:"create,update" json:"kafka_version,omitempty"`
 
-	// Available versions: `6.2.1`, `6.2.2`, `6.2.3`. Newer versions may also be available.
+	// Available versions: `6.2.1`, `6.2.2`, `6.2.3`, `6.2.4`. Newer versions may also be available.
 	// Select a Karapace version for this service, or select Latest to use the latest available version automatically. New versions become available after installation during a maintenance update.
 	KarapaceVersion *string `groups:"create,update" json:"karapace_version,omitempty"`
 
