@@ -1151,7 +1151,7 @@ func TestClickhouseUser_BackwardCompatibility(t *testing.T) {
 			"",
 		)
 
-		require.NoError(t, r.publishSecretDetails(t.Context(), user, details))
+		require.NoError(t, r.publishSecretDetails(t.Context(), user, details, false))
 
 		updated := &corev1.Secret{}
 		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, updated))

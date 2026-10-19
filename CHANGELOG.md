@@ -57,6 +57,8 @@
 - Add `OpenSearch` field `userConfig.opensearch.knn_circuit_breaker_unset_percentage`, type `number`:
   The native memory usage, as a percentage below the KNN memory circuit breaker limit, at which a tripped
   circuit breaker resets
+- Fix resources staying `ReadyToUse` after their connection secret failed to publish. The resource is
+  now reported as not ready until the secret is published successfully.
 
 ## v0.48.0 - 2026-10-01
 

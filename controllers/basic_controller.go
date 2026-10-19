@@ -108,6 +108,7 @@ const (
 	eventUnableToSyncConnectionSecret       = "UnableToSyncConnectionSecret"
 	eventConnInfoSecretCreationDisabled     = "ConnInfoSecretCreationDisabled"
 	eventCannotPublishConnectionDetails     = "CannotPublishConnectionDetails"
+	eventInstanceMissingAtAiven             = "InstanceMissingAtAiven"
 )
 
 // +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;create;update
