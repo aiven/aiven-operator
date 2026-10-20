@@ -878,6 +878,8 @@ func TestReconciler_Reconcile(t *testing.T) {
 
 	t.Run("Propagates error when publishing observe secret details fails", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		// Previously Ready: a failed publish must revoke readiness.
+		metav1.SetMetaDataAnnotation(obj.GetObjectMeta(), instanceIsRunningAnnotation, "true")
 
 		m := &mock.Mock{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
@@ -931,6 +933,144 @@ func TestReconciler_Reconcile(t *testing.T) {
 
 		require.EqualError(t, err, fmt.Sprintf("unable to sync connection secret: %s", assert.AnError.Error()))
 		require.Equal(t, ctrl.Result{}, res)
+
+		// Readiness revoked on the persisted object.
+		updated := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, updated))
+		require.False(t, hasIsRunningAnnotation(updated))
+		running := meta.FindStatusCondition(updated.Status.Conditions, conditionTypeRunning)
+		require.NotNil(t, running)
+		require.Equal(t, metav1.ConditionUnknown, running.Status)
+		require.Equal(t, string(errConditionConnInfoSecret), running.Reason)
+		require.True(t, hasConnectionSecretPublishError(updated))
+	})
+
+	t.Run("Observe errConnInfoSecret revokes readiness like a failed publish", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		metav1.SetMetaDataAnnotation(obj.GetObjectMeta(), instanceIsRunningAnnotation, "true")
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		// A retryable API status must not downgrade this to a soft requeue.
+		cause := fmt.Errorf("%w: cannot retrieve project CA certificate: %w", errConnInfoSecret, newAivenError(500, "kms boom"))
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().Observe(mock.Anything, mock.Anything).Return(Observation{}, cause).Once()
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
+			},
+			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		res, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.ErrorIs(t, err, errConnInfoSecret)
+		require.EqualError(t, err, "unable to publish connection details: "+cause.Error())
+		require.Equal(t, ctrl.Result{}, res)
+
+		updated := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, updated))
+		require.False(t, hasIsRunningAnnotation(updated))
+		running := meta.FindStatusCondition(updated.Status.Conditions, conditionTypeRunning)
+		require.NotNil(t, running)
+		require.Equal(t, metav1.ConditionUnknown, running.Status)
+		require.Equal(t, string(errConditionConnInfoSecret), running.Reason)
+		// Same reason as a failed publish, not Preconditions.
+		errCond := meta.FindStatusCondition(updated.Status.Conditions, ConditionTypeError)
+		require.NotNil(t, errCond)
+		require.Equal(t, string(errConditionConnInfoSecret), errCond.Reason)
+
+		// Same warning event as a failed publish, and no preconditions warning.
+		var events []string
+		for len(recorder.Events) > 0 {
+			events = append(events, <-recorder.Events)
+		}
+		require.Len(t, events, 2) // finalizer added + publish warning
+		require.Contains(t, events[1], eventCannotPublishConnectionDetails)
+		require.NotContains(t, events[1], eventUnableToWaitForPreconditions)
+	})
+
+	t.Run("Observe errServiceCreatePoweredOff is a CreateOrUpdate error, not a precondition", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().Observe(mock.Anything, mock.Anything).Return(Observation{}, errServiceCreatePoweredOff).Once()
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
+			},
+			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		res, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		// Hard error with backoff, no soft requeue.
+		require.ErrorIs(t, err, errServiceCreatePoweredOff)
+		require.Equal(t, ctrl.Result{}, res)
+
+		updated := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, updated))
+		errCond := meta.FindStatusCondition(updated.Status.Conditions, ConditionTypeError)
+		require.NotNil(t, errCond)
+		require.Equal(t, string(errConditionCreateOrUpdate), errCond.Reason)
+
+		var events []string
+		for len(recorder.Events) > 0 {
+			events = append(events, <-recorder.Events)
+		}
+		require.Len(t, events, 2) // finalizer added + create warning
+		require.Contains(t, events[1], eventUnableToCreateOrUpdateAtAiven)
+		require.NotContains(t, events[1], eventUnableToWaitForPreconditions)
 	})
 
 	t.Run("Calls Create when resource does not exist", func(t *testing.T) {
@@ -1115,6 +1255,369 @@ func TestReconciler_Reconcile(t *testing.T) {
 		got := &v1alpha1.ClickhouseUser{}
 		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
 		require.True(t, hasLatestGeneration(got))
+	})
+
+	t.Run("RequeueAfter override wins over PollInterval when resource is ready", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		// A running instance would normally requeue after PollInterval.
+		obj.Annotations = map[string]string{instanceIsRunningAnnotation: "true"}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		const override = 3 * time.Second
+
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().
+			Observe(mock.Anything, mock.Anything).
+			Return(Observation{
+				ResourceExists:   true,
+				ResourceUpToDate: true,
+				RequeueAfter:     override,
+			}, nil).
+			Once()
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
+			},
+			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		res, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: override}, res)
+	})
+
+	t.Run("RequeueAfter override wins over the short requeue when resource is not ready", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		// No running annotation -> not ready to use, default would be requeueTimeout.
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		const override = 42 * time.Second
+
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().
+			Observe(mock.Anything, mock.Anything).
+			Return(Observation{
+				ResourceExists:   true,
+				ResourceUpToDate: true,
+				RequeueAfter:     override,
+			}, nil).
+			Once()
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
+			},
+			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		res, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: override}, res)
+	})
+
+	t.Run("RequeueAfter override from Create result wins over the short requeue", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		const override = 7 * time.Second
+
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().
+			Observe(mock.Anything, mock.Anything).
+			Return(Observation{ResourceExists: false}, nil).
+			Once()
+		c.EXPECT().
+			Create(mock.Anything, mock.Anything).
+			Return(CreateResult{RequeueAfter: override}, nil).
+			Once()
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
+			},
+			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		res, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: override}, res)
+	})
+
+	t.Run("RequeueAfter override from Update result wins over the short requeue", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		const override = 11 * time.Second
+
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().
+			Observe(mock.Anything, mock.Anything).
+			Return(Observation{ResourceExists: true, ResourceUpToDate: false}, nil).
+			Once()
+		c.EXPECT().
+			Update(mock.Anything, mock.Anything).
+			Return(UpdateResult{RequeueAfter: override}, nil).
+			Once()
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
+			},
+			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		res, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: override}, res)
+	})
+
+	t.Run("Zero RequeueAfter preserves default cadence on ready and not-ready paths", func(t *testing.T) {
+		cases := []struct {
+			name     string
+			running  bool
+			expected time.Duration
+		}{
+			{name: "ready requeues after PollInterval", running: true, expected: testPollInterval},
+			{name: "not ready requeues after short timeout", running: false, expected: requeueTimeout},
+		}
+
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
+				obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+				if tc.running {
+					obj.Annotations = map[string]string{instanceIsRunningAnnotation: "true"}
+				}
+
+				k8sClient := fake.NewClientBuilder().
+					WithScheme(scheme).
+					WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+					WithObjects(obj).
+					Build()
+				recorder := record.NewFakeRecorder(10)
+
+				c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+				c.EXPECT().
+					Observe(mock.Anything, mock.Anything).
+					Return(Observation{
+						ResourceExists:   true,
+						ResourceUpToDate: true,
+						// RequeueAfter left at its zero value.
+					}, nil).
+					Once()
+
+				m := &mock.Mock{}
+				t.Cleanup(func() { m.AssertExpectations(t) })
+				m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+					Return(avngen.NewMockClient(t), nil).
+					Once()
+
+				r := &Reconciler[*v1alpha1.ClickhouseUser]{
+					Controller: Controller{
+						Client:          k8sClient,
+						Scheme:          scheme,
+						Recorder:        recorder,
+						DefaultToken:    "default-token",
+						KubeVersion:     "v1.30.0",
+						OperatorVersion: "v0.0.0-test",
+						PollInterval:    testPollInterval,
+					},
+					newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+					newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+						return c
+					},
+					newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+				}
+
+				res, err := r.Reconcile(t.Context(), ctrl.Request{
+					NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+				})
+
+				require.NoError(t, err)
+				require.Equal(t, ctrl.Result{RequeueAfter: tc.expected}, res)
+			})
+		}
+	})
+
+	t.Run("PruneSecretKeys controls stale keys in the connection secret", func(t *testing.T) {
+		cases := []struct {
+			name     string
+			prune    bool
+			expected map[string][]byte
+		}{
+			{
+				name:     "prune removes keys absent from details",
+				prune:    true,
+				expected: map[string][]byte{"FOO": []byte("foo")},
+			},
+			{
+				name:     "default merge keeps existing keys",
+				prune:    false,
+				expected: map[string][]byte{"FOO": []byte("foo"), "STALE": []byte("old")},
+			},
+		}
+
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
+				obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+				// Connection secret from a previous publish with a key that is no longer produced.
+				staleSecret := &corev1.Secret{
+					ObjectMeta: metav1.ObjectMeta{Name: obj.Name, Namespace: obj.Namespace},
+					Data:       map[string][]byte{"FOO": []byte("old"), "STALE": []byte("old")},
+				}
+
+				k8sClient := fake.NewClientBuilder().
+					WithScheme(scheme).
+					WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+					WithObjects(obj, staleSecret).
+					Build()
+				recorder := record.NewFakeRecorder(10)
+
+				c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+				c.EXPECT().
+					Observe(mock.Anything, mock.Anything).
+					Return(Observation{
+						ResourceExists:   true,
+						ResourceUpToDate: true,
+						SecretDetails:    map[string]string{"FOO": "foo"},
+						PruneSecretKeys:  tc.prune,
+					}, nil).
+					Once()
+
+				m := &mock.Mock{}
+				t.Cleanup(func() { m.AssertExpectations(t) })
+				m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+					Return(avngen.NewMockClient(t), nil).
+					Once()
+
+				r := &Reconciler[*v1alpha1.ClickhouseUser]{
+					Controller: Controller{
+						Client:          k8sClient,
+						Scheme:          scheme,
+						Recorder:        recorder,
+						DefaultToken:    "default-token",
+						KubeVersion:     "v1.30.0",
+						OperatorVersion: "v0.0.0-test",
+						PollInterval:    testPollInterval,
+					},
+					newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+					newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+						return c
+					},
+					newObj:    func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+					newSecret: newSecret,
+				}
+
+				_, err := r.Reconcile(t.Context(), ctrl.Request{
+					NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+				})
+				require.NoError(t, err)
+
+				got := &corev1.Secret{}
+				require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+				require.Equal(t, tc.expected, got.Data)
+			})
+		}
 	})
 
 	t.Run("Clears stale Error condition on successful reconcile", func(t *testing.T) {
@@ -2427,7 +2930,14 @@ func TestReconciler_createResource(t *testing.T) {
 		err = k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret)
 		require.True(t, apierrors.IsNotFound(err))
 
+		// A failed publish revokes readiness: Running goes pending next to the Error condition.
 		require.Equal(t, []metav1.Condition{
+			{
+				Type:    conditionTypeRunning,
+				Status:  metav1.ConditionUnknown,
+				Reason:  string(errConditionConnInfoSecret),
+				Message: "Connection details are not published",
+			},
 			{
 				Type:    ConditionTypeError,
 				Status:  metav1.ConditionUnknown,
@@ -2435,6 +2945,7 @@ func TestReconciler_createResource(t *testing.T) {
 				Message: assert.AnError.Error(),
 			},
 		}, normalizedConditions(obj.Status.Conditions))
+		require.False(t, hasIsRunningAnnotation(obj))
 		require.Equal(t, []string{
 			"Normal CreateOrUpdatedAtAiven about to create instance at aiven",
 			"Normal CreatedOrUpdatedAtAiven instance was created at aiven but may not be running yet",
@@ -2643,7 +3154,14 @@ func TestReconciler_updateResource(t *testing.T) {
 		err = k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret)
 		require.True(t, apierrors.IsNotFound(err))
 
+		// A failed publish revokes readiness: Running goes pending next to the Error condition.
 		require.Equal(t, []metav1.Condition{
+			{
+				Type:    conditionTypeRunning,
+				Status:  metav1.ConditionUnknown,
+				Reason:  string(errConditionConnInfoSecret),
+				Message: "Connection details are not published",
+			},
 			{
 				Type:    ConditionTypeError,
 				Status:  metav1.ConditionUnknown,
@@ -2651,6 +3169,7 @@ func TestReconciler_updateResource(t *testing.T) {
 				Message: assert.AnError.Error(),
 			},
 		}, normalizedConditions(obj.Status.Conditions))
+		require.False(t, hasIsRunningAnnotation(obj))
 		require.Equal(t, []string{
 			"Normal WaitingForInstanceToBeRunning waiting for the instance to be running",
 			"Warning CannotPublishConnectionDetails " + assert.AnError.Error(),
@@ -2739,7 +3258,7 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 
 	t.Run("No-op when details are empty", func(t *testing.T) {
 		r := &Reconciler[*v1alpha1.ClickhouseUser]{}
-		err := r.publishSecretDetails(t.Context(), nil, nil)
+		err := r.publishSecretDetails(t.Context(), nil, nil, false)
 		require.NoError(t, err)
 	})
 
@@ -2755,7 +3274,7 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 			},
 		}
 
-		err := r.publishSecretDetails(t.Context(), obj, map[string]string{"FOO": "foo"})
+		err := r.publishSecretDetails(t.Context(), obj, map[string]string{"FOO": "foo"}, false)
 
 		require.NoError(t, err)
 		require.Empty(t, normalizedConditions(obj.Status.Conditions))
@@ -2777,7 +3296,7 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 		sink := &logRecorderSink{}
 		ctx := logr.NewContext(t.Context(), logr.New(sink))
 
-		err := r.publishSecretDetails(ctx, obj, map[string]string{"FOO": "foo"})
+		err := r.publishSecretDetails(ctx, obj, map[string]string{"FOO": "foo"}, false)
 
 		require.NoError(t, err)
 		require.Empty(t, normalizedConditions(obj.Status.Conditions))
@@ -2786,6 +3305,8 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 
 	t.Run("Returns error and emits warning when secret sync fails", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		// Previously-Ready resource: a failed publish must revoke readiness.
+		metav1.SetMetaDataAnnotation(obj.GetObjectMeta(), instanceIsRunningAnnotation, "true")
 
 		m := &mock.Mock{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
@@ -2813,14 +3334,21 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 			newSecret: newSecret,
 		}
 
-		err := r.publishSecretDetails(t.Context(), obj, map[string]string{"FOO": "foo"})
+		err := r.publishSecretDetails(t.Context(), obj, map[string]string{"FOO": "foo"}, false)
 		require.EqualError(t, err, fmt.Sprintf("unable to sync connection secret: %s", assert.AnError.Error()))
 
 		secret := &corev1.Secret{}
 		err = k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret)
 		require.True(t, apierrors.IsNotFound(err))
 
+		// A failed publish revokes readiness: running annotation dropped, Running pending.
 		require.Equal(t, []metav1.Condition{
+			{
+				Type:    conditionTypeRunning,
+				Status:  metav1.ConditionUnknown,
+				Reason:  string(errConditionConnInfoSecret),
+				Message: "Connection details are not published",
+			},
 			{
 				Type:    ConditionTypeError,
 				Status:  metav1.ConditionUnknown,
@@ -2828,6 +3356,7 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 				Message: assert.AnError.Error(),
 			},
 		}, normalizedConditions(obj.Status.Conditions))
+		require.False(t, hasIsRunningAnnotation(obj))
 		require.Equal(t, []string{
 			"Warning CannotPublishConnectionDetails " + assert.AnError.Error(),
 		}, recorderEvents(recorder))
@@ -2864,7 +3393,7 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 		err := r.publishSecretDetails(t.Context(), obj, map[string]string{
 			"HOST": "localhost",
 			"PORT": "5432",
-		})
+		}, false)
 		require.NoError(t, err)
 
 		secret := &corev1.Secret{}
@@ -2922,7 +3451,7 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 			},
 		}).Once()
 
-		require.NoError(t, r.publishSecretDetails(t.Context(), obj, map[string]string{"IGNORED": "ignored"}))
+		require.NoError(t, r.publishSecretDetails(t.Context(), obj, map[string]string{"IGNORED": "ignored"}, false))
 
 		secret := &corev1.Secret{}
 		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret))
@@ -2966,7 +3495,7 @@ func TestReconciler_publishSecretDetails(t *testing.T) {
 				ctx := logr.NewContext(t.Context(), logger)
 
 				r := newTestReconciler(obj, k8sClient, scheme, events)
-				require.NoError(t, r.publishSecretDetails(ctx, obj, map[string]string{"FOO": "foo"}))
+				require.NoError(t, r.publishSecretDetails(ctx, obj, map[string]string{"FOO": "foo"}, false))
 
 				require.NotContains(t, sink.logs, "object does not implement conn info secret target, skipping connection secret publish")
 			})

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -52,9 +53,20 @@ type Observation struct {
 
 	// SecretDetails contains secret data for the resource (credentials, endpoints, CA certs, etc.).
 	// Will be written to the connInfoSecretTarget if not nil and not empty.
-	// Keys are written as-is: controllers apply the secret prefix themselves,
-	// e.g. getSecretPrefix(obj) + "CA_CERT".
+	// Keys are published as-is and must already carry the target prefix (see getSecretPrefix),
+	// e.g. "POSTGRESQL_HOST".
 	SecretDetails SecretDetails
+
+	// PruneSecretKeys declares SecretDetails as the complete content of the connection Secret:
+	// keys present in the Secret but absent from SecretDetails are removed on publish.
+	// When false, SecretDetails is merged into the existing data, so a controller may publish
+	// a partial map without losing keys it cannot reproduce.
+	PruneSecretKeys bool
+
+	// RequeueAfter overrides the requeue delay of a successful reconcile. Zero keeps the default:
+	// the jittered PollInterval when the resource is ready to use, requeueTimeout otherwise.
+	// It is ignored when the reconcile fails.
+	RequeueAfter time.Duration
 }
 
 // CreateResult is returned from Create and carries optional information about the created external resource (for example, connection details).
@@ -67,3 +79,6 @@ var errPreconditionNotMet = errors.New("preconditions are not met")
 
 // errPreconditionExternal is a precondition only an external change can satisfy.
 var errPreconditionExternal = fmt.Errorf("%w: waiting for an external change", errPreconditionNotMet)
+
+// errConnInfoSecret marks connection details that could not be built.
+var errConnInfoSecret = errors.New("connection secret details unavailable")

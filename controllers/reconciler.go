@@ -168,11 +168,11 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 		return r.updateResource(ctx, controller, obj)
 	}
 
-	if err := r.publishSecretDetails(ctx, obj, obs.SecretDetails); err != nil {
+	if err := r.publishSecretDetails(ctx, obj, obs.SecretDetails, obs.PruneSecretKeys); err != nil {
 		return ctrl.Result{}, err
 	}
 
-	return r.completeReconcileSuccess(obj)
+	return r.completeReconcileSuccess(obj, obs.RequeueAfter)
 }
 
 func (r *Reconciler[T]) ensureFinalizer(ctx context.Context, obj client.Object) error {
@@ -231,6 +231,18 @@ func (r *Reconciler[T]) handleObserveError(ctx context.Context, obj T, err error
 
 	if res, ok := r.handlePreconditionNotMet(ctx, obj, err); ok {
 		return res, nil
+	}
+
+	// The service is missing and the spec forbids creating it: a create failure, not a precondition.
+	if errors.Is(err, errServiceCreatePoweredOff) {
+		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
+		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
+		return ctrl.Result{}, fmt.Errorf("unable to create instance at aiven: %w", err)
+	}
+
+	// Before the retryable check: a retryable API status must not hide missing connection details.
+	if res, ok, err := r.handleConnInfoSecretError(obj, err); ok {
+		return res, err
 	}
 
 	if isRetryableAivenError(err) {
@@ -400,17 +412,20 @@ func (r *Reconciler[T]) createResource(ctx context.Context, controller AivenCont
 		if requeue, ok := r.handlePreconditionNotMet(ctx, obj, err); ok {
 			return requeue, nil
 		}
+		if res, ok, err := r.handleConnInfoSecretError(obj, err); ok {
+			return res, err
+		}
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
 		return ctrl.Result{}, fmt.Errorf("unable to create or update instance at aiven: %w", err)
 	}
 	r.Recorder.Event(obj, corev1.EventTypeNormal, eventCreatedOrUpdatedAtAiven, "instance was created at aiven but may not be running yet")
 
-	if err := r.publishSecretDetails(ctx, obj, res.SecretDetails); err != nil {
+	if err := r.publishSecretDetails(ctx, obj, res.SecretDetails, res.PruneSecretKeys); err != nil {
 		return ctrl.Result{}, err
 	}
 
-	return r.completeReconcileSuccess(obj)
+	return r.completeReconcileSuccess(obj, res.RequeueAfter)
 }
 
 func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenController[T], obj T) (ctrl.Result, error) {
@@ -426,6 +441,10 @@ func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenCont
 			return requeue, nil
 		}
 
+		if res, ok, err := r.handleConnInfoSecretError(obj, err); ok {
+			return res, err
+		}
+
 		if !apierrors.IsConflict(err) {
 			meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
 		}
@@ -433,14 +452,14 @@ func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenCont
 		return ctrl.Result{}, fmt.Errorf("unable to wait until instance is running: %w", err)
 	}
 
-	if err := r.publishSecretDetails(ctx, obj, res.SecretDetails); err != nil {
+	if err := r.publishSecretDetails(ctx, obj, res.SecretDetails, res.PruneSecretKeys); err != nil {
 		return ctrl.Result{}, err
 	}
 
-	return r.completeReconcileSuccess(obj)
+	return r.completeReconcileSuccess(obj, res.RequeueAfter)
 }
 
-func (r *Reconciler[T]) completeReconcileSuccess(obj v1alpha1.AivenManagedObject) (ctrl.Result, error) {
+func (r *Reconciler[T]) completeReconcileSuccess(obj v1alpha1.AivenManagedObject, requeueAfter time.Duration) (ctrl.Result, error) {
 	// Reconciliation succeeded, remove any Error condition from a previous failed attempt.
 	meta.RemoveStatusCondition(obj.Conditions(), ConditionTypeError)
 
@@ -449,6 +468,11 @@ func (r *Reconciler[T]) completeReconcileSuccess(obj v1alpha1.AivenManagedObject
 		processedGenerationAnnotation,
 		strconv.FormatInt(obj.GetGeneration(), formatIntBaseDecimal),
 	)
+
+	// A controller hint wins over the default cadence.
+	if requeueAfter > 0 {
+		return ctrl.Result{RequeueAfter: requeueAfter}, nil
+	}
 
 	if IsReadyToUse(obj) {
 		return r.pollRequeue(), nil
@@ -461,7 +485,8 @@ func (r *Reconciler[T]) completeReconcileSuccess(obj v1alpha1.AivenManagedObject
 
 // publishSecretDetails publishes connection details to the connection secret if present.
 // It emits appropriate events when secret creation is disabled or when syncing fails.
-func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details map[string]string) error {
+// With prune set, details are treated as the complete secret content and stale keys are removed.
+func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details map[string]string, prune bool) error {
 	if len(details) == 0 {
 		return nil
 	}
@@ -491,6 +516,10 @@ func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details
 		},
 	}
 	if _, err := controllerutil.CreateOrUpdate(ctx, r.Client, secret, func() error {
+		if prune {
+			// Drop keys no longer produced.
+			secret.Data = map[string][]byte{}
+		}
 		if len(goalSecret.Data) > 0 {
 			if secret.Data == nil {
 				secret.Data = map[string][]byte{}
@@ -512,7 +541,8 @@ func (r *Reconciler[T]) publishSecretDetails(ctx context.Context, obj T, details
 		return controllerutil.SetControllerReference(obj, secret, r.Scheme)
 	}); err != nil {
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventCannotPublishConnectionDetails, err.Error())
-		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionConnInfoSecret, err))
+		// Revoke readiness: dependants must not use a missing or stale Secret.
+		markConnectionSecretPublishFailed(obj, err)
 		return fmt.Errorf("unable to sync connection secret: %w", err)
 	}
 
@@ -634,6 +664,16 @@ func (r *Reconciler[T]) handlePreconditionNotMet(ctx context.Context, obj T, err
 	}
 	r.Recorder.Event(obj, corev1.EventTypeNormal, eventPreconditionsNotMet, err.Error())
 	return ctrl.Result{RequeueAfter: requeueTimeout}, true
+}
+
+// handleConnInfoSecretError matches errConnInfoSecret and reports it like a failed secret publish.
+func (r *Reconciler[T]) handleConnInfoSecretError(obj T, err error) (ctrl.Result, bool, error) {
+	if !errors.Is(err, errConnInfoSecret) {
+		return ctrl.Result{}, false, nil
+	}
+	r.Recorder.Event(obj, corev1.EventTypeWarning, eventCannotPublishConnectionDetails, err.Error())
+	markConnectionSecretPublishFailed(obj, err)
+	return ctrl.Result{}, true, fmt.Errorf("unable to publish connection details: %w", err)
 }
 
 // SetupWithManager sets up the controller with the Manager.
