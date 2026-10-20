@@ -33,7 +33,7 @@ type Flink struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
-var _ AivenManagedObject = &Flink{}
+var _ ServiceObject = &Flink{}
 
 func (in *Flink) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
@@ -57,6 +57,18 @@ func (in *Flink) GetRefs() []*ResourceReferenceObject {
 
 func (in *Flink) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
+}
+
+func (in *Flink) ServiceCommonSpec() *ServiceCommonSpec {
+	return &in.Spec.ServiceCommonSpec
+}
+
+func (in *Flink) ServiceStatus() *ServiceStatus {
+	return &in.Status
+}
+
+func (in *Flink) ServiceUserConfig() any {
+	return in.Spec.UserConfig
 }
 
 //+kubebuilder:object:root=true

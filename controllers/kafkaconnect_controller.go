@@ -39,6 +39,12 @@ func (r *KafkaConnectReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+// kafkaConnectKind is the serviceController definition. Not wired yet.
+var kafkaConnectKind = newServiceKind[*v1alpha1.KafkaConnect](serviceTypeKafkaConnect, nil,
+	// No power-off backup check.
+	withPreconditions(checkReadReplicaSource[*v1alpha1.KafkaConnect]),
+)
+
 func newKafkaConnectAdapter(object client.Object) (serviceAdapter, error) {
 	kafkaConnect, ok := object.(*v1alpha1.KafkaConnect)
 	if !ok {
@@ -78,10 +84,6 @@ func (a *kafkaConnectAdapter) getServiceType() serviceType {
 
 func (a *kafkaConnectAdapter) getDiskSpace() string {
 	return ""
-}
-
-func (a *kafkaConnectAdapter) GetConnInfoSecretTarget() v1alpha1.ConnInfoSecretTarget {
-	return v1alpha1.ConnInfoSecretTarget{}
 }
 
 func (a *kafkaConnectAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {

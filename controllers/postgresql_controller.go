@@ -47,6 +47,13 @@ func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+// postgreSQLKind is the serviceController definition. Not wired yet.
+var postgreSQLKind = newServiceKind(serviceTypePostgreSQL, postgreSQLSecretData,
+	withProjectCACert[*v1alpha1.PostgreSQL](),
+	withBeforeUpdate(postgreSQLUpgradeCheck),
+	withMigrationSecret(func(o *v1alpha1.PostgreSQL) *v1alpha1.MigrationSecretSource { return o.Spec.MigrationSecretSource }, postgreSQLMigrationUserConfig),
+)
+
 func newPostgreSQLAdapterFactory(k8s client.Client) serviceAdapterFabric {
 	return func(object client.Object) (serviceAdapter, error) {
 		pg, ok := object.(*v1alpha1.PostgreSQL)
@@ -80,7 +87,12 @@ func (a *postgreSQLAdapter) getUserConfig() any {
 }
 
 func (a *postgreSQLAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
-	prefix := getSecretPrefix(a)
+	return newSecret(a, postgreSQLSecretData(a.PostgreSQL, s), false)
+}
+
+// postgreSQLSecretData returns the prefixed connection secret keys.
+func postgreSQLSecretData(obj *v1alpha1.PostgreSQL, s *service.ServiceGetOut) map[string]string {
+	prefix := getSecretPrefix(obj)
 	stringData := map[string]string{
 		prefix + "HOST":         s.ServiceUriParams["host"],
 		prefix + "PORT":         s.ServiceUriParams["port"],
@@ -99,7 +111,7 @@ func (a *postgreSQLAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 		"DATABASE_URI": s.ServiceUri,
 	}
 
-	return newSecret(a, stringData, false)
+	return stringData
 }
 
 func (a *postgreSQLAdapter) getMigrationSecretSource() *v1alpha1.MigrationSecretSource {
@@ -108,9 +120,14 @@ func (a *postgreSQLAdapter) getMigrationSecretSource() *v1alpha1.MigrationSecret
 
 // buildUserConfigWithMigration merges pre-resolved migration Secret data into a clone of the user config.
 func (a *postgreSQLAdapter) buildUserConfigWithMigration(data map[string]string) (any, error) {
-	ref := a.Spec.MigrationSecretSource
+	return postgreSQLMigrationUserConfig(a.PostgreSQL, data)
+}
+
+// postgreSQLMigrationUserConfig merges pre-resolved migration Secret data into a clone of the user config.
+func postgreSQLMigrationUserConfig(obj *v1alpha1.PostgreSQL, data map[string]string) (any, error) {
+	ref := obj.Spec.MigrationSecretSource
 	if ref == nil {
-		return a.getUserConfig(), nil
+		return obj.Spec.UserConfig, nil
 	}
 
 	port, err := parseMigrationPort(data["port"])
@@ -156,8 +173,8 @@ func (a *postgreSQLAdapter) buildUserConfigWithMigration(data map[string]string)
 	// Build a shallow copy of the user config with migration from the secret.
 	// The original CR spec is never mutated.
 	cfg := &pguserconfig.PgUserConfig{}
-	if a.Spec.UserConfig != nil {
-		clone := *a.Spec.UserConfig
+	if obj.Spec.UserConfig != nil {
+		clone := *obj.Spec.UserConfig
 		cfg = &clone
 	}
 	cfg.Migration = m
@@ -183,8 +200,13 @@ func (a *postgreSQLAdapter) getDiskSpace() string {
 //     task result, preventing the upgrade attempt.
 //  4. Once the check passes, ServiceUpdate can proceed. The actual upgrade happens async after ServiceUpdate.
 func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error {
+	return postgreSQLUpgradeCheck(ctx, avnGen, a.PostgreSQL, old)
+}
+
+// postgreSQLUpgradeCheck runs the upgrade check task when pg_version changes.
+func postgreSQLUpgradeCheck(ctx context.Context, avnGen avngen.Client, obj *v1alpha1.PostgreSQL, old *service.ServiceGetOut) error {
 	currentVersion := old.UserConfig["pg_version"].(string)
-	targetUserConfig := a.getUserConfig().(*pguserconfig.PgUserConfig)
+	targetUserConfig := obj.Spec.UserConfig
 	if targetUserConfig == nil || targetUserConfig.PgVersion == nil {
 		return nil
 	}
@@ -195,7 +217,7 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avnG
 		return nil
 	}
 
-	task, err := avnGen.ServiceTaskCreate(ctx, a.getServiceCommonSpec().Project, a.getObjectMeta().Name, &service.ServiceTaskCreateIn{
+	task, err := avnGen.ServiceTaskCreate(ctx, obj.Spec.Project, obj.Name, &service.ServiceTaskCreateIn{
 		UpgradeCheck: &service.UpgradeCheckIn{TargetVersion: targetVersion},
 		TaskType:     service.TaskTypeUpgradeCheck,
 	})
@@ -209,8 +231,8 @@ func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avnG
 		func() error {
 			t, getErr := avnGen.ServiceTaskGet(
 				ctx,
-				a.getServiceCommonSpec().Project,
-				a.getObjectMeta().Name,
+				obj.Spec.Project,
+				obj.Name,
 				task.TaskId,
 			)
 			if getErr != nil {

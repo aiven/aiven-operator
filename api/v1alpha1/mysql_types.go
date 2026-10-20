@@ -40,7 +40,7 @@ type MySQL struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
-var _ AivenManagedObject = &MySQL{}
+var _ ServiceObject = &MySQL{}
 
 func (in *MySQL) NoSecret() bool {
 	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
@@ -64,6 +64,18 @@ func (in *MySQL) GetRefs() []*ResourceReferenceObject {
 
 func (in *MySQL) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
+}
+
+func (in *MySQL) ServiceCommonSpec() *ServiceCommonSpec {
+	return &in.Spec.ServiceCommonSpec
+}
+
+func (in *MySQL) ServiceStatus() *ServiceStatus {
+	return &in.Status
+}
+
+func (in *MySQL) ServiceUserConfig() any {
+	return in.Spec.UserConfig
 }
 
 //+kubebuilder:object:root=true

@@ -43,6 +43,12 @@ func (r *MySQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+// mySQLKind is the serviceController definition. Not wired yet.
+var mySQLKind = newServiceKind(serviceTypeMySQL, mySQLSecretData,
+	withProjectCACert[*v1alpha1.MySQL](),
+	withMigrationSecret(func(o *v1alpha1.MySQL) *v1alpha1.MigrationSecretSource { return o.Spec.MigrationSecretSource }, mySQLMigrationUserConfig),
+)
+
 func newMySQLAdapterFactory(k8s client.Client) serviceAdapterFabric {
 	return func(object client.Object) (serviceAdapter, error) {
 		mysql, ok := object.(*v1alpha1.MySQL)
@@ -76,6 +82,11 @@ func (a *mySQLAdapter) getUserConfig() any {
 }
 
 func (a *mySQLAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
+	return newSecret(a, mySQLSecretData(a.MySQL, s), false)
+}
+
+// mySQLSecretData returns the prefixed connection secret keys.
+func mySQLSecretData(obj *v1alpha1.MySQL, s *service.ServiceGetOut) map[string]string {
 	stringData := map[string]string{
 		"HOST":        s.ServiceUriParams["host"],
 		"PORT":        s.ServiceUriParams["port"],
@@ -87,7 +98,7 @@ func (a *mySQLAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 		"REPLICA_URI": *s.ConnectionInfo.MysqlReplicaUri,
 	}
 
-	return newSecret(a, stringData, true)
+	return prefixKeys(getSecretPrefix(obj), stringData)
 }
 
 func (a *mySQLAdapter) getMigrationSecretSource() *v1alpha1.MigrationSecretSource {
@@ -96,9 +107,14 @@ func (a *mySQLAdapter) getMigrationSecretSource() *v1alpha1.MigrationSecretSourc
 
 // buildUserConfigWithMigration merges pre-resolved migration Secret data into a clone of the user config.
 func (a *mySQLAdapter) buildUserConfigWithMigration(data map[string]string) (any, error) {
-	ref := a.Spec.MigrationSecretSource
+	return mySQLMigrationUserConfig(a.MySQL, data)
+}
+
+// mySQLMigrationUserConfig merges pre-resolved migration Secret data into a clone of the user config.
+func mySQLMigrationUserConfig(obj *v1alpha1.MySQL, data map[string]string) (any, error) {
+	ref := obj.Spec.MigrationSecretSource
 	if ref == nil {
-		return a.getUserConfig(), nil
+		return obj.Spec.UserConfig, nil
 	}
 
 	port, err := parseMigrationPort(data["port"])
@@ -154,8 +170,8 @@ func (a *mySQLAdapter) buildUserConfigWithMigration(data map[string]string) (any
 	// Build a shallow copy of the user config with migration from the secret.
 	// The original CR spec is never mutated.
 	cfg := &mysqluserconfig.MysqlUserConfig{}
-	if a.Spec.UserConfig != nil {
-		clone := *a.Spec.UserConfig
+	if obj.Spec.UserConfig != nil {
+		clone := *obj.Spec.UserConfig
 		cfg = &clone
 	}
 	cfg.Migration = m

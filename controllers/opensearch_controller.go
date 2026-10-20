@@ -43,6 +43,9 @@ func (r *OpenSearchReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+// openSearchKind is the serviceController definition. Not wired yet.
+var openSearchKind = newServiceKind(serviceTypeOpenSearch, openSearchSecretData)
+
 func newOpenSearchAdapter(object client.Object) (serviceAdapter, error) {
 	opensearch, ok := object.(*v1alpha1.OpenSearch)
 	if !ok {
@@ -73,7 +76,12 @@ func (a *opensearchAdapter) getUserConfig() any {
 }
 
 func (a *opensearchAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
-	prefix := getSecretPrefix(a)
+	return newSecret(a, openSearchSecretData(a.OpenSearch, s), false)
+}
+
+// openSearchSecretData returns the prefixed connection secret keys.
+func openSearchSecretData(obj *v1alpha1.OpenSearch, s *service.ServiceGetOut) map[string]string {
+	prefix := getSecretPrefix(obj)
 	stringData := map[string]string{
 		prefix + "URI":      s.ServiceUri,
 		prefix + "HOST":     s.ServiceUriParams["host"],
@@ -87,7 +95,7 @@ func (a *opensearchAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 		"USER":     s.ServiceUriParams["user"],
 	}
 
-	return newSecret(a, stringData, false)
+	return stringData
 }
 
 func (a *opensearchAdapter) getServiceType() serviceType {

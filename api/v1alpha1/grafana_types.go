@@ -35,7 +35,7 @@ type Grafana struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
-var _ AivenManagedObject = &Grafana{}
+var _ ServiceObject = &Grafana{}
 
 func (in *Grafana) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
@@ -59,6 +59,18 @@ func (in *Grafana) GetRefs() []*ResourceReferenceObject {
 
 func (in *Grafana) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
+}
+
+func (in *Grafana) ServiceCommonSpec() *ServiceCommonSpec {
+	return &in.Spec.ServiceCommonSpec
+}
+
+func (in *Grafana) ServiceStatus() *ServiceStatus {
+	return &in.Status
+}
+
+func (in *Grafana) ServiceUserConfig() any {
+	return in.Spec.UserConfig
 }
 
 //+kubebuilder:object:root=true

@@ -42,6 +42,9 @@ func (r *FlinkReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+// flinkKind is the serviceController definition. Not wired yet.
+var flinkKind = newServiceKind(serviceTypeFlink, flinkSecretData)
+
 func newFlinkAdapter(object client.Object) (serviceAdapter, error) {
 	flink, ok := object.(*v1alpha1.Flink)
 	if !ok {
@@ -72,6 +75,11 @@ func (a *flinkAdapter) getUserConfig() any {
 }
 
 func (a *flinkAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
+	return newSecret(a, flinkSecretData(a.Flink, s), false)
+}
+
+// flinkSecretData returns the prefixed connection secret keys.
+func flinkSecretData(obj *v1alpha1.Flink, s *service.ServiceGetOut) map[string]string {
 	stringData := map[string]string{
 		"HOST":     s.ServiceUriParams["host"],
 		"USER":     s.ServiceUriParams["user"],
@@ -80,7 +88,7 @@ func (a *flinkAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 		"HOSTS":    strings.Join(s.ConnectionInfo.Flink, ","),
 	}
 
-	return newSecret(a, stringData, true)
+	return prefixKeys(getSecretPrefix(obj), stringData)
 }
 
 func (a *flinkAdapter) getServiceType() serviceType {

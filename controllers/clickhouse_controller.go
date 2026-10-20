@@ -41,6 +41,9 @@ func (r *ClickhouseReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+// clickhouseKind is the serviceController definition. Not wired yet.
+var clickhouseKind = newServiceKind(serviceTypeClickhouse, clickhouseSecretData)
+
 func newClickhouseAdapter(object client.Object) (serviceAdapter, error) {
 	clickhouse, ok := object.(*v1alpha1.Clickhouse)
 	if !ok {
@@ -71,7 +74,12 @@ func (a *clickhouseAdapter) getUserConfig() any {
 }
 
 func (a *clickhouseAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
-	prefix := getSecretPrefix(a)
+	return newSecret(a, clickhouseSecretData(a.Clickhouse, s), false)
+}
+
+// clickhouseSecretData returns the prefixed connection secret keys.
+func clickhouseSecretData(obj *v1alpha1.Clickhouse, s *service.ServiceGetOut) map[string]string {
+	prefix := getSecretPrefix(obj)
 	stringData := map[string]string{
 		prefix + "HOST":     s.ServiceUriParams["host"],
 		prefix + "PASSWORD": s.ServiceUriParams["password"],
@@ -84,7 +92,7 @@ func (a *clickhouseAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 		"USER":     s.ServiceUriParams["user"],
 	}
 
-	return newSecret(a, stringData, false)
+	return stringData
 }
 
 func (a *clickhouseAdapter) getServiceType() serviceType {

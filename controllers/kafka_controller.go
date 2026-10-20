@@ -41,6 +41,12 @@ func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+// kafkaKind is the serviceController definition. Not wired yet.
+var kafkaKind = newServiceKind(serviceTypeKafka, kafkaSecretData,
+	// todo: unprefixed CA_CERT is kept for backward compatibility, remove in future releases
+	withProjectCACert[*v1alpha1.Kafka]("CA_CERT"),
+)
+
 func newKafkaAdapter(object client.Object) (serviceAdapter, error) {
 	kafka, ok := object.(*v1alpha1.Kafka)
 	if !ok {
@@ -71,13 +77,18 @@ func (a *kafkaAdapter) getUserConfig() any {
 }
 
 func (a *kafkaAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
+	return newSecret(a, kafkaSecretData(a.Kafka, s), false)
+}
+
+// kafkaSecretData returns the prefixed connection secret keys.
+func kafkaSecretData(obj *v1alpha1.Kafka, s *service.ServiceGetOut) map[string]string {
 	var userName, password string
 	if len(s.Users) > 0 {
 		userName = s.Users[0].Username
 		password = s.Users[0].Password
 	}
 
-	prefix := getSecretPrefix(a)
+	prefix := getSecretPrefix(obj)
 	stringData := map[string]string{
 		prefix + "HOST":                s.ServiceUriParams["host"],
 		prefix + "PORT":                s.ServiceUriParams["port"],
@@ -109,7 +120,7 @@ func (a *kafkaAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 		}
 	}
 
-	return newSecret(a, stringData, false)
+	return stringData
 }
 
 func (a *kafkaAdapter) getServiceType() serviceType {

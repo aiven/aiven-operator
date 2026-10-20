@@ -42,6 +42,9 @@ func (r *GrafanaReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+// grafanaKind is the serviceController definition. Not wired yet.
+var grafanaKind = newServiceKind(serviceTypeGrafana, grafanaSecretData)
+
 func newGrafanaAdapter(object client.Object) (serviceAdapter, error) {
 	grafana, ok := object.(*v1alpha1.Grafana)
 	if !ok {
@@ -72,6 +75,11 @@ func (a *grafanaAdapter) getUserConfig() any {
 }
 
 func (a *grafanaAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
+	return newSecret(a, grafanaSecretData(a.Grafana, s), false)
+}
+
+// grafanaSecretData returns the prefixed connection secret keys.
+func grafanaSecretData(obj *v1alpha1.Grafana, s *service.ServiceGetOut) map[string]string {
 	stringData := map[string]string{
 		"HOST":     s.ServiceUriParams["host"],
 		"PORT":     s.ServiceUriParams["port"],
@@ -81,7 +89,7 @@ func (a *grafanaAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 		"HOSTS":    strings.Join(s.ConnectionInfo.Grafana, ","),
 	}
 
-	return newSecret(a, stringData, true)
+	return prefixKeys(getSecretPrefix(obj), stringData)
 }
 
 func (a *grafanaAdapter) getServiceType() serviceType {

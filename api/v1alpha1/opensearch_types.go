@@ -43,7 +43,7 @@ type OpenSearchList struct {
 	Items           []OpenSearch `json:"items"`
 }
 
-var _ AivenManagedObject = &OpenSearch{}
+var _ ServiceObject = &OpenSearch{}
 
 func (in *OpenSearch) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
@@ -67,4 +67,16 @@ func (in *OpenSearch) GetRefs() []*ResourceReferenceObject {
 
 func (in *OpenSearch) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
+}
+
+func (in *OpenSearch) ServiceCommonSpec() *ServiceCommonSpec {
+	return &in.Spec.ServiceCommonSpec
+}
+
+func (in *OpenSearch) ServiceStatus() *ServiceStatus {
+	return &in.Status
+}
+
+func (in *OpenSearch) ServiceUserConfig() any {
+	return in.Spec.UserConfig
 }
