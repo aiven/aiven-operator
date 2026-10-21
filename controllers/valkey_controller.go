@@ -43,6 +43,9 @@ func (r *ValkeyReconciler) SetupWithManager(mgr ctrl.Manager) error {
 		Complete(r)
 }
 
+// valkeyKind is the serviceController definition. Not wired yet.
+var valkeyKind = newServiceKind(serviceTypeValkey, valkeySecretData)
+
 func newValkeyAdapter(object client.Object) (serviceAdapter, error) {
 	valkey, ok := object.(*v1alpha1.Valkey)
 	if !ok {
@@ -73,7 +76,12 @@ func (a *valkeyAdapter) getUserConfig() any {
 }
 
 func (a *valkeyAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
-	prefix := getSecretPrefix(a)
+	return newSecret(a, valkeySecretData(a.Valkey, s), false)
+}
+
+// valkeySecretData returns the prefixed connection secret keys.
+func valkeySecretData(obj *v1alpha1.Valkey, s *service.ServiceGetOut) map[string]string {
+	prefix := getSecretPrefix(obj)
 	stringData := map[string]string{
 		prefix + "HOST":     s.ServiceUriParams["host"],
 		prefix + "PASSWORD": s.ServiceUriParams["password"],
@@ -82,7 +90,7 @@ func (a *valkeyAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
 		prefix + "USER":     s.ServiceUriParams["user"],
 	}
 
-	return newSecret(a, stringData, false)
+	return stringData
 }
 
 func (a *valkeyAdapter) getServiceType() serviceType {

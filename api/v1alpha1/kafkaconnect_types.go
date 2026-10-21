@@ -32,7 +32,7 @@ type KafkaConnect struct {
 	Status ServiceStatus    `json:"status,omitempty"`
 }
 
-var _ AivenManagedObject = &KafkaConnect{}
+var _ ServiceObject = &KafkaConnect{}
 
 func (*KafkaConnect) NoSecret() bool {
 	return true
@@ -52,6 +52,24 @@ func (in *KafkaConnect) GetObjectMeta() *metav1.ObjectMeta {
 
 func (in *KafkaConnect) GetRefs() []*ResourceReferenceObject {
 	return in.Spec.GetRefs(in.GetNamespace())
+}
+
+// ServiceCommonSpec returns a read-only copy: KafkaConnect has no disk space or connection secret.
+func (in *KafkaConnect) ServiceCommonSpec() *ServiceCommonSpec {
+	return &ServiceCommonSpec{BaseServiceFields: in.Spec.BaseServiceFields}
+}
+
+// GetConnInfoSecretTarget returns an empty target: KafkaConnect publishes no connection secret.
+func (in *KafkaConnect) GetConnInfoSecretTarget() ConnInfoSecretTarget {
+	return ConnInfoSecretTarget{}
+}
+
+func (in *KafkaConnect) ServiceStatus() *ServiceStatus {
+	return &in.Status
+}
+
+func (in *KafkaConnect) ServiceUserConfig() any {
+	return in.Spec.UserConfig
 }
 
 // +kubebuilder:object:root=true

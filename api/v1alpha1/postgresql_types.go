@@ -43,7 +43,7 @@ type PostgreSQL struct {
 	Status ServiceStatus  `json:"status,omitempty"`
 }
 
-var _ AivenManagedObject = &PostgreSQL{}
+var _ ServiceObject = &PostgreSQL{}
 
 func (in *PostgreSQL) NoSecret() bool {
 	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
@@ -67,6 +67,18 @@ func (in *PostgreSQL) GetRefs() []*ResourceReferenceObject {
 
 func (in *PostgreSQL) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
+}
+
+func (in *PostgreSQL) ServiceCommonSpec() *ServiceCommonSpec {
+	return &in.Spec.ServiceCommonSpec
+}
+
+func (in *PostgreSQL) ServiceStatus() *ServiceStatus {
+	return &in.Status
+}
+
+func (in *PostgreSQL) ServiceUserConfig() any {
+	return in.Spec.UserConfig
 }
 
 // +kubebuilder:object:root=true

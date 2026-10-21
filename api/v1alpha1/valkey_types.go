@@ -37,7 +37,7 @@ type Valkey struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
-var _ AivenManagedObject = &Valkey{}
+var _ ServiceObject = &Valkey{}
 
 func (in *Valkey) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
@@ -61,6 +61,18 @@ func (in *Valkey) GetRefs() []*ResourceReferenceObject {
 
 func (in *Valkey) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
+}
+
+func (in *Valkey) ServiceCommonSpec() *ServiceCommonSpec {
+	return &in.Spec.ServiceCommonSpec
+}
+
+func (in *Valkey) ServiceStatus() *ServiceStatus {
+	return &in.Status
+}
+
+func (in *Valkey) ServiceUserConfig() any {
+	return in.Spec.UserConfig
 }
 
 //+kubebuilder:object:root=true

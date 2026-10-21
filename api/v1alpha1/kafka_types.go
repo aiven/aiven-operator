@@ -37,7 +37,7 @@ type Kafka struct {
 	Status ServiceStatus `json:"status,omitempty"`
 }
 
-var _ AivenManagedObject = &Kafka{}
+var _ ServiceObject = &Kafka{}
 
 func (in *Kafka) NoSecret() bool {
 	return in.Spec.ConnInfoSecretTargetDisabled != nil && *in.Spec.ConnInfoSecretTargetDisabled
@@ -61,6 +61,18 @@ func (in *Kafka) GetRefs() []*ResourceReferenceObject {
 
 func (in *Kafka) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
+}
+
+func (in *Kafka) ServiceCommonSpec() *ServiceCommonSpec {
+	return &in.Spec.ServiceCommonSpec
+}
+
+func (in *Kafka) ServiceStatus() *ServiceStatus {
+	return &in.Status
+}
+
+func (in *Kafka) ServiceUserConfig() any {
+	return in.Spec.UserConfig
 }
 
 // +kubebuilder:object:root=true

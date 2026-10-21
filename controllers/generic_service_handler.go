@@ -345,17 +345,20 @@ func (h *genericServiceHandler) publishConnectionSecret(ctx context.Context, obj
 }
 
 func (h *genericServiceHandler) updateMigrationStatus(ctx context.Context, avnGen avngen.Client, o serviceAdapter, spec *v1alpha1.ServiceCommonSpec) error {
-	status := o.getServiceStatus()
+	return updateMigrationCondition(ctx, avnGen, spec.Project, o.getObjectMeta().Name, o.getObjectMeta().Generation, &o.getServiceStatus().Conditions)
+}
 
-	migrationStatus, err := avnGen.ServiceGetMigrationStatus(ctx, spec.Project, o.getObjectMeta().Name)
+// updateMigrationCondition sets MigrationComplete from the migration status at Aiven.
+func updateMigrationCondition(ctx context.Context, avnGen avngen.Client, project, name string, generation int64, conditions *[]metav1.Condition) error {
+	migrationStatus, err := avnGen.ServiceGetMigrationStatus(ctx, project, name)
 	if err != nil {
 		if isNotFound(err) {
 			// 404 means no migration is active. Since migrationSecretSource was configured, most likely
 			// the migration has already completed and been cleaned up
-			meta.SetStatusCondition(&status.Conditions, metav1.Condition{
+			meta.SetStatusCondition(conditions, metav1.Condition{
 				Type:               v1alpha1.ConditionTypeMigrationComplete,
 				Status:             metav1.ConditionTrue,
-				ObservedGeneration: o.getObjectMeta().Generation,
+				ObservedGeneration: generation,
 				Reason:             v1alpha1.MigrationReasonDone,
 				Message:            "Migration completed (no active migration found)",
 			})
@@ -367,7 +370,7 @@ func (h *genericServiceHandler) updateMigrationStatus(ctx context.Context, avnGe
 
 	condition := metav1.Condition{
 		Type:               v1alpha1.ConditionTypeMigrationComplete,
-		ObservedGeneration: o.getObjectMeta().Generation,
+		ObservedGeneration: generation,
 	}
 
 	switch migrationStatus.Migration.Status {
@@ -388,7 +391,7 @@ func (h *genericServiceHandler) updateMigrationStatus(ctx context.Context, avnGe
 		condition.Message = fmt.Sprintf("Migration status: %s", migrationStatus.Migration.Status)
 	}
 
-	meta.SetStatusCondition(&status.Conditions, condition)
+	meta.SetStatusCondition(conditions, condition)
 	return nil
 }
 

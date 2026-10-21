@@ -342,3 +342,14 @@ type AivenManagedObject interface {
 	GetObjectMeta() *metav1.ObjectMeta
 	NoSecret() bool
 }
+
+// ServiceObject is an Aiven service resource: PostgreSQL, Kafka, etc.
+// +k8s:deepcopy-gen=false
+type ServiceObject interface {
+	AivenManagedObject
+
+	GetConnInfoSecretTarget() ConnInfoSecretTarget
+	ServiceCommonSpec() *ServiceCommonSpec
+	ServiceStatus() *ServiceStatus
+	ServiceUserConfig() any
+}

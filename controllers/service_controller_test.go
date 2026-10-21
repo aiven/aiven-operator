@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"context"
-	"errors"
 	"strconv"
 	"testing"
 
@@ -38,19 +37,19 @@ spec:
 
 // newTestController builds a controller for direct Observe/Create/Update/Delete calls. k8s may be
 // nil when the method never touches the cluster.
-func newTestController[T v1alpha1.AivenManagedObject](avn avngen.Client, fabric serviceAdapterFabric, k8s client.Client) *genericServiceController[T] {
-	c, _ := newRecordingTestController[T](avn, fabric, k8s)
+func newTestController[T v1alpha1.ServiceObject](avn avngen.Client, kind serviceKind[T], k8s client.Client) *serviceController[T] {
+	c, _ := newRecordingTestController(avn, kind, k8s)
 	return c
 }
 
 // newRecordingTestController is newTestController with the event recorder exposed for assertions.
-func newRecordingTestController[T v1alpha1.AivenManagedObject](avn avngen.Client, fabric serviceAdapterFabric, k8s client.Client) (*genericServiceController[T], *record.FakeRecorder) {
+func newRecordingTestController[T v1alpha1.ServiceObject](avn avngen.Client, kind serviceKind[T], k8s client.Client) (*serviceController[T], *record.FakeRecorder) {
 	rec := record.NewFakeRecorder(10)
-	return newGenericServiceController[T](Controller{
+	return newServiceController(Controller{
 		Client:   k8s,
 		Log:      logr.Discard(),
 		Recorder: rec,
-	}, avn, fabric), rec
+	}, avn, kind), rec
 }
 
 // markGeneration stamps gen as both the generation and the processed generation.
@@ -64,7 +63,7 @@ func markGeneration(obj metav1.Object, gen int64) {
 	obj.SetAnnotations(ann)
 }
 
-func TestGenericServiceController_Observe(t *testing.T) {
+func TestServiceController_Observe(t *testing.T) {
 	t.Parallel()
 
 	newRunningGrafana := func(t *testing.T) *v1alpha1.Grafana {
@@ -87,7 +86,7 @@ func TestGenericServiceController_Observe(t *testing.T) {
 			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
 			Return(nil, newAivenError(404, "service not found")).Once()
 
-		c, rec := newRecordingTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c, rec := newRecordingTestController(avn, grafanaKind, nil)
 		obs, err := c.Observe(t.Context(), gf)
 		require.NoError(t, err)
 		require.False(t, obs.ResourceExists)
@@ -115,7 +114,7 @@ func TestGenericServiceController_Observe(t *testing.T) {
 			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
 			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		obs, err := c.Observe(t.Context(), gf)
 		require.NoError(t, err)
 		require.True(t, obs.ResourceExists)
@@ -146,7 +145,7 @@ func TestGenericServiceController_Observe(t *testing.T) {
 				Metadata:       map[string]any{"grafana_version": "11.4"},
 			}, nil).Once()
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		obs, err := c.Observe(t.Context(), gf)
 		require.NoError(t, err)
 		require.True(t, obs.ResourceExists)
@@ -170,7 +169,7 @@ func TestGenericServiceController_Observe(t *testing.T) {
 			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
 			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRebuilding}, nil).Once()
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		obs, err := c.Observe(t.Context(), gf)
 		require.NoError(t, err)
 		require.True(t, obs.ResourceExists)
@@ -191,7 +190,7 @@ func TestGenericServiceController_Observe(t *testing.T) {
 			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
 			Return(&service.ServiceGetOut{State: service.ServiceStateTypePoweroff}, nil).Once()
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		obs, err := c.Observe(t.Context(), gf)
 		require.NoError(t, err)
 		require.True(t, obs.ResourceExists)
@@ -200,7 +199,7 @@ func TestGenericServiceController_Observe(t *testing.T) {
 		require.Equal(t, "false", gf.Annotations[instanceIsRunningAnnotation])
 	})
 
-	t.Run("power off without backups -> errPreconditionNotMet before Update", func(t *testing.T) {
+	t.Run("power off without backups -> errPreconditionExternal before Update", func(t *testing.T) {
 		t.Parallel()
 
 		gf := newRunningGrafana(t)
@@ -215,9 +214,10 @@ func TestGenericServiceController_Observe(t *testing.T) {
 			ServiceBackupsGet(mock.Anything, gf.Spec.Project, gf.Name).
 			Return(&service.ServiceBackupsGetOut{Backups: []service.BackupOut{}}, nil).Once()
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		_, err := c.Observe(t.Context(), gf)
-		require.ErrorIs(t, err, errPreconditionNotMet)
+		// Only Aiven taking a backup unblocks it: the reconciler polls at PollInterval.
+		require.ErrorIs(t, err, errPreconditionExternal)
 	})
 
 	t.Run("powered off and missing at Aiven -> hard error before the backup check", func(t *testing.T) {
@@ -247,7 +247,7 @@ func TestGenericServiceController_Observe(t *testing.T) {
 					ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
 					Return(nil, newAivenError(404, "service not found")).Once()
 
-				c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+				c := newTestController(avn, grafanaKind, nil)
 				_, err := c.Observe(t.Context(), gf)
 				require.ErrorIs(t, err, errServiceCreatePoweredOff)
 				// Neither a soft requeue nor a retryable error.
@@ -279,7 +279,7 @@ func TestGenericServiceController_Observe(t *testing.T) {
 			ProjectKmsGetCA(mock.Anything, pg.Spec.Project).
 			Return("", newAivenError(500, "kms boom")).Once()
 
-		c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(nil), nil)
+		c := newTestController(avn, postgreSQLKind, nil)
 		_, err := c.Observe(t.Context(), pg)
 		require.ErrorIs(t, err, errConnInfoSecret)
 		require.ErrorContains(t, err, "cannot retrieve project CA certificate")
@@ -310,7 +310,7 @@ func TestGenericServiceController_Observe(t *testing.T) {
 			ServiceGet(mock.Anything, kc.Spec.Project, kc.Name, mock.Anything).
 			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
 
-		c := newTestController[*v1alpha1.KafkaConnect](avn, newKafkaConnectAdapter, nil)
+		c := newTestController(avn, kafkaConnectKind, nil)
 		obs, err := c.Observe(t.Context(), kc)
 		require.NoError(t, err)
 		require.True(t, obs.ResourceExists)
@@ -335,7 +335,7 @@ func TestGenericServiceController_Observe(t *testing.T) {
 				ConnectionInfo:   &service.ConnectionInfoOut{Grafana: []string{"grafana.example.com"}},
 			}, nil).Twice()
 
-		c, rec := newRecordingTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c, rec := newRecordingTestController(avn, grafanaKind, nil)
 
 		// First poll after Create/Update: not yet marked running, the event explains the missing Secret.
 		obs, err := c.Observe(t.Context(), gf)
@@ -382,7 +382,7 @@ spec:
 				ConnectionInfo:   &service.ConnectionInfoOut{},
 			}, nil).Once()
 
-		c := newTestController[*v1alpha1.Kafka](avn, newKafkaAdapter, nil)
+		c := newTestController(avn, kafkaKind, nil)
 		obs, err := c.Observe(t.Context(), kf)
 		require.NoError(t, err)
 		require.True(t, obs.ResourceUpToDate)
@@ -405,7 +405,7 @@ spec:
 				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
 				Return(nil, newAivenError(500, "boom")).Once()
 
-			c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+			c := newTestController(avn, grafanaKind, nil)
 			_, err := c.Observe(t.Context(), gf)
 			require.ErrorContains(t, err, "failed to get service from Aiven")
 		})
@@ -427,7 +427,7 @@ spec:
 				ServiceBackupsGet(mock.Anything, gf.Spec.Project, gf.Name).
 				Return(nil, newAivenError(500, "backups unavailable")).Once()
 
-			c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+			c := newTestController(avn, grafanaKind, nil)
 			_, err := c.Observe(t.Context(), gf)
 			require.Error(t, err)
 			require.NotErrorIs(t, err, errPreconditionNotMet)
@@ -453,7 +453,7 @@ spec:
 				Return(nil, newAivenError(404, "not found")).Once()
 		}
 
-		t.Run("source not operational -> errPreconditionNotMet", func(t *testing.T) {
+		t.Run("source not operational -> errPreconditionNotMet, not external", func(t *testing.T) {
 			t.Parallel()
 
 			gf := newReplica(t)
@@ -464,12 +464,14 @@ spec:
 				ServiceGet(mock.Anything, gf.Spec.Project, "source-svc").
 				Return(&service.ServiceGetOut{State: service.ServiceStateTypeRebuilding}, nil).Once()
 
-			c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+			c := newTestController(avn, grafanaKind, nil)
 			_, err := c.Observe(t.Context(), gf)
+			// The source starts on its own: keep the short requeue.
 			require.ErrorIs(t, err, errPreconditionNotMet)
+			require.NotErrorIs(t, err, errPreconditionExternal)
 		})
 
-		t.Run("source running but no backups -> errPreconditionNotMet", func(t *testing.T) {
+		t.Run("source running but no backups -> errPreconditionExternal", func(t *testing.T) {
 			t.Parallel()
 
 			gf := newReplica(t)
@@ -482,9 +484,9 @@ spec:
 				ServiceBackupsGet(mock.Anything, gf.Spec.Project, "source-svc").
 				Return(&service.ServiceBackupsGetOut{Backups: []service.BackupOut{}}, nil).Once()
 
-			c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+			c := newTestController(avn, grafanaKind, nil)
 			_, err := c.Observe(t.Context(), gf)
-			require.ErrorIs(t, err, errPreconditionNotMet)
+			require.ErrorIs(t, err, errPreconditionExternal)
 		})
 
 		t.Run("running replica in steady state skips the source checks", func(t *testing.T) {
@@ -501,7 +503,7 @@ spec:
 					ConnectionInfo: &service.ConnectionInfoOut{Grafana: []string{"replica.example.com"}},
 				}, nil).Once()
 
-			c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+			c := newTestController(avn, grafanaKind, nil)
 			obs, err := c.Observe(t.Context(), gf)
 			require.NoError(t, err)
 			require.True(t, obs.ResourceUpToDate)
@@ -528,7 +530,7 @@ spec:
 			ServiceGet(mock.Anything, kc.Spec.Project, kc.Name, mock.Anything).
 			Return(nil, newAivenError(404, "not found")).Once()
 
-		c := newTestController[*v1alpha1.KafkaConnect](avn, newKafkaConnectAdapter, nil)
+		c := newTestController(avn, kafkaConnectKind, nil)
 		obs, err := c.Observe(t.Context(), kc)
 		require.NoError(t, err)
 		require.False(t, obs.ResourceExists)
@@ -576,7 +578,7 @@ spec:
 			avn.EXPECT().
 				ProjectKmsGetCA(mock.Anything, pg.Spec.Project).Return("ca-cert", nil).Once()
 
-			c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(nil), nil)
+			c := newTestController(avn, postgreSQLKind, nil)
 			obs, err := c.Observe(t.Context(), pg)
 			require.NoError(t, err)
 			require.True(t, obs.ResourceUpToDate)
@@ -607,7 +609,7 @@ spec:
 			avn.EXPECT().
 				ProjectKmsGetCA(mock.Anything, pg.Spec.Project).Return("ca-cert", nil).Once()
 
-			c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(k8s), k8s)
+			c := newTestController(avn, postgreSQLKind, k8s)
 			obs, err := c.Observe(t.Context(), pg)
 			require.NoError(t, err)
 			require.Zero(t, obs.RequeueAfter)
@@ -634,7 +636,7 @@ spec:
 			avn.EXPECT().
 				ProjectKmsGetCA(mock.Anything, pg.Spec.Project).Return("ca-cert", nil).Once()
 
-			c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(nil), nil)
+			c := newTestController(avn, postgreSQLKind, nil)
 			obs, err := c.Observe(t.Context(), pg)
 			require.NoError(t, err)
 			require.Zero(t, obs.RequeueAfter)
@@ -677,7 +679,7 @@ spec:
 			avn.EXPECT().
 				ProjectKmsGetCA(mock.Anything, pg.Spec.Project).Return("ca-cert", nil).Once()
 
-			c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(nil), nil)
+			c := newTestController(avn, postgreSQLKind, nil)
 			obs, err := c.Observe(t.Context(), pg)
 			require.NoError(t, err)
 
@@ -734,7 +736,7 @@ spec:
 			avn.EXPECT().
 				ProjectKmsGetCA(mock.Anything, kafka.Spec.Project).Return("ca-cert", nil).Once()
 
-			c := newTestController[*v1alpha1.Kafka](avn, newKafkaAdapter, nil)
+			c := newTestController(avn, kafkaKind, nil)
 			obs, err := c.Observe(t.Context(), kafka)
 			require.NoError(t, err)
 
@@ -759,28 +761,7 @@ func newLifecycleScheme(t *testing.T) *runtime.Scheme {
 	return scheme
 }
 
-// failingHookAdapter forces createOrUpdateServiceSpecific to fail.
-type failingHookAdapter struct {
-	serviceAdapter
-	err error
-}
-
-func (a *failingHookAdapter) createOrUpdateServiceSpecific(context.Context, avngen.Client, *service.ServiceGetOut) error {
-	return a.err
-}
-
-// newFailingHookFabric returns a fabric that decorates the Grafana adapter with a failing hook.
-func newFailingHookFabric(err error) serviceAdapterFabric {
-	return func(obj client.Object) (serviceAdapter, error) {
-		inner, ferr := newGrafanaAdapter(obj)
-		if ferr != nil {
-			return nil, ferr
-		}
-		return &failingHookAdapter{serviceAdapter: inner, err: err}, nil
-	}
-}
-
-func TestGenericServiceController_Create(t *testing.T) {
+func TestServiceController_Create(t *testing.T) {
 	t.Parallel()
 
 	t.Run("builds ServiceCreateIn from spec", func(t *testing.T) {
@@ -808,7 +789,7 @@ func TestGenericServiceController_Create(t *testing.T) {
 			Run(func(_ context.Context, _, _ string, in *service.ProjectServiceTagsReplaceIn) { tagsReq = in }).
 			Return(nil).Once()
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		_, err := c.Create(t.Context(), gf)
 		require.NoError(t, err)
 
@@ -871,7 +852,7 @@ func TestGenericServiceController_Create(t *testing.T) {
 			ProjectServiceTagsReplace(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
 			Return(nil).Once()
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, k8s)
+		c := newTestController(avn, grafanaKind, k8s)
 		_, err := c.Create(t.Context(), gf)
 		require.NoError(t, err)
 
@@ -890,7 +871,7 @@ func TestGenericServiceController_Create(t *testing.T) {
 			Return(nil, newAivenError(500, "boom")).Once()
 		// ProjectServiceTagsReplace must NOT be called when create fails.
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		_, err := c.Create(t.Context(), gf)
 		require.ErrorContains(t, err, "failed to create service")
 	})
@@ -910,7 +891,7 @@ func TestGenericServiceController_Create(t *testing.T) {
 			ServiceCreate(mock.Anything, gf.Spec.Project, mock.Anything).
 			Return(nil, newAivenError(409, "Service 'my-grafana' already exists")).Once()
 
-		c, rec := newRecordingTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c, rec := newRecordingTestController(avn, grafanaKind, nil)
 		_, err := c.Create(t.Context(), gf)
 		require.ErrorIs(t, err, errPreconditionNotMet)
 		require.ErrorContains(t, err, "service already exists at Aiven")
@@ -949,7 +930,7 @@ func TestGenericServiceController_Create(t *testing.T) {
 					ProjectServiceTagsReplace(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
 					Return(nil).Once()
 
-				c, rec := newRecordingTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+				c, rec := newRecordingTestController(avn, grafanaKind, nil)
 				_, err := c.Create(t.Context(), gf)
 				require.NoError(t, err)
 
@@ -985,7 +966,7 @@ func TestGenericServiceController_Create(t *testing.T) {
 			ProjectServiceTagsReplace(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
 			Return(newAivenError(500, "boom")).Once()
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		obs, err := c.Observe(t.Context(), gf)
 		require.NoError(t, err)
 		require.False(t, obs.ResourceExists)
@@ -1017,7 +998,7 @@ func TestGenericServiceController_Create(t *testing.T) {
 		// No Aiven calls expected: VPC resolution fails first.
 		avn := avngen.NewMockClient(t)
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, k8s)
+		c := newTestController(avn, grafanaKind, k8s)
 		_, err := c.Create(t.Context(), gf)
 		require.ErrorContains(t, err, "failed to get referenced ProjectVPC")
 	})
@@ -1035,27 +1016,9 @@ func TestGenericServiceController_Create(t *testing.T) {
 			ProjectServiceTagsReplace(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
 			Return(newAivenError(500, "tags boom")).Once()
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		_, err := c.Create(t.Context(), gf)
 		require.ErrorContains(t, err, "failed to update tags")
-	})
-
-	t.Run("createOrUpdateServiceSpecific error propagates", func(t *testing.T) {
-		t.Parallel()
-
-		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
-
-		avn := avngen.NewMockClient(t)
-		avn.EXPECT().
-			ServiceCreate(mock.Anything, gf.Spec.Project, mock.Anything).
-			Return(&service.ServiceCreateOut{}, nil).Once()
-		avn.EXPECT().
-			ProjectServiceTagsReplace(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-			Return(nil).Once()
-
-		c := newTestController[*v1alpha1.Grafana](avn, newFailingHookFabric(errors.New("hook boom")), nil)
-		_, err := c.Create(t.Context(), gf)
-		require.ErrorContains(t, err, "failed to create or update service-specific")
 	})
 
 	t.Run("resolves migration user config on create", func(t *testing.T) {
@@ -1085,7 +1048,7 @@ func TestGenericServiceController_Create(t *testing.T) {
 			ProjectServiceTagsReplace(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
 			Return(nil).Once()
 
-		c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(k8s), k8s)
+		c := newTestController(avn, postgreSQLKind, k8s)
 		_, err := c.Create(t.Context(), pg)
 		require.NoError(t, err)
 
@@ -1139,7 +1102,7 @@ func TestGenericServiceController_Create(t *testing.T) {
 			ProjectServiceTagsReplace(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
 			Return(nil).Once()
 
-		c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(k8s), k8s)
+		c := newTestController(avn, postgreSQLKind, k8s)
 		obs, err := c.Observe(t.Context(), pg)
 		require.NoError(t, err)
 		require.False(t, obs.ResourceExists)
@@ -1157,7 +1120,7 @@ func TestGenericServiceController_Create(t *testing.T) {
 	})
 }
 
-func TestGenericServiceController_Update(t *testing.T) {
+func TestServiceController_Update(t *testing.T) {
 	t.Parallel()
 
 	t.Run("builds ServiceUpdateIn including Powered", func(t *testing.T) {
@@ -1184,7 +1147,7 @@ func TestGenericServiceController_Update(t *testing.T) {
 			Run(func(_ context.Context, _, _ string, in *service.ProjectServiceTagsReplaceIn) { tagsReq = in }).
 			Return(nil).Once()
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		_, err := c.Update(t.Context(), gf)
 		require.NoError(t, err)
 
@@ -1220,7 +1183,7 @@ func TestGenericServiceController_Update(t *testing.T) {
 			}, nil).Once()
 		// ServiceUpdate must NOT be called: the guard fails first.
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		_, err := c.Update(t.Context(), gf)
 		require.ErrorContains(t, err, "autoscaler integration")
 	})
@@ -1245,7 +1208,7 @@ func TestGenericServiceController_Update(t *testing.T) {
 			ServiceTaskCreate(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
 			Return(nil, newAivenError(400, "upgrade not possible")).Once()
 
-		c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(nil), nil)
+		c := newTestController(avn, postgreSQLKind, nil)
 		_, err := c.Update(t.Context(), pg)
 		require.ErrorContains(t, err, "upgrade check task")
 	})
@@ -1261,7 +1224,7 @@ func TestGenericServiceController_Update(t *testing.T) {
 			Return(nil, newAivenError(500, "boom")).Once()
 		// ServiceUpdate must NOT be called.
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		_, err := c.Update(t.Context(), gf)
 		require.ErrorContains(t, err, "failed to fetch service")
 	})
@@ -1282,30 +1245,9 @@ func TestGenericServiceController_Update(t *testing.T) {
 			ProjectServiceTagsReplace(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
 			Return(newAivenError(500, "tags boom")).Once()
 
-		c := newTestController[*v1alpha1.Grafana](avn, newGrafanaAdapter, nil)
+		c := newTestController(avn, grafanaKind, nil)
 		_, err := c.Update(t.Context(), gf)
 		require.ErrorContains(t, err, "failed to update tags")
-	})
-
-	t.Run("createOrUpdateServiceSpecific error propagates", func(t *testing.T) {
-		t.Parallel()
-
-		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
-
-		avn := avngen.NewMockClient(t)
-		avn.EXPECT().
-			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
-		avn.EXPECT().
-			ServiceUpdate(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-			Return(&service.ServiceUpdateOut{}, nil).Once()
-		avn.EXPECT().
-			ProjectServiceTagsReplace(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-			Return(nil).Once()
-
-		c := newTestController[*v1alpha1.Grafana](avn, newFailingHookFabric(errors.New("hook boom")), nil)
-		_, err := c.Update(t.Context(), gf)
-		require.ErrorContains(t, err, "failed to create or update service-specific")
 	})
 
 	t.Run("migration user config", func(t *testing.T) {
@@ -1345,7 +1287,7 @@ func TestGenericServiceController_Update(t *testing.T) {
 				ProjectServiceTagsReplace(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
 				Return(nil).Once()
 
-			c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(k8s), k8s)
+			c := newTestController(avn, postgreSQLKind, k8s)
 			_, err := c.Update(t.Context(), pg)
 			require.NoError(t, err)
 
@@ -1384,15 +1326,15 @@ func TestGenericServiceController_Update(t *testing.T) {
 				ProjectServiceTagsReplace(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
 				Return(nil).Once()
 
-			c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(k8s), k8s)
+			c := newTestController(avn, postgreSQLKind, k8s)
 			_, err := c.Update(t.Context(), pg)
 			require.NoError(t, err)
 		})
 	})
 }
 
-// TestGenericServiceController_Delete: parity with the legacy genericServiceHandler.delete.
-func TestGenericServiceController_Delete(t *testing.T) {
+// TestServiceController_Delete: parity with the legacy genericServiceHandler.delete.
+func TestServiceController_Delete(t *testing.T) {
 	t.Parallel()
 
 	newPG := func(t *testing.T, tp *bool) *v1alpha1.PostgreSQL {
@@ -1408,7 +1350,7 @@ func TestGenericServiceController_Delete(t *testing.T) {
 		// No API calls: the guard blocks first.
 		avn := avngen.NewMockClient(t)
 
-		c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(nil), nil)
+		c := newTestController(avn, postgreSQLKind, nil)
 		err := c.Delete(t.Context(), pg)
 		require.ErrorIs(t, err, errTerminationProtectionOn)
 	})
@@ -1429,7 +1371,7 @@ func TestGenericServiceController_Delete(t *testing.T) {
 			Return(nil).Once().
 			NotBefore(updateCall)
 
-		c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(nil), nil)
+		c := newTestController(avn, postgreSQLKind, nil)
 		err := c.Delete(t.Context(), pg)
 		require.NoError(t, err)
 	})
@@ -1449,7 +1391,7 @@ func TestGenericServiceController_Delete(t *testing.T) {
 			ServiceDelete(mock.Anything, pg.Spec.Project, pg.Name).
 			Return(nil).Once()
 
-		c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(nil), nil)
+		c := newTestController(avn, postgreSQLKind, nil)
 		err := c.Delete(t.Context(), pg)
 		require.NoError(t, err)
 	})
@@ -1467,7 +1409,7 @@ func TestGenericServiceController_Delete(t *testing.T) {
 			ServiceDelete(mock.Anything, pg.Spec.Project, pg.Name).
 			Return(nil).Once()
 
-		c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(nil), nil)
+		c := newTestController(avn, postgreSQLKind, nil)
 		err := c.Delete(t.Context(), pg)
 		require.NoError(t, err)
 	})
@@ -1483,7 +1425,7 @@ func TestGenericServiceController_Delete(t *testing.T) {
 			Return(nil, newAivenError(403, "Forbidden")).Once()
 		// ServiceDelete must NOT be called.
 
-		c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(nil), nil)
+		c := newTestController(avn, postgreSQLKind, nil)
 		err := c.Delete(t.Context(), pg)
 		require.ErrorContains(t, err, "failed to disable termination protection")
 	})
@@ -1501,7 +1443,7 @@ func TestGenericServiceController_Delete(t *testing.T) {
 			ServiceDelete(mock.Anything, pg.Spec.Project, pg.Name).
 			Return(newAivenError(404, "Service not found")).Once()
 
-		c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(nil), nil)
+		c := newTestController(avn, postgreSQLKind, nil)
 		err := c.Delete(t.Context(), pg)
 		require.NoError(t, err)
 	})
@@ -1519,7 +1461,7 @@ func TestGenericServiceController_Delete(t *testing.T) {
 			ServiceDelete(mock.Anything, pg.Spec.Project, pg.Name).
 			Return(newAivenError(500, "Internal error")).Once()
 
-		c := newTestController[*v1alpha1.PostgreSQL](avn, newPostgreSQLAdapterFactory(nil), nil)
+		c := newTestController(avn, postgreSQLKind, nil)
 		err := c.Delete(t.Context(), pg)
 		require.ErrorContains(t, err, "failed to delete service in Aiven")
 	})

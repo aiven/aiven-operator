@@ -43,7 +43,7 @@ type ClickhouseList struct {
 	Items           []Clickhouse `json:"items"`
 }
 
-var _ AivenManagedObject = &Clickhouse{}
+var _ ServiceObject = &Clickhouse{}
 
 func (in *Clickhouse) AuthSecretRef() *AuthSecretReference {
 	return in.Spec.AuthSecretRef
@@ -67,4 +67,16 @@ func (in *Clickhouse) GetRefs() []*ResourceReferenceObject {
 
 func (in *Clickhouse) GetConnInfoSecretTarget() ConnInfoSecretTarget {
 	return in.Spec.ConnInfoSecretTarget
+}
+
+func (in *Clickhouse) ServiceCommonSpec() *ServiceCommonSpec {
+	return &in.Spec.ServiceCommonSpec
+}
+
+func (in *Clickhouse) ServiceStatus() *ServiceStatus {
+	return &in.Status
+}
+
+func (in *Clickhouse) ServiceUserConfig() any {
+	return in.Spec.UserConfig
 }
