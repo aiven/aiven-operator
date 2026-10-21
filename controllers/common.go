@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net/http"
@@ -200,6 +201,31 @@ func isMarkedForDeletion(o client.Object) bool {
 	return !o.GetDeletionTimestamp().IsZero()
 }
 
+// finalizersPatchPayload is a merge patch of metadata.finalizers only. A typed Update would re-encode
+// the spec and drop its empty omitempty values, e.g. an explicit tags: {}.
+type finalizersPatchPayload struct {
+	Metadata finalizersPatchMetadata `json:"metadata"`
+}
+
+type finalizersPatchMetadata struct {
+	ResourceVersion string   `json:"resourceVersion"`
+	Finalizers      []string `json:"finalizers"`
+}
+
+// patchFinalizers persists o's finalizer list; resourceVersion makes a stale list a conflict.
+func patchFinalizers(ctx context.Context, c client.Client, o client.Object) error {
+	payload, err := json.Marshal(finalizersPatchPayload{
+		Metadata: finalizersPatchMetadata{
+			ResourceVersion: o.GetResourceVersion(),
+			Finalizers:      o.GetFinalizers(),
+		},
+	})
+	if err != nil {
+		return fmt.Errorf("marshalling finalizers patch: %w", err)
+	}
+	return c.Patch(ctx, o, client.RawPatch(types.MergePatchType, payload))
+}
+
 func addFinalizer(ctx context.Context, client client.Client, o client.Object, f string) error {
 	return retry.RetryOnConflict(retry.DefaultRetry, func() error {
 		key := types.NamespacedName{Name: o.GetName(), Namespace: o.GetNamespace()}
@@ -209,7 +235,7 @@ func addFinalizer(ctx context.Context, client client.Client, o client.Object, f 
 
 		controllerutil.AddFinalizer(o, f)
 
-		return client.Update(ctx, o)
+		return patchFinalizers(ctx, client, o)
 	})
 }
 
@@ -226,7 +252,7 @@ func removeFinalizer(ctx context.Context, client client.Client, o client.Object,
 
 		controllerutil.RemoveFinalizer(o, f)
 
-		return client.Update(ctx, o)
+		return patchFinalizers(ctx, client, o)
 	})
 }
 

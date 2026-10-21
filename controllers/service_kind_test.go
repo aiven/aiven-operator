@@ -27,6 +27,22 @@ type kindWant struct {
 	powerOffBackupCheck bool
 	beforeUpdate        bool
 	migration           bool
+	// driftFields: compared field names; nil means the default set.
+	driftFields []string
+}
+
+// defaultDriftFieldNames is the compared field set every kind starts from.
+var defaultDriftFieldNames = []string{
+	"plan", "cloudName", "projectVpcId", "maintenanceWindowDow", "maintenanceWindowTime",
+	"terminationProtection", "powered", "disk_space", "tags", "technicalEmails",
+}
+
+func fieldNames(fields []driftField) []string {
+	names := make([]string, 0, len(fields))
+	for _, f := range fields {
+		names = append(names, f.name())
+	}
+	return names
 }
 
 func TestServiceKinds(t *testing.T) {
@@ -154,6 +170,13 @@ func TestServiceKinds(t *testing.T) {
 			powerOffBackupCheck: true,
 		})
 	})
+
+	t.Run("withDriftFields replaces the table of that kind only", func(t *testing.T) {
+		t.Parallel()
+		k := newServiceKind[*v1alpha1.Grafana](serviceTypeGrafana, nil, withDriftFields[*v1alpha1.Grafana](planField{}, tagsField{}))
+		require.Equal(t, []string{"plan", "tags"}, fieldNames(k.driftFields))
+		require.Equal(t, defaultDriftFieldNames, fieldNames(grafanaKind.driftFields))
+	})
 }
 
 // assertServiceKind checks kind against want. obj must be powered off with no read replica.
@@ -163,6 +186,10 @@ func assertServiceKind[T v1alpha1.ServiceObject](t *testing.T, kind serviceKind[
 	require.Equal(t, want.serviceType, kind.serviceType)
 	require.Equal(t, want.beforeUpdate, kind.beforeUpdate != nil, "beforeUpdate")
 	require.Equal(t, want.migration, kind.migration != nil, "migration")
+	if want.driftFields == nil {
+		want.driftFields = defaultDriftFieldNames
+	}
+	require.Equal(t, want.driftFields, fieldNames(kind.driftFields), "driftFields")
 
 	avn := avngen.NewMockClient(t)
 	if len(want.caCertKeys) > 0 {

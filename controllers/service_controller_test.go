@@ -777,17 +777,12 @@ func TestServiceController_Create(t *testing.T) {
 		gf.SetAnnotations(map[string]string{instanceIsRunningAnnotation: "true"})
 
 		var createReq *service.ServiceCreateIn
-		var tagsReq *service.ProjectServiceTagsReplaceIn
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
 			ServiceCreate(mock.Anything, gf.Spec.Project, mock.Anything).
 			Run(func(_ context.Context, _ string, in *service.ServiceCreateIn) { createReq = in }).
 			Return(&service.ServiceCreateOut{}, nil).Once()
-		avn.EXPECT().
-			ProjectServiceTagsReplace(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-			Run(func(_ context.Context, _, _ string, in *service.ProjectServiceTagsReplaceIn) { tagsReq = in }).
-			Return(nil).Once()
 
 		c := newTestController(avn, grafanaKind, nil)
 		_, err := c.Create(t.Context(), gf)
@@ -813,9 +808,8 @@ func TestServiceController_Create(t *testing.T) {
 		// No VPC id when neither ProjectVPCID nor ProjectVPCRef is set.
 		require.Nil(t, createReq.ProjectVpcId)
 
-		// Empty spec.Tags clears existing tags with an empty (non-nil) map.
-		require.NotNil(t, tagsReq)
-		require.Equal(t, map[string]string{}, tagsReq.Tags)
+		// Omitted tags are unmanaged: not on the request, no tags call.
+		require.Nil(t, createReq.Tags)
 
 		// CreatedOrUpdated conditions recorded; stale running marker cleared.
 		_, hasRunningAnn := gf.GetAnnotations()[instanceIsRunningAnnotation]
@@ -848,9 +842,6 @@ func TestServiceController_Create(t *testing.T) {
 			ServiceCreate(mock.Anything, gf.Spec.Project, mock.Anything).
 			Run(func(_ context.Context, _ string, in *service.ServiceCreateIn) { createReq = in }).
 			Return(&service.ServiceCreateOut{}, nil).Once()
-		avn.EXPECT().
-			ProjectServiceTagsReplace(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-			Return(nil).Once()
 
 		c := newTestController(avn, grafanaKind, k8s)
 		_, err := c.Create(t.Context(), gf)
@@ -869,7 +860,6 @@ func TestServiceController_Create(t *testing.T) {
 		avn.EXPECT().
 			ServiceCreate(mock.Anything, gf.Spec.Project, mock.Anything).
 			Return(nil, newAivenError(500, "boom")).Once()
-		// ProjectServiceTagsReplace must NOT be called when create fails.
 
 		c := newTestController(avn, grafanaKind, nil)
 		_, err := c.Create(t.Context(), gf)
@@ -926,9 +916,6 @@ func TestServiceController_Create(t *testing.T) {
 				avn.EXPECT().
 					ServiceCreate(mock.Anything, gf.Spec.Project, mock.Anything).
 					Return(&service.ServiceCreateOut{}, nil).Once()
-				avn.EXPECT().
-					ProjectServiceTagsReplace(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-					Return(nil).Once()
 
 				c, rec := newRecordingTestController(avn, grafanaKind, nil)
 				_, err := c.Create(t.Context(), gf)
@@ -945,13 +932,12 @@ func TestServiceController_Create(t *testing.T) {
 		}
 	})
 
-	t.Run("recreate failure after ServiceCreate routes the next Observe to Update", func(t *testing.T) {
+	t.Run("recreate un-stamps the generation so the next Observe routes to Update", func(t *testing.T) {
 		t.Parallel()
 
 		// Applied service deleted at Aiven; the generation annotation still matches.
 		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
 		gf.Spec.Powered = new(true)
-		gf.Spec.Tags = map[string]string{"env": "prod"}
 		markGeneration(gf, 1)
 		markInstanceRunning(gf)
 
@@ -962,9 +948,6 @@ func TestServiceController_Create(t *testing.T) {
 		avn.EXPECT().
 			ServiceCreate(mock.Anything, gf.Spec.Project, mock.Anything).
 			Return(&service.ServiceCreateOut{}, nil).Once()
-		avn.EXPECT().
-			ProjectServiceTagsReplace(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-			Return(newAivenError(500, "boom")).Once()
 
 		c := newTestController(avn, grafanaKind, nil)
 		obs, err := c.Observe(t.Context(), gf)
@@ -972,7 +955,7 @@ func TestServiceController_Create(t *testing.T) {
 		require.False(t, obs.ResourceExists)
 
 		_, err = c.Create(t.Context(), gf)
-		require.ErrorContains(t, err, "failed to update tags")
+		require.NoError(t, err)
 		require.False(t, hasLatestGeneration(gf))
 
 		// The service is back, still rebuilding: Observe must route to Update, not poll.
@@ -1003,22 +986,44 @@ func TestServiceController_Create(t *testing.T) {
 		require.ErrorContains(t, err, "failed to get referenced ProjectVPC")
 	})
 
-	t.Run("ProjectServiceTagsReplace error propagates after create", func(t *testing.T) {
+	t.Run("tags and technical emails: omitted not sent, empty sent empty", func(t *testing.T) {
 		t.Parallel()
 
-		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+		for name, tc := range map[string]struct {
+			tags   map[string]string
+			emails []v1alpha1.ServiceTechEmail
+		}{
+			"omitted": {},
+			"empty":   {tags: map[string]string{}, emails: []v1alpha1.ServiceTechEmail{}},
+			"set":     {tags: map[string]string{"env": "prod"}, emails: []v1alpha1.ServiceTechEmail{{Email: "ops@example.com"}}},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
 
-		avn := avngen.NewMockClient(t)
-		avn.EXPECT().
-			ServiceCreate(mock.Anything, gf.Spec.Project, mock.Anything).
-			Return(&service.ServiceCreateOut{}, nil).Once()
-		avn.EXPECT().
-			ProjectServiceTagsReplace(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-			Return(newAivenError(500, "tags boom")).Once()
+				gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+				gf.Spec.Tags = tc.tags
+				gf.Spec.TechnicalEmails = tc.emails
 
-		c := newTestController(avn, grafanaKind, nil)
-		_, err := c.Create(t.Context(), gf)
-		require.ErrorContains(t, err, "failed to update tags")
+				var createReq *service.ServiceCreateIn
+				avn := avngen.NewMockClient(t)
+				avn.EXPECT().
+					ServiceCreate(mock.Anything, gf.Spec.Project, mock.Anything).
+					Run(func(_ context.Context, _ string, in *service.ServiceCreateIn) { createReq = in }).
+					Return(&service.ServiceCreateOut{}, nil).Once()
+
+				c := newTestController(avn, grafanaKind, nil)
+				_, err := c.Create(t.Context(), gf)
+				require.NoError(t, err)
+
+				if tc.tags == nil {
+					require.Nil(t, createReq.Tags)
+					require.Nil(t, createReq.TechEmails)
+					return
+				}
+				require.Equal(t, &tc.tags, createReq.Tags)
+				require.Len(t, *createReq.TechEmails, len(tc.emails))
+			})
+		}
 	})
 
 	t.Run("resolves migration user config on create", func(t *testing.T) {
@@ -1044,9 +1049,6 @@ func TestServiceController_Create(t *testing.T) {
 			ServiceCreate(mock.Anything, pg.Spec.Project, mock.Anything).
 			Run(func(_ context.Context, _ string, in *service.ServiceCreateIn) { createReq = in }).
 			Return(&service.ServiceCreateOut{}, nil).Once()
-		avn.EXPECT().
-			ProjectServiceTagsReplace(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
-			Return(nil).Once()
 
 		c := newTestController(avn, postgreSQLKind, k8s)
 		_, err := c.Create(t.Context(), pg)
@@ -1098,9 +1100,6 @@ func TestServiceController_Create(t *testing.T) {
 			ServiceCreate(mock.Anything, pg.Spec.Project, mock.Anything).
 			Run(func(_ context.Context, _ string, in *service.ServiceCreateIn) { createReq = in }).
 			Return(&service.ServiceCreateOut{}, nil).Once()
-		avn.EXPECT().
-			ProjectServiceTagsReplace(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
-			Return(nil).Once()
 
 		c := newTestController(avn, postgreSQLKind, k8s)
 		obs, err := c.Observe(t.Context(), pg)
@@ -1156,6 +1155,10 @@ func TestServiceController_Update(t *testing.T) {
 		require.False(t, *updateReq.Powered)
 		require.NotNil(t, updateReq.Plan)
 		require.Equal(t, "startup-1", *updateReq.Plan)
+		// Omitted fields are not sent; the service is not in a VPC, so null is a no-op.
+		require.Nil(t, updateReq.TechEmails)
+		require.Nil(t, updateReq.Maintenance)
+		require.Nil(t, updateReq.ProjectVpcId)
 
 		require.NotNil(t, tagsReq)
 		require.Equal(t, map[string]string{"team": "core"}, tagsReq.Tags)
@@ -1233,6 +1236,7 @@ func TestServiceController_Update(t *testing.T) {
 		t.Parallel()
 
 		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+		gf.Spec.Tags = map[string]string{} // explicit {} clears tags, so the endpoint is called
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
@@ -1248,6 +1252,91 @@ func TestServiceController_Update(t *testing.T) {
 		c := newTestController(avn, grafanaKind, nil)
 		_, err := c.Update(t.Context(), gf)
 		require.ErrorContains(t, err, "failed to update tags")
+	})
+
+	t.Run("omitted tags and emails are not sent, an unmanaged VPC is kept", func(t *testing.T) {
+		t.Parallel()
+
+		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+
+		var updateReq *service.ServiceUpdateIn
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
+			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning, ProjectVpcId: "vpc-console"}, nil).Once()
+		avn.EXPECT().
+			ServiceUpdate(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+			Run(func(_ context.Context, _, _ string, in *service.ServiceUpdateIn, _ ...[2]string) { updateReq = in }).
+			Return(&service.ServiceUpdateOut{}, nil).Once()
+		// No ProjectServiceTagsReplace: the mock fails on an unexpected call.
+
+		c := newTestController(avn, grafanaKind, nil)
+		_, err := c.Update(t.Context(), gf)
+		require.NoError(t, err)
+
+		require.Nil(t, updateReq.TechEmails)
+		// A null project_vpc_id would move the service out of its VPC.
+		require.Equal(t, new("vpc-console"), updateReq.ProjectVpcId)
+	})
+
+	t.Run("ProjectVPCRef without an ID is a precondition, not an unmanaged VPC", func(t *testing.T) {
+		t.Parallel()
+
+		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+		gf.Spec.ProjectVPCRef = &v1alpha1.ResourceReference{Name: "new-vpc"}
+		vpc := &v1alpha1.ProjectVPC{ObjectMeta: metav1.ObjectMeta{Name: "new-vpc", Namespace: "default"}}
+		k8s := fake.NewClientBuilder().WithScheme(newLifecycleScheme(t)).WithObjects(vpc).Build()
+
+		// No ServiceGet or ServiceUpdate: the live VPC must not be echoed in place of the requested one.
+		c := newTestController(avngen.NewMockClient(t), grafanaKind, k8s)
+		_, err := c.Update(t.Context(), gf)
+		require.ErrorIs(t, err, errPreconditionNotMet)
+	})
+
+	t.Run("maintenance dow only is sent without a time key", func(t *testing.T) {
+		t.Parallel()
+
+		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+		gf.Spec.MaintenanceWindowDow = service.DowTypeMonday
+
+		var updateReq *service.ServiceUpdateIn
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
+			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
+		avn.EXPECT().
+			ServiceUpdate(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+			Run(func(_ context.Context, _, _ string, in *service.ServiceUpdateIn, _ ...[2]string) { updateReq = in }).
+			Return(&service.ServiceUpdateOut{}, nil).Once()
+
+		c := newTestController(avn, grafanaKind, nil)
+		_, err := c.Update(t.Context(), gf)
+		require.NoError(t, err)
+		// time: "" is a 400 at Aiven; powered defaults to true.
+		require.Equal(t, &service.MaintenanceIn{Dow: service.DowTypeMonday}, updateReq.Maintenance)
+		require.Equal(t, new(true), updateReq.Powered)
+	})
+
+	t.Run("empty technicalEmails clears them", func(t *testing.T) {
+		t.Parallel()
+
+		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+		gf.Spec.TechnicalEmails = []v1alpha1.ServiceTechEmail{}
+
+		var updateReq *service.ServiceUpdateIn
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
+			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
+		avn.EXPECT().
+			ServiceUpdate(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+			Run(func(_ context.Context, _, _ string, in *service.ServiceUpdateIn, _ ...[2]string) { updateReq = in }).
+			Return(&service.ServiceUpdateOut{}, nil).Once()
+
+		c := newTestController(avn, grafanaKind, nil)
+		_, err := c.Update(t.Context(), gf)
+		require.NoError(t, err)
+		require.Equal(t, &[]service.TechEmailIn{}, updateReq.TechEmails)
 	})
 
 	t.Run("migration user config", func(t *testing.T) {
@@ -1283,9 +1372,6 @@ func TestServiceController_Update(t *testing.T) {
 				ServiceUpdate(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
 				Run(func(_ context.Context, _, _ string, in *service.ServiceUpdateIn, _ ...[2]string) { updateReq = in }).
 				Return(&service.ServiceUpdateOut{}, nil).Once()
-			avn.EXPECT().
-				ProjectServiceTagsReplace(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
-				Return(nil).Once()
 
 			c := newTestController(avn, postgreSQLKind, k8s)
 			_, err := c.Update(t.Context(), pg)
@@ -1322,9 +1408,6 @@ func TestServiceController_Update(t *testing.T) {
 			avn.EXPECT().
 				ServiceUpdate(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
 				Return(&service.ServiceUpdateOut{}, nil).Once()
-			avn.EXPECT().
-				ProjectServiceTagsReplace(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
-				Return(nil).Once()
 
 			c := newTestController(avn, postgreSQLKind, k8s)
 			_, err := c.Update(t.Context(), pg)
@@ -1355,15 +1438,20 @@ func TestServiceController_Delete(t *testing.T) {
 		require.ErrorIs(t, err, errTerminationProtectionOn)
 	})
 
-	t.Run("TP workaround runs before ServiceDelete", func(t *testing.T) {
+	t.Run("live protection on: switched off with the VPC echoed, then ServiceDelete", func(t *testing.T) {
 		t.Parallel()
 
 		pg := newPG(t, new(false))
 
 		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(&service.ServiceGetOut{TerminationProtection: true, ProjectVpcId: "vpc-1"}, nil).Once()
+		// A null project_vpc_id would move the service out of its VPC right before the delete.
 		updateCall := avn.EXPECT().
 			ServiceUpdate(mock.Anything, pg.Spec.Project, pg.Name, &service.ServiceUpdateIn{
 				TerminationProtection: new(false),
+				ProjectVpcId:          new("vpc-1"),
 			}).
 			Return(nil, nil).Once()
 		avn.EXPECT().
@@ -1376,17 +1464,16 @@ func TestServiceController_Delete(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("nil termination protection deletes the service", func(t *testing.T) {
+	t.Run("live protection off: no ServiceUpdate, nil spec protection deletes", func(t *testing.T) {
 		t.Parallel()
 
 		pg := newPG(t, nil)
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceUpdate(mock.Anything, pg.Spec.Project, pg.Name, &service.ServiceUpdateIn{
-				TerminationProtection: new(false),
-			}).
-			Return(nil, nil).Once()
+			ServiceGet(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(&service.ServiceGetOut{}, nil).Once()
+		// No ServiceUpdate: the mock fails on an unexpected call.
 		avn.EXPECT().
 			ServiceDelete(mock.Anything, pg.Spec.Project, pg.Name).
 			Return(nil).Once()
@@ -1396,12 +1483,45 @@ func TestServiceController_Delete(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("TP workaround tolerates 404 and proceeds", func(t *testing.T) {
+	t.Run("service already gone at ServiceGet -> nil, no further calls", func(t *testing.T) {
 		t.Parallel()
 
 		pg := newPG(t, new(false))
 
 		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(nil, newAivenError(404, "Service not found")).Once()
+
+		c := newTestController(avn, postgreSQLKind, nil)
+		err := c.Delete(t.Context(), pg)
+		require.NoError(t, err)
+	})
+
+	t.Run("ServiceGet non-404 error propagates, no ServiceDelete", func(t *testing.T) {
+		t.Parallel()
+
+		pg := newPG(t, new(false))
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(nil, newAivenError(500, "Internal error")).Once()
+
+		c := newTestController(avn, postgreSQLKind, nil)
+		err := c.Delete(t.Context(), pg)
+		require.ErrorContains(t, err, "failed to fetch service")
+	})
+
+	t.Run("TP sync tolerates 404 and proceeds", func(t *testing.T) {
+		t.Parallel()
+
+		pg := newPG(t, new(false))
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(&service.ServiceGetOut{TerminationProtection: true}, nil).Once()
 		avn.EXPECT().
 			ServiceUpdate(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
 			Return(nil, newAivenError(404, "Service not found")).Once()
@@ -1414,12 +1534,15 @@ func TestServiceController_Delete(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("TP workaround non-404 error propagates, no ServiceDelete", func(t *testing.T) {
+	t.Run("TP sync non-404 error propagates, no ServiceDelete", func(t *testing.T) {
 		t.Parallel()
 
 		pg := newPG(t, new(false))
 
 		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(&service.ServiceGetOut{TerminationProtection: true}, nil).Once()
 		avn.EXPECT().
 			ServiceUpdate(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
 			Return(nil, newAivenError(403, "Forbidden")).Once()
@@ -1437,8 +1560,8 @@ func TestServiceController_Delete(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceUpdate(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
-			Return(nil, nil).Once()
+			ServiceGet(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(&service.ServiceGetOut{}, nil).Once()
 		avn.EXPECT().
 			ServiceDelete(mock.Anything, pg.Spec.Project, pg.Name).
 			Return(newAivenError(404, "Service not found")).Once()
@@ -1455,8 +1578,8 @@ func TestServiceController_Delete(t *testing.T) {
 
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
-			ServiceUpdate(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
-			Return(nil, nil).Once()
+			ServiceGet(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(&service.ServiceGetOut{}, nil).Once()
 		avn.EXPECT().
 			ServiceDelete(mock.Anything, pg.Spec.Project, pg.Name).
 			Return(newAivenError(500, "Internal error")).Once()

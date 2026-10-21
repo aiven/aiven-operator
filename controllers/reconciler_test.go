@@ -533,14 +533,14 @@ func TestReconciler_Reconcile(t *testing.T) {
 
 		m := &mock.Mock{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
-		m.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
+		m.On("Patch", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
 
 		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
 			WithObjects(obj, authSecret).
 			WithInterceptorFuncs(interceptor.Funcs{
-				Update: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, opts ...crclient.UpdateOption) error {
-					return m.MethodCalled("Update", ctx, c, o, opts).Error(0)
+				Patch: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, patch crclient.Patch, opts ...crclient.PatchOption) error {
+					return m.MethodCalled("Patch", ctx, c, o, patch, opts).Error(0)
 				},
 			}).
 			Build()
@@ -577,14 +577,14 @@ func TestReconciler_Reconcile(t *testing.T) {
 
 		m := &mock.Mock{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
-		m.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
+		m.On("Patch", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
 
 		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
 			WithObjects(obj).
 			WithInterceptorFuncs(interceptor.Funcs{
-				Update: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, opts ...crclient.UpdateOption) error {
-					return m.MethodCalled("Update", ctx, c, o, opts).Error(0)
+				Patch: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, patch crclient.Patch, opts ...crclient.PatchOption) error {
+					return m.MethodCalled("Patch", ctx, c, o, patch, opts).Error(0)
 				},
 			}).
 			Build()
@@ -1785,8 +1785,8 @@ func TestReconciler_ensureFinalizer(t *testing.T) {
 			WithScheme(scheme).
 			WithObjects(obj).
 			WithInterceptorFuncs(interceptor.Funcs{
-				Update: func(context.Context, crclient.WithWatch, crclient.Object, ...crclient.UpdateOption) error {
-					t.Fatal("Update should not be called when finalizer is already present")
+				Patch: func(context.Context, crclient.WithWatch, crclient.Object, crclient.Patch, ...crclient.PatchOption) error {
+					t.Fatal("Patch should not be called when finalizer is already present")
 					return nil
 				},
 			}).
@@ -1808,9 +1808,21 @@ func TestReconciler_ensureFinalizer(t *testing.T) {
 	t.Run("Persists instance deletion finalizer and emits event", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 
+		// A typed Update would re-encode the spec and drop empty omitempty values (tags: {}).
+		var patchType types.PatchType
+		var patchBody map[string]any
 		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
 			WithObjects(obj).
+			WithInterceptorFuncs(interceptor.Funcs{
+				Patch: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, patch crclient.Patch, opts ...crclient.PatchOption) error {
+					patchType = patch.Type()
+					data, err := patch.Data(o)
+					require.NoError(t, err)
+					require.NoError(t, json.Unmarshal(data, &patchBody))
+					return c.Patch(ctx, o, patch, opts...)
+				},
+			}).
 			Build()
 		recorder := record.NewFakeRecorder(10)
 
@@ -1822,6 +1834,8 @@ func TestReconciler_ensureFinalizer(t *testing.T) {
 			},
 		}
 
+		// The fake client bumps obj's resourceVersion on success; the patch carries the one it read.
+		readResourceVersion := obj.ResourceVersion
 		require.NoError(t, r.ensureFinalizer(t.Context(), obj))
 
 		got := &v1alpha1.ClickhouseUser{}
@@ -1830,6 +1844,15 @@ func TestReconciler_ensureFinalizer(t *testing.T) {
 		require.Equal(t, []string{
 			"Normal InstanceFinalizerAdded instance finalizer added",
 		}, recorderEvents(recorder))
+
+		// Merge patch of metadata.finalizers only, guarded by resourceVersion.
+		require.Equal(t, types.MergePatchType, patchType)
+		require.Equal(t, map[string]any{
+			"metadata": map[string]any{
+				"resourceVersion": readResourceVersion,
+				"finalizers":      []any{instanceDeletionFinalizer},
+			},
+		}, patchBody)
 	})
 
 	t.Run("Returns wrapped error when persisting finalizer fails", func(t *testing.T) {
@@ -1837,14 +1860,14 @@ func TestReconciler_ensureFinalizer(t *testing.T) {
 
 		m := &mock.Mock{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
-		m.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
+		m.On("Patch", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
 
 		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
 			WithObjects(obj).
 			WithInterceptorFuncs(interceptor.Funcs{
-				Update: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, opts ...crclient.UpdateOption) error {
-					return m.MethodCalled("Update", ctx, c, o, opts).Error(0)
+				Patch: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, patch crclient.Patch, opts ...crclient.PatchOption) error {
+					return m.MethodCalled("Patch", ctx, c, o, patch, opts).Error(0)
 				},
 			}).
 			Build()
@@ -1879,8 +1902,8 @@ func TestReconciler_ensureAuthSecretFinalizer(t *testing.T) {
 			WithScheme(scheme).
 			WithObjects(authSecret).
 			WithInterceptorFuncs(interceptor.Funcs{
-				Update: func(context.Context, crclient.WithWatch, crclient.Object, ...crclient.UpdateOption) error {
-					t.Fatal("Update should not be called when DefaultToken is configured")
+				Patch: func(context.Context, crclient.WithWatch, crclient.Object, crclient.Patch, ...crclient.PatchOption) error {
+					t.Fatal("Patch should not be called when DefaultToken is configured")
 					return nil
 				},
 			}).
@@ -1906,8 +1929,8 @@ func TestReconciler_ensureAuthSecretFinalizer(t *testing.T) {
 		k8sClient := fake.NewClientBuilder().
 			WithScheme(scheme).
 			WithInterceptorFuncs(interceptor.Funcs{
-				Update: func(context.Context, crclient.WithWatch, crclient.Object, ...crclient.UpdateOption) error {
-					t.Fatal("Update should not be called when authSecretRef is nil")
+				Patch: func(context.Context, crclient.WithWatch, crclient.Object, crclient.Patch, ...crclient.PatchOption) error {
+					t.Fatal("Patch should not be called when authSecretRef is nil")
 					return nil
 				},
 			}).
@@ -1929,8 +1952,8 @@ func TestReconciler_ensureAuthSecretFinalizer(t *testing.T) {
 			WithScheme(scheme).
 			WithObjects(authSecret).
 			WithInterceptorFuncs(interceptor.Funcs{
-				Update: func(context.Context, crclient.WithWatch, crclient.Object, ...crclient.UpdateOption) error {
-					t.Fatal("Update should not be called when auth Secret finalizer is already present")
+				Patch: func(context.Context, crclient.WithWatch, crclient.Object, crclient.Patch, ...crclient.PatchOption) error {
+					t.Fatal("Patch should not be called when auth Secret finalizer is already present")
 					return nil
 				},
 			}).
@@ -3902,10 +3925,10 @@ func TestReconciler_reconcileDeletion(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		obj.Finalizers = []string{instanceDeletionFinalizer}
 
-		// Intercept Update calls to simulate a failure when removing the finalizer.
+		// Intercept Patch calls to simulate a failure when removing the finalizer.
 		m := &mock.Mock{}
 		t.Cleanup(func() { m.AssertExpectations(t) })
-		m.On("Update", mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
+		m.On("Patch", mock.Anything, mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(assert.AnError).Once()
 		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
 			Return(avngen.NewMockClient(t), nil).
 			Once()
@@ -3914,8 +3937,8 @@ func TestReconciler_reconcileDeletion(t *testing.T) {
 			WithScheme(scheme).
 			WithObjects(obj).
 			WithInterceptorFuncs(interceptor.Funcs{
-				Update: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, opts ...crclient.UpdateOption) error {
-					args := m.MethodCalled("Update", ctx, c, o, opts)
+				Patch: func(ctx context.Context, c crclient.WithWatch, o crclient.Object, patch crclient.Patch, opts ...crclient.PatchOption) error {
+					args := m.MethodCalled("Patch", ctx, c, o, patch, opts)
 					return args.Error(0)
 				},
 			}).
