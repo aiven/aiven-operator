@@ -32,6 +32,9 @@ type serviceKind[T v1alpha1.ServiceObject] struct {
 
 	// preconditions run in order before Create and before Update of a new generation; first failure wins.
 	preconditions []servicePrecondition[T]
+
+	// driftFields are the spec fields compared against the live service on every poll.
+	driftFields []driftField
 }
 
 // serviceMigration is the per-kind half of migration Secret support; the controller reads,
@@ -60,6 +63,7 @@ func newServiceKind[T v1alpha1.ServiceObject](
 		serviceType:   t,
 		secretData:    secretData,
 		preconditions: []servicePrecondition[T]{checkReadReplicaSource[T], checkPowerOffBackup[T]},
+		driftFields:   defaultDriftFields(),
 	}
 	for _, opt := range opts {
 		opt(&k)
@@ -98,6 +102,13 @@ func withMigrationSecret[T v1alpha1.ServiceObject](
 func withPreconditions[T v1alpha1.ServiceObject](checks ...servicePrecondition[T]) serviceKindOption[T] {
 	return func(k *serviceKind[T]) {
 		k.preconditions = checks
+	}
+}
+
+// withDriftFields replaces the default drift fields, e.g. the set without diskSpaceField for a kind without a disk.
+func withDriftFields[T v1alpha1.ServiceObject](fields ...driftField) serviceKindOption[T] {
+	return func(k *serviceKind[T]) {
+		k.driftFields = fields
 	}
 }
 

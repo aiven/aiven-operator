@@ -6,6 +6,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"maps"
 	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
@@ -52,16 +53,11 @@ func newServiceController[T v1alpha1.ServiceObject](
 
 func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation, error) {
 	spec := obj.ServiceCommonSpec()
-
-	// Powered defaults to true.
-	isPowered := true
-	if spec.Powered != nil {
-		isPowered = *spec.Powered
-	}
+	powered := isPowered(spec)
 
 	// Fetch secrets only when they can be published this round.
 	var query [][2]string
-	if hasLatestGeneration(obj) && isPowered && !obj.NoSecret() {
+	if hasLatestGeneration(obj) && powered && !obj.NoSecret() {
 		query = append(query, service.ServiceGetIncludeSecrets(true))
 	}
 	avnService, err := c.avnGen.ServiceGet(ctx, spec.Project, obj.GetName(), query...)
@@ -80,7 +76,8 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 		meta.RemoveStatusCondition(&status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
 	}
 
-	if !exists && !isPowered {
+	// Refuse to create a powered-off service.
+	if !exists && !powered {
 		return Observation{}, errServiceCreatePoweredOff
 	}
 
@@ -104,7 +101,7 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 	}
 
 	// Not in its target state yet: keep polling without touching the running marker.
-	if (!isPowered || status.State != service.ServiceStateTypeRunning) && (isPowered || status.State != service.ServiceStateTypePoweroff) {
+	if (!powered || status.State != service.ServiceStateTypeRunning) && (powered || status.State != service.ServiceStateTypePoweroff) {
 		return Observation{ResourceExists: true, ResourceUpToDate: true}, nil
 	}
 
@@ -127,7 +124,7 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 	}
 
 	// Powered off: no connection secret.
-	if !isPowered {
+	if !powered {
 		markInstancePoweredOff(obj)
 		return Observation{ResourceExists: true, ResourceUpToDate: true, RequeueAfter: requeueAfter}, nil
 	}
@@ -145,6 +142,175 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 		PruneSecretKeys:  true, // The details are the whole secret: drop keys no longer produced.
 		RequeueAfter:     requeueAfter,
 	}, nil
+}
+
+// Create implements AivenController[T]: ServiceCreate from the spec.
+func (c *serviceController[T]) Create(ctx context.Context, obj T) (CreateResult, error) {
+	spec := obj.ServiceCommonSpec()
+	ometa := obj.GetObjectMeta()
+
+	userCfg, err := c.resolveUserConfig(ctx, obj)
+	if err != nil {
+		return CreateResult{}, err
+	}
+
+	projectVPCID, err := c.resolveProjectVPCID(ctx, obj, spec)
+	if err != nil {
+		return CreateResult{}, err
+	}
+
+	userConfig, err := CreateUserConfiguration(userCfg)
+	if err != nil {
+		return CreateResult{}, err
+	}
+
+	req := service.ServiceCreateIn{
+		ServiceName:           ometa.Name,
+		ServiceType:           string(c.kind.serviceType),
+		Plan:                  spec.Plan,
+		Cloud:                 NilIfZero(spec.CloudName),
+		ProjectVpcId:          NilIfZero(projectVPCID),
+		Maintenance:           maintenanceIn(spec),
+		TerminationProtection: spec.TerminationProtection,
+		DiskSpaceMb:           NilIfZero(v1alpha1.ConvertDiskSpace(spec.DiskSpace)),
+		Tags:                  tagsIn(spec),
+		TechEmails:            techEmailsIn(spec),
+		UserConfig:            &userConfig,
+	}
+
+	// ServiceIntegrations are only applied at creation time (see ServiceCommonSpec docs).
+	integrations := make([]service.ServiceIntegrationIn, 0, len(spec.ServiceIntegrations))
+	for _, s := range spec.ServiceIntegrations {
+		integrations = append(integrations, service.ServiceIntegrationIn{
+			IntegrationType: s.IntegrationType,
+			SourceService:   &s.SourceServiceName,
+		})
+	}
+	if len(integrations) > 0 {
+		req.ServiceIntegrations = &integrations
+	}
+
+	// 409: Observe saw a transient 404. Nothing was applied, so soft-requeue without claiming the generation.
+	switch _, err := c.avnGen.ServiceCreate(ctx, spec.Project, &req); {
+	case isAlreadyExists(err):
+		return CreateResult{}, fmt.Errorf("%w: service already exists at Aiven, re-observing", errPreconditionNotMet)
+	case err != nil:
+		return CreateResult{}, fmt.Errorf("failed to create service: %w", err)
+	case wasEverApplied(obj):
+		c.rec.Event(
+			obj,
+			corev1.EventTypeWarning,
+			eventInstanceMissingAtAiven,
+			"service was not found at Aiven and has been recreated from the spec",
+		)
+		// Un-stamp the generation so a failure before the reconciler stamps it is retried through Update.
+		delete(obj.GetAnnotations(), processedGenerationAnnotation)
+	}
+
+	markServiceCreatedOrUpdated(obj)
+	return CreateResult{}, nil
+}
+
+// Update implements AivenController[T]: the kind's beforeUpdate hook, ServiceUpdate from the spec,
+// then tags when the spec sets them.
+func (c *serviceController[T]) Update(ctx context.Context, obj T) (UpdateResult, error) {
+	spec := obj.ServiceCommonSpec()
+	objMeta := obj.GetObjectMeta()
+
+	userCfg, err := c.resolveUserConfig(ctx, obj)
+	if err != nil {
+		return UpdateResult{}, err
+	}
+
+	projectVPCID, err := c.resolveProjectVPCID(ctx, obj, spec)
+	if err != nil {
+		return UpdateResult{}, err
+	}
+
+	oldService, err := c.avnGen.ServiceGet(ctx, spec.Project, objMeta.Name)
+	if err != nil {
+		return UpdateResult{}, fmt.Errorf("failed to fetch service: %w", err)
+	}
+
+	// Disk space cannot be managed manually when the autoscaler integration owns it.
+	diskSpace := v1alpha1.ConvertDiskSpace(spec.DiskSpace)
+	if diskSpace > 0 {
+		for _, v := range oldService.ServiceIntegrations {
+			if v.IntegrationType == service.IntegrationTypeAutoscaler {
+				return UpdateResult{}, fmt.Errorf("cannot set disk space for service with autoscaler integration enabled")
+			}
+		}
+	}
+
+	userConfig, err := UpdateUserConfiguration(userCfg)
+	if err != nil {
+		return UpdateResult{}, err
+	}
+
+	// E.g. the PostgreSQL upgrade check, which must pass before ServiceUpdate.
+	if c.kind.beforeUpdate != nil {
+		if err := c.kind.beforeUpdate(ctx, c.avnGen, obj, oldService); err != nil {
+			return UpdateResult{}, err
+		}
+	}
+
+	// A null project_vpc_id moves the service out of its VPC: keep the live one when the spec has none.
+	if projectVPCID == "" {
+		projectVPCID = oldService.ProjectVpcId
+	}
+	req := service.ServiceUpdateIn{
+		Plan:                  NilIfZero(spec.Plan),
+		Cloud:                 NilIfZero(spec.CloudName),
+		ProjectVpcId:          NilIfZero(projectVPCID),
+		Maintenance:           maintenanceIn(spec),
+		TerminationProtection: spec.TerminationProtection,
+		Powered:               new(isPowered(spec)),
+		DiskSpaceMb:           NilIfZero(diskSpace),
+		TechEmails:            techEmailsIn(spec),
+		UserConfig:            &userConfig,
+	}
+	if _, err := c.avnGen.ServiceUpdate(ctx, spec.Project, objMeta.Name, &req); err != nil {
+		return UpdateResult{}, fmt.Errorf("failed to update service: %w", err)
+	}
+
+	// Tags have their own endpoint; {} clears them.
+	if spec.Tags != nil {
+		if err := c.replaceTags(ctx, spec.Project, objMeta.Name, spec.Tags); err != nil {
+			return UpdateResult{}, err
+		}
+	}
+
+	markServiceCreatedOrUpdated(obj)
+	return UpdateResult{}, nil
+}
+
+// Delete implements AivenController[T].
+func (c *serviceController[T]) Delete(ctx context.Context, obj T) error {
+	spec := obj.ServiceCommonSpec()
+	if fromAnyPointer(spec.TerminationProtection) {
+		// A hard error keeps the finalizer.
+		return errTerminationProtectionOn
+	}
+
+	// The workqueue may collapse "terminationProtection: false" and the delete into one reconcile,
+	// so protection still on at Aiven is switched off first. The VPC is echoed: null would move the service out.
+	live, err := c.avnGen.ServiceGet(ctx, spec.Project, obj.GetName())
+	switch {
+	case isNotFound(err):
+		return nil
+	case err != nil:
+		return fmt.Errorf("failed to fetch service: %w", err)
+	case live.TerminationProtection:
+		req := service.ServiceUpdateIn{TerminationProtection: new(false), ProjectVpcId: NilIfZero(live.ProjectVpcId)}
+		if _, err := c.avnGen.ServiceUpdate(ctx, spec.Project, obj.GetName(), &req); err != nil && !isNotFound(err) {
+			return fmt.Errorf("failed to disable termination protection before deletion: %w", err)
+		}
+	}
+
+	if err := c.avnGen.ServiceDelete(ctx, spec.Project, obj.GetName()); err != nil && !isNotFound(err) {
+		return fmt.Errorf("failed to delete service in Aiven: %w", err)
+	}
+	return nil
 }
 
 // buildSecretDetails returns the kind's connection secret as publishable details, with the
@@ -187,142 +353,6 @@ func (c *serviceController[T]) buildSecretDetails(
 		details[k] = cert
 	}
 	return details, nil
-}
-
-// Create implements AivenController[T]: ServiceCreate from the spec.
-func (c *serviceController[T]) Create(ctx context.Context, obj T) (CreateResult, error) {
-	spec := obj.ServiceCommonSpec()
-	ometa := obj.GetObjectMeta()
-
-	userCfg, err := c.resolveUserConfig(ctx, obj)
-	if err != nil {
-		return CreateResult{}, err
-	}
-
-	projectVPCID, err := c.resolveProjectVPCID(ctx, obj, spec)
-	if err != nil {
-		return CreateResult{}, err
-	}
-
-	userConfig, err := CreateUserConfiguration(userCfg)
-	if err != nil {
-		return CreateResult{}, err
-	}
-
-	req := service.ServiceCreateIn{
-		Cloud:                 NilIfZero(spec.CloudName),
-		DiskSpaceMb:           NilIfZero(v1alpha1.ConvertDiskSpace(spec.DiskSpace)),
-		Maintenance:           getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
-		Plan:                  spec.Plan,
-		ProjectVpcId:          toOptionalStringPointer(projectVPCID),
-		ServiceName:           ometa.Name,
-		ServiceType:           string(c.kind.serviceType),
-		TerminationProtection: spec.TerminationProtection,
-		UserConfig:            &userConfig,
-		TechEmails:            buildTechEmails(spec),
-	}
-
-	// ServiceIntegrations are only applied at creation time (see ServiceCommonSpec docs).
-	integrations := make([]service.ServiceIntegrationIn, 0, len(spec.ServiceIntegrations))
-	for _, s := range spec.ServiceIntegrations {
-		integrations = append(integrations, service.ServiceIntegrationIn{
-			IntegrationType: s.IntegrationType,
-			SourceService:   &s.SourceServiceName,
-		})
-	}
-	if len(integrations) > 0 {
-		req.ServiceIntegrations = &integrations
-	}
-
-	// 409: Observe saw a transient 404. Nothing was applied, so soft-requeue without claiming the generation.
-	switch _, err := c.avnGen.ServiceCreate(ctx, spec.Project, &req); {
-	case isAlreadyExists(err):
-		return CreateResult{}, fmt.Errorf("%w: service already exists at Aiven, re-observing", errPreconditionNotMet)
-	case err != nil:
-		return CreateResult{}, fmt.Errorf("failed to create service: %w", err)
-	case wasEverApplied(obj):
-		c.rec.Event(
-			obj,
-			corev1.EventTypeWarning,
-			eventInstanceMissingAtAiven,
-			"service was not found at Aiven and has been recreated from the spec",
-		)
-		// Un-stamp the generation so a failure below is retried through Update.
-		delete(obj.GetAnnotations(), processedGenerationAnnotation)
-	}
-
-	if err := c.replaceTags(ctx, spec.Project, ometa.Name, spec.Tags); err != nil {
-		return CreateResult{}, err
-	}
-
-	markServiceCreatedOrUpdated(obj)
-	return CreateResult{}, nil
-}
-
-// Update implements AivenController[T]: the kind's beforeUpdate hook, ServiceUpdate from the spec,
-// then tags.
-func (c *serviceController[T]) Update(ctx context.Context, obj T) (UpdateResult, error) {
-	spec := obj.ServiceCommonSpec()
-	objMeta := obj.GetObjectMeta()
-
-	userCfg, err := c.resolveUserConfig(ctx, obj)
-	if err != nil {
-		return UpdateResult{}, err
-	}
-
-	projectVPCID, err := c.resolveProjectVPCID(ctx, obj, spec)
-	if err != nil {
-		return UpdateResult{}, err
-	}
-
-	oldService, err := c.avnGen.ServiceGet(ctx, spec.Project, objMeta.Name)
-	if err != nil {
-		return UpdateResult{}, fmt.Errorf("failed to fetch service: %w", err)
-	}
-
-	// Disk space cannot be managed manually when the autoscaler integration owns it.
-	diskSpace := v1alpha1.ConvertDiskSpace(spec.DiskSpace)
-	if diskSpace > 0 {
-		for _, v := range oldService.ServiceIntegrations {
-			if v.IntegrationType == service.IntegrationTypeAutoscaler {
-				return UpdateResult{}, fmt.Errorf("cannot set disk space for service with autoscaler integration enabled")
-			}
-		}
-	}
-
-	userConfig, err := UpdateUserConfiguration(userCfg)
-	if err != nil {
-		return UpdateResult{}, err
-	}
-
-	// E.g. the PostgreSQL upgrade check, which must pass before ServiceUpdate.
-	if c.kind.beforeUpdate != nil {
-		if err := c.kind.beforeUpdate(ctx, c.avnGen, obj, oldService); err != nil {
-			return UpdateResult{}, err
-		}
-	}
-
-	req := service.ServiceUpdateIn{
-		Cloud:                 NilIfZero(spec.CloudName),
-		DiskSpaceMb:           NilIfZero(diskSpace),
-		Maintenance:           getMaintenanceWindow(spec.MaintenanceWindowDow, spec.MaintenanceWindowTime),
-		Plan:                  NilIfZero(spec.Plan),
-		Powered:               spec.Powered,
-		ProjectVpcId:          NilIfZero(projectVPCID),
-		TerminationProtection: spec.TerminationProtection,
-		UserConfig:            &userConfig,
-		TechEmails:            buildTechEmails(spec),
-	}
-	if _, err := c.avnGen.ServiceUpdate(ctx, spec.Project, objMeta.Name, &req); err != nil {
-		return UpdateResult{}, fmt.Errorf("failed to update service: %w", err)
-	}
-
-	if err := c.replaceTags(ctx, spec.Project, objMeta.Name, spec.Tags); err != nil {
-		return UpdateResult{}, err
-	}
-
-	markServiceCreatedOrUpdated(obj)
-	return UpdateResult{}, nil
 }
 
 // resolveUserConfig returns the user config with the migration credentials from the referenced
@@ -370,7 +400,8 @@ func (c *serviceController[T]) maybeDeleteMigrationSecret(ctx context.Context, o
 }
 
 // resolveProjectVPCID returns spec.projectVPCID or the status ID of the referenced ProjectVPC.
-// The reconciler resolves refs only to gate readiness, so the lookup happens here.
+// The reconciler resolves refs only to gate readiness, so the lookup happens here. A ProjectVPC
+// without an ID yet is a precondition, not an unmanaged VPC: Update would otherwise echo the live one.
 func (c *serviceController[T]) resolveProjectVPCID(ctx context.Context, obj T, spec *v1alpha1.ServiceCommonSpec) (string, error) {
 	if spec.ProjectVPCID != "" {
 		return spec.ProjectVPCID, nil
@@ -384,28 +415,39 @@ func (c *serviceController[T]) resolveProjectVPCID(ctx context.Context, obj T, s
 	if err := c.k8s.Get(ctx, ref.NamespacedName, projectVPC); err != nil {
 		return "", fmt.Errorf("failed to get referenced ProjectVPC %q: %w", ref.NamespacedName, err)
 	}
+	if projectVPC.Status.ID == "" {
+		return "", fmt.Errorf("%w: referenced ProjectVPC %q has no ID yet", errPreconditionNotMet, ref.NamespacedName)
+	}
 	return projectVPC.Status.ID, nil
 }
 
-// replaceTags replaces the service tags at Aiven; nil clears them.
-func (c *serviceController[T]) replaceTags(ctx context.Context, project, serviceName string, tags map[string]string) error {
-	req := service.ProjectServiceTagsReplaceIn{Tags: make(map[string]string)}
-	if tags != nil {
-		req.Tags = tags
+// tagsIn is nil when the spec omits tags; {} is kept to clear them.
+func tagsIn(spec *v1alpha1.ServiceCommonSpec) *map[string]string {
+	if spec.Tags == nil {
+		return nil
 	}
-	if err := c.avnGen.ProjectServiceTagsReplace(ctx, project, serviceName, &req); err != nil {
+	tags := maps.Clone(spec.Tags)
+	return &tags
+}
+
+// techEmailsIn is nil when the spec omits technicalEmails; [] is kept to clear them.
+func techEmailsIn(spec *v1alpha1.ServiceCommonSpec) *[]service.TechEmailIn {
+	if spec.TechnicalEmails == nil {
+		return nil
+	}
+	emails := make([]service.TechEmailIn, 0, len(spec.TechnicalEmails))
+	for _, e := range spec.TechnicalEmails {
+		emails = append(emails, service.TechEmailIn(e))
+	}
+	return &emails
+}
+
+// replaceTags replaces the service tags at Aiven.
+func (c *serviceController[T]) replaceTags(ctx context.Context, project, serviceName string, tags map[string]string) error {
+	if err := c.avnGen.ProjectServiceTagsReplace(ctx, project, serviceName, &service.ProjectServiceTagsReplaceIn{Tags: tags}); err != nil {
 		return fmt.Errorf("failed to update tags: %w", err)
 	}
 	return nil
-}
-
-// buildTechEmails converts the spec's technical emails; an empty spec is sent as an empty list.
-func buildTechEmails(spec *v1alpha1.ServiceCommonSpec) *[]service.TechEmailIn {
-	technicalEmails := make([]service.TechEmailIn, 0, len(spec.TechnicalEmails))
-	for _, email := range spec.TechnicalEmails {
-		technicalEmails = append(technicalEmails, service.TechEmailIn(email))
-	}
-	return &technicalEmails
 }
 
 // markServiceCreatedOrUpdated records the CreatedOrUpdated conditions and clears the running marker.
@@ -418,28 +460,15 @@ func markServiceCreatedOrUpdated(obj v1alpha1.AivenManagedObject) {
 	meta.SetStatusCondition(obj.Conditions(), getRunningCondition(metav1.ConditionUnknown, reason, "Successfully created or updated the instance in Aiven, status remains unknown"))
 }
 
-// Delete implements AivenController[T].
-func (c *serviceController[T]) Delete(ctx context.Context, obj T) error {
-	spec := obj.ServiceCommonSpec()
-	if fromAnyPointer(spec.TerminationProtection) {
-		// A hard error keeps the finalizer.
-		return errTerminationProtectionOn
-	}
+// isPowered: the CRD defaults powered to true; nil only occurs on objects built in Go.
+func isPowered(spec *v1alpha1.ServiceCommonSpec) bool {
+	return spec.Powered == nil || *spec.Powered
+}
 
-	// Sync termination protection to Aiven before deletion.
-	// The Kubernetes workqueue deduplicates events, when a user sets
-	// spec.terminationProtection=false and deletes the resource immediately after,
-	// the workqueue may collapse both events into a single reconciliation.
-	// Without this call, Aiven may still have termination protection enabled.
-	terminationProtection := false
-	if _, err := c.avnGen.ServiceUpdate(ctx, spec.Project, obj.GetName(), &service.ServiceUpdateIn{
-		TerminationProtection: &terminationProtection,
-	}); err != nil && !isNotFound(err) {
-		return fmt.Errorf("failed to disable termination protection before deletion: %w", err)
+// maintenanceIn is the spec's maintenance window; a missing time is omitted.
+func maintenanceIn(spec *v1alpha1.ServiceCommonSpec) *service.MaintenanceIn {
+	if spec.MaintenanceWindowDow == "" && spec.MaintenanceWindowTime == "" {
+		return nil
 	}
-
-	if err := c.avnGen.ServiceDelete(ctx, spec.Project, obj.GetName()); err != nil && !isNotFound(err) {
-		return fmt.Errorf("failed to delete service in Aiven: %w", err)
-	}
-	return nil
+	return &service.MaintenanceIn{Dow: spec.MaintenanceWindowDow, Time: NilIfZero(spec.MaintenanceWindowTime)}
 }
