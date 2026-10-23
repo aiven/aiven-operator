@@ -105,6 +105,7 @@ type ServiceDependant struct {
 	ServiceField     `json:",inline"`
 }
 
+// +kubebuilder:validation:XValidation:rule="!(has(self.projectVpcId) && has(self.projectVPCRef))",message="set projectVpcId or projectVPCRef, not both"
 type BaseServiceFields struct {
 	ProjectDependant `json:",inline"`
 
@@ -176,9 +177,8 @@ type SecretFields struct {
 	ConnInfoSecretTarget ConnInfoSecretTarget `json:"connInfoSecretTarget,omitempty"`
 }
 
-// Validate runs complex validation on ServiceCommonSpec
+// Validate rejects projectVpcId together with projectVPCRef; the controller's backstop for the CEL rule.
 func (in *BaseServiceFields) Validate() error {
-	// todo: remove when resolved https://github.com/kubernetes-sigs/controller-tools/issues/461
 	if in.HasProjectVPCID() && in.ProjectVPCRef != nil {
 		return fmt.Errorf("please set ProjectVPCID or ProjectVPCRef, not both")
 	}

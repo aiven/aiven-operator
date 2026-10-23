@@ -987,6 +987,20 @@ func TestServiceController_Create(t *testing.T) {
 		require.Nil(t, createReq.ProjectVpcId)
 	})
 
+	t.Run("projectVpcId with projectVPCRef is a hard error before ServiceCreate", func(t *testing.T) {
+		t.Parallel()
+
+		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+		gf.Spec.ProjectVPCID = new("")
+		gf.Spec.ProjectVPCRef = &v1alpha1.ResourceReference{Name: "vpc"}
+
+		// No k8s or Aiven calls: the spec is rejected first.
+		c := newTestController(avngen.NewMockClient(t), grafanaKind, nil)
+		_, err := c.Create(t.Context(), gf)
+		require.ErrorContains(t, err, "not both")
+		require.NotErrorIs(t, err, errPreconditionNotMet)
+	})
+
 	t.Run("missing ProjectVPCRef errors before ServiceCreate", func(t *testing.T) {
 		t.Parallel()
 
@@ -1331,6 +1345,18 @@ func TestServiceController_Update(t *testing.T) {
 				require.Equal(t, tc.want, updateReq.ProjectVpcId)
 			})
 		}
+	})
+
+	t.Run("projectVpcId with projectVPCRef is a hard error before ServiceGet", func(t *testing.T) {
+		t.Parallel()
+
+		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+		gf.Spec.ProjectVPCID = new("vpc-1")
+		gf.Spec.ProjectVPCRef = &v1alpha1.ResourceReference{Name: "vpc"}
+
+		c := newTestController(avngen.NewMockClient(t), grafanaKind, nil)
+		_, err := c.Update(t.Context(), gf)
+		require.ErrorContains(t, err, "not both")
 	})
 
 	t.Run("ProjectVPCRef without an ID is a precondition, not an unmanaged VPC", func(t *testing.T) {

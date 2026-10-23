@@ -654,6 +654,9 @@ spec:
                 - plan
                 - project
               type: object
+              x-kubernetes-validations:
+                - message: set projectVpcId or projectVPCRef, not both
+                  rule: "!(has(self.projectVpcId) && has(self.projectVPCRef))"
             status:
               description: ServiceStatus defines the observed state of service
               properties:
