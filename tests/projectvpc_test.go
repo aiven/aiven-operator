@@ -137,7 +137,7 @@ func TestProjectVPCID(t *testing.T) {
 	assert.Equal(t, kafkaAvn.CloudName, kafka.Spec.CloudName)
 
 	// Validates VPC
-	assert.Equal(t, vpc1.Status.ID, kafka.Spec.ProjectVPCID)
+	assert.Equal(t, new(vpc1.Status.ID), kafka.Spec.ProjectVPCID)
 	assert.Equal(t, vpc1.Status.ID, kafkaAvn.ProjectVpcId)
 
 	// Migrates the service to vpc2
@@ -161,7 +161,7 @@ func TestProjectVPCID(t *testing.T) {
 	// Gets kube object
 	kafkaUpd := new(v1alpha1.Kafka)
 	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: kafkaName, Namespace: "default"}, kafkaUpd))
-	assert.Equal(t, vpc2.Status.ID, kafkaUpd.Spec.ProjectVPCID)
+	assert.Equal(t, new(vpc2.Status.ID), kafkaUpd.Spec.ProjectVPCID)
 	assert.Equal(t, vpc2.Status.ID, kafkaAvnUpd.ProjectVpcId)
 	assert.Equal(t, vpc2.Spec.CloudName, kafkaUpd.Spec.CloudName)
 	assert.Equal(t, vpc2.Spec.CloudName, kafkaAvnUpd.CloudName)

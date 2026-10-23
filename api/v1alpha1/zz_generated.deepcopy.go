@@ -84,6 +84,11 @@ func (in *AuthSecretReference) DeepCopy() *AuthSecretReference {
 func (in *BaseServiceFields) DeepCopyInto(out *BaseServiceFields) {
 	*out = *in
 	in.ProjectDependant.DeepCopyInto(&out.ProjectDependant)
+	if in.ProjectVPCID != nil {
+		in, out := &in.ProjectVPCID, &out.ProjectVPCID
+		*out = new(string)
+		**out = **in
+	}
 	if in.ProjectVPCRef != nil {
 		in, out := &in.ProjectVPCRef, &out.ProjectVPCRef
 		*out = new(ResourceReference)

@@ -68,9 +68,5 @@ func (h *MySQLWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (ad
 		return nil, errors.New("cannot delete MySQL service, termination protection is on")
 	}
 
-	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
-		return nil, errors.New("cannot use both projectVpcId and projectVPCRef")
-	}
-
 	return nil, nil
 }

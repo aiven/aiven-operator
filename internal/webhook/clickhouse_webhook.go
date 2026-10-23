@@ -67,9 +67,5 @@ func (h *ClickhouseWebhook) ValidateDelete(_ context.Context, obj runtime.Object
 		return nil, errors.New("cannot delete Clickhouse service, termination protection is on")
 	}
 
-	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
-		return nil, errors.New("cannot use both projectVpcId and projectVPCRef")
-	}
-
 	return nil, nil
 }

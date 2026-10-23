@@ -66,9 +66,5 @@ func (h *FlinkWebhook) ValidateDelete(_ context.Context, obj runtime.Object) (ad
 		return nil, errors.New("cannot delete Flink service, termination protection is on")
 	}
 
-	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
-		return nil, errors.New("cannot use both projectVpcId and projectVPCRef")
-	}
-
 	return nil, nil
 }

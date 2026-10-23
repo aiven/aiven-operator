@@ -73,9 +73,5 @@ func (h *KafkaConnectWebhook) ValidateDelete(_ context.Context, obj runtime.Obje
 		return nil, errors.New("cannot delete KafkaConnect service, termination protection is on")
 	}
 
-	if in.Spec.ProjectVPCID != "" && in.Spec.ProjectVPCRef != nil {
-		return nil, errors.New("cannot use both projectVpcId and projectVPCRef")
-	}
-
 	return nil, nil
 }

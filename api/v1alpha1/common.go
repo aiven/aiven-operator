@@ -118,7 +118,7 @@ type BaseServiceFields struct {
 
 	// +kubebuilder:validation:MaxLength=36
 	// Identifier of the VPC the service should be in, if any.
-	ProjectVPCID string `json:"projectVpcId,omitempty"`
+	ProjectVPCID *string `json:"projectVpcId,omitempty"`
 
 	// ProjectVPCRef reference to ProjectVPC resource to use its ID as ProjectVPCID automatically
 	ProjectVPCRef *ResourceReference `json:"projectVPCRef,omitempty"`
@@ -134,8 +134,9 @@ type BaseServiceFields struct {
 	// Prevent service from being deleted. It is recommended to have this enabled for all services.
 	TerminationProtection *bool `json:"terminationProtection,omitempty"`
 
+	// +optional
 	// Tags are key-value pairs that allow you to categorize services.
-	Tags map[string]string `json:"tags,omitempty"`
+	Tags map[string]string `json:"tags,omitzero"`
 
 	// +kubebuilder:validation:MaxItems=1
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
@@ -143,8 +144,9 @@ type BaseServiceFields struct {
 	ServiceIntegrations []*ServiceIntegrationItem `json:"serviceIntegrations,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=10
+	// +optional
 	// Defines the email addresses that will receive alerts about upcoming maintenance updates or warnings about service instability.
-	TechnicalEmails []ServiceTechEmail `json:"technicalEmails,omitempty"`
+	TechnicalEmails []ServiceTechEmail `json:"technicalEmails,omitzero"`
 
 	// +kubebuilder:default=true
 	// Determines the power state of the service. When `true` (default), the service is running.
@@ -177,10 +179,15 @@ type SecretFields struct {
 // Validate runs complex validation on ServiceCommonSpec
 func (in *BaseServiceFields) Validate() error {
 	// todo: remove when resolved https://github.com/kubernetes-sigs/controller-tools/issues/461
-	if in.ProjectVPCID != "" && in.ProjectVPCRef != nil {
+	if in.HasProjectVPCID() && in.ProjectVPCRef != nil {
 		return fmt.Errorf("please set ProjectVPCID or ProjectVPCRef, not both")
 	}
 	return nil
+}
+
+// HasProjectVPCID reports whether the spec sets projectVpcId, including to "" (no VPC).
+func (in *BaseServiceFields) HasProjectVPCID() bool {
+	return in.ProjectVPCID != nil
 }
 
 // GetRefs is inherited by kafka, pg, os, etc

@@ -16,9 +16,9 @@ import (
 // desiredService is what the live service is compared against.
 type desiredService struct {
 	spec *v1alpha1.ServiceCommonSpec
-	// vpcID is the Aiven VPC ID; the spec can name it through projectVPCRef.
-	// "" when the spec names no VPC.
-	vpcID string
+	// vpcID is the resolved projectVpcId: nil when the spec names no VPC (unmanaged),
+	// "" for no VPC, otherwise the Aiven VPC ID, possibly through projectVPCRef.
+	vpcID *string
 }
 
 // driftField compares one ServiceCommonSpec field with the live service. A field left out of

@@ -46,9 +46,22 @@ func TestDetectDrift(t *testing.T) {
 		spec.DiskSpace = "lots"
 		require.Empty(t, detectDrift(fields, desired(spec), live), "an unparsable size is 0, so omitted")
 
-		spec.ProjectVPCID = ""
+		spec.ProjectVPCID = nil
 		require.Equal(t, []fieldDrift{{"projectVpcId", "vpc-2", "vpc-1"}},
-			detectDrift(fields, desiredService{spec: spec, vpcID: "vpc-2"}, live), "the resolved vpcID is compared, not the spec string")
+			detectDrift(fields, desiredService{spec: spec, vpcID: new("vpc-2")}, live), "the resolved vpcID is compared, not the spec field")
+	})
+
+	t.Run("projectVpcId tri-state", func(t *testing.T) {
+		t.Parallel()
+		spec := fullSpec()
+		live := liveFor(spec) // in vpc-1
+
+		spec.ProjectVPCID = nil
+		require.Empty(t, detectDrift(fields, desired(spec), live), "omitted: the live VPC is unmanaged")
+		spec.ProjectVPCID = new("")
+		require.Equal(t, []fieldDrift{{"projectVpcId", "", "vpc-1"}}, detectDrift(fields, desired(spec), live), `"" asks for no VPC`)
+		live.ProjectVpcId = ""
+		require.Empty(t, detectDrift(fields, desired(spec), live))
 	})
 
 	// Aiven stores values as sent, so only absence is normalized.
