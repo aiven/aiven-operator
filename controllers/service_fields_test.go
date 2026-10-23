@@ -21,7 +21,7 @@ func fullSpec() *v1alpha1.ServiceCommonSpec {
 		BaseServiceFields: v1alpha1.BaseServiceFields{
 			Plan:                  "startup-4",
 			CloudName:             "google-europe-west1",
-			ProjectVPCID:          "vpc-1",
+			ProjectVPCID:          new("vpc-1"),
 			MaintenanceWindowDow:  service.DowTypeMonday,
 			MaintenanceWindowTime: "10:00:00",
 			TerminationProtection: new(true),
@@ -49,7 +49,7 @@ func liveFor(spec *v1alpha1.ServiceCommonSpec) *service.ServiceGetOut {
 	s := &service.ServiceGetOut{
 		Plan:                  spec.Plan,
 		CloudName:             spec.CloudName,
-		ProjectVpcId:          spec.ProjectVPCID,
+		ProjectVpcId:          fromAnyPointer(spec.ProjectVPCID),
 		TerminationProtection: fromAnyPointer(spec.TerminationProtection),
 		State:                 service.ServiceStateTypePoweroff,
 		DiskSpaceMb:           NilIfZero(v1alpha1.ConvertDiskSpace(spec.DiskSpace)),
@@ -89,8 +89,7 @@ func TestDriftFieldsCoverSpec(t *testing.T) {
 	var specFields []string
 	var walk func(reflect.Type)
 	walk = func(typ reflect.Type) {
-		for i := range typ.NumField() {
-			f := typ.Field(i)
+		for f := range typ.Fields() {
 			if f.Anonymous {
 				walk(f.Type)
 				continue

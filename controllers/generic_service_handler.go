@@ -62,7 +62,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 
 	// Project id reference
 	// Could be right in spec or referenced (has ref)
-	projectVPCID := spec.ProjectVPCID
+	projectVPCID := fromAnyPointer(spec.ProjectVPCID)
 	if projectVPCID == "" {
 		vpcRefs := make([]v1alpha1.Object, len(refs))
 		for i, r := range refs {

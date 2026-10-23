@@ -968,6 +968,25 @@ func TestServiceController_Create(t *testing.T) {
 		require.False(t, obs.ResourceUpToDate)
 	})
 
+	t.Run(`projectVpcId: "" creates outside a VPC`, func(t *testing.T) {
+		t.Parallel()
+
+		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+		gf.Spec.ProjectVPCID = new("")
+
+		var createReq *service.ServiceCreateIn
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceCreate(mock.Anything, gf.Spec.Project, mock.Anything).
+			Run(func(_ context.Context, _ string, in *service.ServiceCreateIn) { createReq = in }).
+			Return(&service.ServiceCreateOut{}, nil).Once()
+
+		c := newTestController(avn, grafanaKind, nil)
+		_, err := c.Create(t.Context(), gf)
+		require.NoError(t, err)
+		require.Nil(t, createReq.ProjectVpcId)
+	})
+
 	t.Run("missing ProjectVPCRef errors before ServiceCreate", func(t *testing.T) {
 		t.Parallel()
 
@@ -1277,6 +1296,41 @@ func TestServiceController_Update(t *testing.T) {
 		require.Nil(t, updateReq.TechEmails)
 		// A null project_vpc_id would move the service out of its VPC.
 		require.Equal(t, new("vpc-console"), updateReq.ProjectVpcId)
+	})
+
+	t.Run("projectVpcId: omitted echoes the live VPC, empty sends null, an ID is sent", func(t *testing.T) {
+		t.Parallel()
+
+		for name, tc := range map[string]struct {
+			spec *string
+			want *string
+		}{
+			"omitted": {spec: nil, want: new("vpc-console")},
+			"empty":   {spec: new(""), want: nil},
+			"id":      {spec: new("vpc-new"), want: new("vpc-new")},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+				gf.Spec.ProjectVPCID = tc.spec
+
+				var updateReq *service.ServiceUpdateIn
+				avn := avngen.NewMockClient(t)
+				avn.EXPECT().
+					ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
+					Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning, ProjectVpcId: "vpc-console"}, nil).Once()
+				avn.EXPECT().
+					ServiceUpdate(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+					Run(func(_ context.Context, _, _ string, in *service.ServiceUpdateIn, _ ...[2]string) { updateReq = in }).
+					Return(&service.ServiceUpdateOut{}, nil).Once()
+
+				c := newTestController(avn, grafanaKind, nil)
+				_, err := c.Update(t.Context(), gf)
+				require.NoError(t, err)
+				require.Equal(t, tc.want, updateReq.ProjectVpcId)
+			})
+		}
 	})
 
 	t.Run("ProjectVPCRef without an ID is a precondition, not an unmanaged VPC", func(t *testing.T) {

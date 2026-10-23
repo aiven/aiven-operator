@@ -169,7 +169,7 @@ func (c *serviceController[T]) Create(ctx context.Context, obj T) (CreateResult,
 		ServiceType:           string(c.kind.serviceType),
 		Plan:                  spec.Plan,
 		Cloud:                 NilIfZero(spec.CloudName),
-		ProjectVpcId:          NilIfZero(projectVPCID),
+		ProjectVpcId:          NilIfZero(fromAnyPointer(projectVPCID)), // nil and "" both create outside a VPC
 		Maintenance:           maintenanceIn(spec),
 		TerminationProtection: spec.TerminationProtection,
 		DiskSpaceMb:           NilIfZero(v1alpha1.ConvertDiskSpace(spec.DiskSpace)),
@@ -254,14 +254,15 @@ func (c *serviceController[T]) Update(ctx context.Context, obj T) (UpdateResult,
 		}
 	}
 
-	// A null project_vpc_id moves the service out of its VPC: keep the live one when the spec has none.
-	if projectVPCID == "" {
-		projectVPCID = oldService.ProjectVpcId
+	// A null project_vpc_id moves the service out of its VPC: an unmanaged VPC echoes the live one,
+	// an explicit "" sends null.
+	if projectVPCID == nil {
+		projectVPCID = &oldService.ProjectVpcId
 	}
 	req := service.ServiceUpdateIn{
 		Plan:                  NilIfZero(spec.Plan),
 		Cloud:                 NilIfZero(spec.CloudName),
-		ProjectVpcId:          NilIfZero(projectVPCID),
+		ProjectVpcId:          NilIfZero(*projectVPCID),
 		Maintenance:           maintenanceIn(spec),
 		TerminationProtection: spec.TerminationProtection,
 		Powered:               new(isPowered(spec)),
@@ -399,26 +400,27 @@ func (c *serviceController[T]) maybeDeleteMigrationSecret(ctx context.Context, o
 	return nil
 }
 
-// resolveProjectVPCID returns spec.projectVPCID or the status ID of the referenced ProjectVPC.
+// resolveProjectVPCID returns the VPC the spec asks for: nil when it names none (unmanaged),
+// "" for no VPC, otherwise spec.projectVpcId or the status ID of the referenced ProjectVPC.
 // The reconciler resolves refs only to gate readiness, so the lookup happens here. A ProjectVPC
 // without an ID yet is a precondition, not an unmanaged VPC: Update would otherwise echo the live one.
-func (c *serviceController[T]) resolveProjectVPCID(ctx context.Context, obj T, spec *v1alpha1.ServiceCommonSpec) (string, error) {
-	if spec.ProjectVPCID != "" {
+func (c *serviceController[T]) resolveProjectVPCID(ctx context.Context, obj T, spec *v1alpha1.ServiceCommonSpec) (*string, error) {
+	if spec.HasProjectVPCID() {
 		return spec.ProjectVPCID, nil
 	}
 	if spec.ProjectVPCRef == nil {
-		return "", nil
+		return nil, nil
 	}
 
 	ref := spec.ProjectVPCRef.ProjectVPC(obj.GetNamespace())
 	projectVPC := &v1alpha1.ProjectVPC{}
 	if err := c.k8s.Get(ctx, ref.NamespacedName, projectVPC); err != nil {
-		return "", fmt.Errorf("failed to get referenced ProjectVPC %q: %w", ref.NamespacedName, err)
+		return nil, fmt.Errorf("failed to get referenced ProjectVPC %q: %w", ref.NamespacedName, err)
 	}
 	if projectVPC.Status.ID == "" {
-		return "", fmt.Errorf("%w: referenced ProjectVPC %q has no ID yet", errPreconditionNotMet, ref.NamespacedName)
+		return nil, fmt.Errorf("%w: referenced ProjectVPC %q has no ID yet", errPreconditionNotMet, ref.NamespacedName)
 	}
-	return projectVPC.Status.ID, nil
+	return &projectVPC.Status.ID, nil
 }
 
 // tagsIn is nil when the spec omits tags; {} is kept to clear them.

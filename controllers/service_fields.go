@@ -42,7 +42,7 @@ type vpcField struct{}
 
 func (vpcField) name() string { return "projectVpcId" }
 func (vpcField) compare(d desiredService, l *service.ServiceGetOut) (string, string, bool) {
-	return compareScalar(NilIfZero(d.vpcID), l.ProjectVpcId)
+	return compareScalar(d.vpcID, l.ProjectVpcId)
 }
 
 type maintenanceDowField struct{}
