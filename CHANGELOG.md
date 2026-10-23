@@ -5,6 +5,8 @@
 - Change Go type of `BaseServiceFields.ProjectVPCID` from `string` to `*string` and the JSON tag of
   `Tags` and `TechnicalEmails` from `omitempty` to `omitzero`. CRD schema and manifests are
   unchanged; only Go code importing `api/v1alpha1` is affected
+- Fix service webhooks refusing to delete a resource that sets both `projectVpcId` and `projectVPCRef`;
+  the conflict is still rejected on create and update
 - Add `Kafka` field `userConfig.kafka.group_consumer_heartbeat_interval_ms`, type `integer`: The heartbeat
   interval given to the members of a consumer group using the consumer rebalance protocol
 - Add `Kafka` field `userConfig.kafka.group_consumer_max_heartbeat_interval_ms`, type `integer`: The

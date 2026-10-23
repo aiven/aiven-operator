@@ -10,28 +10,25 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
-func TestKafkaWebhookValidateDelete(t *testing.T) {
+func TestKafkaWebhookProjectVPCConflict(t *testing.T) {
 	t.Parallel()
 
-	t.Run("rejects projectVpcId together with projectVPCRef", func(t *testing.T) {
-		t.Parallel()
-		for name, id := range map[string]*string{"id": new("vpc-1"), "empty": new("")} {
-			t.Run(name, func(t *testing.T) {
-				t.Parallel()
-				in := &v1alpha1.Kafka{}
-				in.Spec.ProjectVPCID = id
-				in.Spec.ProjectVPCRef = &v1alpha1.ResourceReference{Name: "vpc"}
-				_, err := (&KafkaWebhook{}).ValidateDelete(t.Context(), in)
-				require.ErrorContains(t, err, "cannot use both projectVpcId and projectVPCRef")
-			})
-		}
-	})
+	// projectVpcId set to anything, including "", together with projectVPCRef.
+	for name, id := range map[string]*string{"id": new("vpc-1"), "empty": new("")} {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			in := &v1alpha1.Kafka{}
+			in.Spec.ProjectVPCID = id
+			in.Spec.ProjectVPCRef = &v1alpha1.ResourceReference{Name: "vpc"}
+			h := &KafkaWebhook{}
 
-	t.Run("allows either alone", func(t *testing.T) {
-		t.Parallel()
-		in := &v1alpha1.Kafka{}
-		in.Spec.ProjectVPCRef = &v1alpha1.ResourceReference{Name: "vpc"}
-		_, err := (&KafkaWebhook{}).ValidateDelete(t.Context(), in)
-		require.NoError(t, err)
-	})
+			_, err := h.ValidateCreate(t.Context(), in)
+			require.ErrorContains(t, err, "not both")
+			_, err = h.ValidateUpdate(t.Context(), nil, in)
+			require.ErrorContains(t, err, "not both")
+			// A spec conflict is no reason to keep the resource.
+			_, err = h.ValidateDelete(t.Context(), in)
+			require.NoError(t, err)
+		})
+	}
 }
