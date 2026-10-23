@@ -69,7 +69,7 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 		// An explicit "" counts as set: has() is true for a present key.
 		conflict := strings.Replace(yml, "  projectVPCRef:", "  projectVpcId: \"\"\n  projectVPCRef:", 1)
 		require.NotEqual(t, yml, conflict)
-		// The CEL message, not the webhook's "please set ProjectVPCID or ProjectVPCRef, not both".
+		// CEL runs before the validating webhook, so this is the schema rejecting it.
 		require.ErrorContains(t, s.Apply(conflict), "set projectVpcId or projectVPCRef, not both")
 	})
 

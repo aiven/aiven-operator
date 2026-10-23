@@ -1357,6 +1357,7 @@ func TestServiceController_Update(t *testing.T) {
 		c := newTestController(avngen.NewMockClient(t), grafanaKind, nil)
 		_, err := c.Update(t.Context(), gf)
 		require.ErrorContains(t, err, "not both")
+		require.NotErrorIs(t, err, errPreconditionNotMet)
 	})
 
 	t.Run("ProjectVPCRef without an ID is a precondition, not an unmanaged VPC", func(t *testing.T) {

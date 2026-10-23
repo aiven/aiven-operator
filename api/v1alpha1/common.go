@@ -180,7 +180,7 @@ type SecretFields struct {
 // Validate rejects projectVpcId together with projectVPCRef; the controller's backstop for the CEL rule.
 func (in *BaseServiceFields) Validate() error {
 	if in.HasProjectVPCID() && in.ProjectVPCRef != nil {
-		return fmt.Errorf("please set ProjectVPCID or ProjectVPCRef, not both")
+		return fmt.Errorf("set projectVpcId or projectVPCRef, not both")
 	}
 	return nil
 }
