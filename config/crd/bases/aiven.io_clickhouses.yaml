@@ -475,6 +475,8 @@ spec:
                     connInfoSecretTargetDisabled can only be set during resource
                     creation.
                   rule: has(oldSelf.connInfoSecretTargetDisabled) == has(self.connInfoSecretTargetDisabled)
+                - message: set projectVpcId or projectVPCRef, not both
+                  rule: "!(has(self.projectVpcId) && has(self.projectVPCRef))"
             status:
               description: ServiceStatus defines the observed state of service
               properties:

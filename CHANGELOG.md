@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Setting both `projectVpcId` and `projectVPCRef` is now rejected when the resource is applied, also
+  when webhooks are disabled. A resource that already sets both must drop one before its next update
 - Change Go type of `BaseServiceFields.ProjectVPCID` from `string` to `*string` and the JSON tag of
   `Tags` and `TechnicalEmails` from `omitempty` to `omitzero`. CRD schema and manifests are
   unchanged; only Go code importing `api/v1alpha1` is affected

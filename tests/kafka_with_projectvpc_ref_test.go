@@ -4,6 +4,7 @@ package tests
 
 import (
 	"fmt"
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -63,6 +64,14 @@ func TestKafkaWithProjectVPCRef(t *testing.T) {
 
 	// Cleans test afterward
 	defer s.Destroy(t)
+
+	t.Run("projectVpcId with projectVPCRef is rejected by the API server", func(t *testing.T) {
+		// An explicit "" counts as set: has() is true for a present key.
+		conflict := strings.Replace(yml, "  projectVPCRef:", "  projectVpcId: \"\"\n  projectVPCRef:", 1)
+		require.NotEqual(t, yml, conflict)
+		// CEL runs before the validating webhook, so this is the schema rejecting it.
+		require.ErrorContains(t, s.Apply(conflict), "set projectVpcId or projectVPCRef, not both")
+	})
 
 	// WHEN
 	// Applies given manifest

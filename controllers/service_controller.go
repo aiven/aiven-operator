@@ -405,6 +405,10 @@ func (c *serviceController[T]) maybeDeleteMigrationSecret(ctx context.Context, o
 // The reconciler resolves refs only to gate readiness, so the lookup happens here. A ProjectVPC
 // without an ID yet is a precondition, not an unmanaged VPC: Update would otherwise echo the live one.
 func (c *serviceController[T]) resolveProjectVPCID(ctx context.Context, obj T, spec *v1alpha1.ServiceCommonSpec) (*string, error) {
+	// Both set: "" would otherwise win over the ref and move the service out of its VPC.
+	if err := spec.Validate(); err != nil {
+		return nil, err
+	}
 	if spec.HasProjectVPCID() {
 		return spec.ProjectVPCID, nil
 	}
