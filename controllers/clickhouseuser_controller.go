@@ -61,9 +61,14 @@ func (r *ClickhouseUserController) Observe(ctx context.Context, user *v1alpha1.C
 	u := list[idx]
 	user.Status.UUID = u.Uuid
 
+	// Exists at Aiven: Running even when Update is skipped.
+	markInstanceRunning(user)
+
+	// The source password defines the desired one and is reflected in the connection Secret.
+	// Under a policy without Update a rotation is never pushed to Aiven, so the Secret keeps the value
+	// written by Create or Update.
 	var password string
-	if user.Spec.ConnInfoSecretSource != nil {
-		// External mode: the password from ConnInfoSecretSource fully defines the desired password and should be reflected in the connection secret
+	if user.Spec.ConnInfoSecretSource != nil && managementPolicyFrom(ctx).allowsUpdate() {
 		var err error
 		password, err = GetPasswordFromSecret(ctx, r.Client, user)
 		if err != nil {

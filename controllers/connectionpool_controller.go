@@ -63,7 +63,9 @@ func (r *ConnectionPoolController) Observe(ctx context.Context, cp *v1alpha1.Con
 		return Observation{ResourceExists: false}, nil
 	}
 
-	if !hasLatestGeneration(cp) || !poolMatchesSpec(pool, cp) {
+	// Update discards the details, so they are built only when they are published.
+	inSync := hasLatestGeneration(cp) && poolMatchesSpec(pool, cp)
+	if !inSync && managementPolicyFrom(ctx).allowsUpdate() {
 		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
 	}
 
@@ -76,7 +78,7 @@ func (r *ConnectionPoolController) Observe(ctx context.Context, cp *v1alpha1.Con
 
 	return Observation{
 		ResourceExists:   true,
-		ResourceUpToDate: true,
+		ResourceUpToDate: inSync,
 		SecretDetails:    details,
 	}, nil
 }

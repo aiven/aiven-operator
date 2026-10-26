@@ -60,11 +60,9 @@ func (r *OrganizationProjectController) Observe(ctx context.Context, cr *v1alpha
 		}
 	}
 
-	if !inSync {
-		return Observation{
-			ResourceExists:   true,
-			ResourceUpToDate: false,
-		}, nil
+	// Update discards the details, so the CA is fetched only when they are published.
+	if !inSync && managementPolicyFrom(ctx).allowsUpdate() {
+		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
 	}
 
 	// The CA cert is only fetched to fill the connection secret, so skip the call
@@ -85,7 +83,7 @@ func (r *OrganizationProjectController) Observe(ctx context.Context, cr *v1alpha
 
 	return Observation{
 		ResourceExists:   true,
-		ResourceUpToDate: true,
+		ResourceUpToDate: inSync,
 		SecretDetails:    details,
 	}, nil
 }

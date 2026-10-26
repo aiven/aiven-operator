@@ -38,11 +38,13 @@ flowchart TD
   J1 --> J2[Requeue after pollInterval]
 
   I -->|yes| K{Up to date}
-  K -->|no| L[Update]
+  K -->|no| K1{management-policy CreateOnly}
+  K1 -->|no| L[Update]
   L --> L1[Publish secrets]
   L1 --> L2[Requeue after pollInterval]
 
   K -->|yes| M[Publish secrets]
+  K1 -->|yes| M
   M --> M1[Requeue after pollInterval]
 ```
 
@@ -75,6 +77,10 @@ When `ResourceExists` is `false`, the reconciler calls `Create`. When it's `true
 On success the reconciler publishes the returned `SecretDetails`, marks the current generation as processed, and schedules the next reconcile after a fixed poll interval.
 
 On failure it sets an `Error` condition with the appropriate reason and emits events such as `UnableToCreateOrUpdateAtAiven` or `UnableToWaitForInstanceToBeRunning`.
+
+### Management policy
+
+The `controllers.aiven.io/management-policy: CreateOnly` annotation turns `Update` off for a resource. When `ResourceUpToDate` is `false`, the reconciler skips `Update` and publishes the `SecretDetails` returned by `Observe`. A new generation is stamped as processed, the stamp it replaces is kept in `controllers.aiven.io/generation-was-applied`, and a `SpecChangeIgnored` warning is emitted once per change, whether a spec edit or a source Secret rotation; an adopted resource that was never applied gets no warning. Drift on an already processed generation is requeued at the poll interval. `Create` still runs for a missing resource and deletion is unaffected. Any other value is rejected before `Observe` runs, on every reconcile, and surfaces via an `Error` condition with reason `CreateOrUpdate`. A controller whose `Observe` cannot see the live resource opts out by implementing `managementPolicyUnsupported`; the annotation is then rejected the same way. Removing the annotation restores the kept stamp, so the next reconcile applies the skipped generations.
 
 ## Secret publishing
 

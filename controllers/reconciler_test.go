@@ -1200,6 +1200,262 @@ func TestReconciler_Reconcile(t *testing.T) {
 		}, recorderEvents(recorder))
 	})
 
+	t.Run("Skips Update under management-policy CreateOnly and applies it once lifted", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		obj.Generation = 2
+		obj.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			managementPolicyAnnotation:    string(managementPolicyCreateOnly),
+		}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		// Three polls: an unprocessed generation, the stamped one, then the restored one after the lift.
+		var sawLatestGeneration []bool
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().
+			Observe(mock.Anything, mock.Anything).
+			RunAndReturn(func(_ context.Context, u *v1alpha1.ClickhouseUser) (Observation, error) {
+				sawLatestGeneration = append(sawLatestGeneration, hasLatestGeneration(u))
+				return Observation{
+					ResourceExists:   true,
+					ResourceUpToDate: false,
+					SecretDetails:    map[string]string{"FOO": "foo"},
+				}, nil
+			}).
+			Times(3)
+		c.EXPECT().
+			Update(mock.Anything, mock.Anything).
+			Return(UpdateResult{}, nil).
+			Once()
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Times(3)
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
+			},
+			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+			newObj:    func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+			newSecret: newSecret,
+		}
+		req := ctrl.Request{NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}}
+
+		res, err := r.Reconcile(t.Context(), req)
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), req.NamespacedName, got))
+		require.True(t, hasLatestGeneration(got), "generation is stamped as acknowledged")
+		require.Equal(t, "1", got.Annotations[appliedGenerationAnnotation], "the applied stamp is kept aside")
+
+		secret := &corev1.Secret{}
+		require.NoError(t, k8sClient.Get(t.Context(), req.NamespacedName, secret))
+		require.Equal(t, map[string][]byte{"FOO": []byte("foo")}, secret.Data)
+
+		// Drift on a stamped generation: poll cadence, not the not-ready retry.
+		res, err = r.Reconcile(t.Context(), req)
+		require.NoError(t, err)
+		require.Equal(t, ctrl.Result{RequeueAfter: testPollInterval}, res)
+		require.Equal(t, []string{
+			"Normal InstanceFinalizerAdded instance finalizer added",
+			"Warning SpecChangeIgnored update not applied: controllers.aiven.io/management-policy is CreateOnly",
+		}, recorderEvents(recorder), "one warning per generation, none on the second poll")
+
+		// Lift the policy: the skipped generation is pending again and Update runs.
+		require.NoError(t, k8sClient.Get(t.Context(), req.NamespacedName, got))
+		delete(got.Annotations, managementPolicyAnnotation)
+		require.NoError(t, k8sClient.Update(t.Context(), got))
+
+		_, err = r.Reconcile(t.Context(), req)
+		require.NoError(t, err)
+		require.Equal(t, []bool{false, true, false}, sawLatestGeneration, "Observe saw the restored stamp")
+
+		require.NoError(t, k8sClient.Get(t.Context(), req.NamespacedName, got))
+		require.Equal(t, "2", got.Annotations[processedGenerationAnnotation])
+		require.NotContains(t, got.Annotations, appliedGenerationAnnotation)
+	})
+
+	t.Run("Rejects an unknown management-policy value before observing", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		obj.Annotations = map[string]string{managementPolicyAnnotation: "never"}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		// No Observe expectation: the typo is rejected before the controller is consulted.
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
+			},
+			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+
+		_, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+		require.EqualError(t, err, `invalid management policy "never", only "CreateOnly" is allowed`)
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.False(t, hasLatestGeneration(got))
+		cond := meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError)
+		require.NotNil(t, cond)
+		require.Equal(t, string(errConditionCreateOrUpdate), cond.Reason)
+		require.Contains(t, recorderEvents(recorder),
+			`Warning UnableToCreateOrUpdateAtAiven invalid management policy "never", only "CreateOnly" is allowed`)
+	})
+
+	t.Run("Rejects management-policy CreateOnly on a kind that does not support it", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseGrant](t, yamlClickhouseGrant)
+		obj.Annotations = map[string]string{managementPolicyAnnotation: string(managementPolicyCreateOnly)}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseGrant{}).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		// No Observe or Create expectation: the grant controller opts out and nothing is applied.
+		var _ managementPolicyUnsupported = (*ClickhouseGrantController)(nil)
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
+		r := &Reconciler[*v1alpha1.ClickhouseGrant]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
+			},
+			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+			newController: func(avnGen avngen.Client) AivenController[*v1alpha1.ClickhouseGrant] {
+				return &ClickhouseGrantController{Client: k8sClient, avnGen: avnGen}
+			},
+			newObj: func() *v1alpha1.ClickhouseGrant { return &v1alpha1.ClickhouseGrant{} },
+		}
+
+		_, err := r.Reconcile(t.Context(), ctrl.Request{
+			NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace},
+		})
+		require.EqualError(t, err, "controllers.aiven.io/management-policy is not supported for this kind")
+
+		got := &v1alpha1.ClickhouseGrant{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, got))
+		require.False(t, wasEverApplied(got), "nothing was applied")
+		cond := meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError)
+		require.NotNil(t, cond)
+		require.Equal(t, string(errConditionCreateOrUpdate), cond.Reason)
+	})
+
+	t.Run("Warns about a skipped source Secret rotation under management-policy CreateOnly", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		obj.Generation = 1
+		// The secret watch cleared the processed stamp and left the rotation marker.
+		obj.Annotations = map[string]string{
+			secretSourceUpdatedAnnotation: "1700000000",
+			managementPolicyAnnotation:    string(managementPolicyCreateOnly),
+		}
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+		recorder := record.NewFakeRecorder(10)
+
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().
+			Observe(mock.Anything, mock.Anything).
+			Return(Observation{ResourceExists: true, ResourceUpToDate: false}, nil).
+			Once()
+
+		m := &mock.Mock{}
+		t.Cleanup(func() { m.AssertExpectations(t) })
+		m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+			Return(avngen.NewMockClient(t), nil).
+			Once()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:          k8sClient,
+				Scheme:          scheme,
+				Recorder:        recorder,
+				DefaultToken:    "default-token",
+				KubeVersion:     "v1.30.0",
+				OperatorVersion: "v0.0.0-test",
+				PollInterval:    testPollInterval,
+			},
+			newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+			newController: func(avngen.Client) AivenController[*v1alpha1.ClickhouseUser] {
+				return c
+			},
+			newObj: func() *v1alpha1.ClickhouseUser { return &v1alpha1.ClickhouseUser{} },
+		}
+		req := ctrl.Request{NamespacedName: types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}}
+
+		_, err := r.Reconcile(t.Context(), req)
+		require.NoError(t, err)
+		require.Contains(t, recorderEvents(recorder),
+			"Warning SpecChangeIgnored update not applied: controllers.aiven.io/management-policy is CreateOnly")
+
+		got := &v1alpha1.ClickhouseUser{}
+		require.NoError(t, k8sClient.Get(t.Context(), req.NamespacedName, got))
+		require.True(t, hasLatestGeneration(got))
+		// Nothing was applied before the rotation: lifting the policy must clear the stamp, not restore one.
+		require.Contains(t, got.Annotations, appliedGenerationAnnotation)
+		require.Empty(t, got.Annotations[appliedGenerationAnnotation])
+	})
+
 	t.Run("Requeues when resource is up to date", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
 		// Clear processedGenerationAnnotation to verify that a steady-state reconcile will mark the current generation as processed.

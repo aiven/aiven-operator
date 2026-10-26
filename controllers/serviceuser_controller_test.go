@@ -700,6 +700,83 @@ func TestServiceUserReconciler(t *testing.T) {
 		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
 	})
 
+	t.Run("Publishes secrets without updating under management-policy CreateOnly while access control drifts", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Spec.AccessControl = &v1alpha1.ServiceUserAccessControl{
+			ValkeyACLKeys: []string{"prefix_*:*"},
+		}
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+			managementPolicyAnnotation:    string(managementPolicyCreateOnly),
+		}
+
+		// No ServiceUserCredentialsModify expectation: the mock fails the test if Update runs.
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "valkey",
+				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{
+				Username: user.Name,
+				Password: "pw",
+				// ACL was changed in the Console and stays that way: CreateOnly must not revert it.
+				AccessControl: valkeyAccessControlOut(&v1alpha1.ServiceUserAccessControl{
+					ValkeyACLKeys: []string{"console-owned:*"},
+				}),
+			}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, res := runScenario(t, user, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+	})
+
+	t.Run("Adopts an existing user under management-policy CreateOnly and becomes Running", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		// CreateOnly from the start, never applied: the Console owns this user.
+		user.Annotations = map[string]string{managementPolicyAnnotation: string(managementPolicyCreateOnly)}
+
+		// No ServiceUserCredentialsModify expectation: the mock fails the test if Update runs.
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "valkey",
+				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, res := runScenario(t, user, avn)
+		// Ready on the first pass: the poll cadence, not the not-ready retry.
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.ServiceUser{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got))
+		require.True(t, IsReadyToUse(got), "dependents may use the adopted user")
+		require.True(t, meta.IsStatusConditionTrue(got.Status.Conditions, conditionTypeRunning))
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+	})
+
 	t.Run("Publishes Kafka endpoint keys for externally managed Kafka service", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
 		user.Generation = 1

@@ -318,6 +318,35 @@ func TestKafkaSchemaReconciler(t *testing.T) {
 			"the fingerprint annotation is the source of truth for drift detection on the next pass")
 	})
 
+	t.Run("Adopts an existing subject under management-policy CreateOnly and becomes Running", func(t *testing.T) {
+		schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)
+		schema.Generation = 1
+		// CreateOnly from the start, never applied: the registry owns this subject, so no fingerprint is set.
+		schema.Annotations = map[string]string{managementPolicyAnnotation: string(managementPolicyCreateOnly)}
+
+		// No ServiceSchemaRegistrySubjectVersionPost expectation: the mock fails the test if Update runs.
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, mock.Anything).
+			Return(runningService(), nil).Once()
+		avn.EXPECT().
+			ServiceSchemaRegistrySubjectVersionsGet(mock.Anything, schema.Spec.Project, schema.Spec.ServiceName, schema.Spec.SubjectName).
+			Return([]int{1}, nil).Once()
+
+		r, res, err := runKafkaSchemaScenario(t, schema, avn)
+		require.NoError(t, err)
+		// Ready on the first pass: the poll cadence, not the not-ready retry.
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.KafkaSchema{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: schema.Name, Namespace: schema.Namespace}, got))
+		require.True(t, IsReadyToUse(got), "dependents may use the adopted subject")
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+		// Never applied: no change to report.
+		require.NotContains(t, recorderEvents(r.Recorder.(*record.FakeRecorder)),
+			"Warning SpecChangeIgnored update not applied: controllers.aiven.io/management-policy is CreateOnly")
+	})
+
 	// Soft-delete followed by hard-delete
 	t.Run("Deletes KafkaSchema and removes finalizer on deletion", func(t *testing.T) {
 		schema := newObjectFromYAML[v1alpha1.KafkaSchema](t, yamlKafkaSchema)

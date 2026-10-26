@@ -10,6 +10,7 @@ import (
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -345,6 +346,82 @@ func TestConnectionPoolReconciler(t *testing.T) {
 		secret := &corev1.Secret{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: cp.Name, Namespace: cp.Namespace}, secret))
 		require.Equal(t, []byte("ca-cert"), secret.Data["CONNECTIONPOOL_CA_CERT"])
+	})
+
+	t.Run("Publishes secret without updating under management-policy CreateOnly while pool drifts", func(t *testing.T) {
+		cp := newObjectFromYAML[v1alpha1.ConnectionPool](t, yamlConnectionPool)
+		cp.Generation = 1
+		cp.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+			managementPolicyAnnotation:    string(managementPolicyCreateOnly),
+		}
+
+		// Remote pool size differs from the spec and stays that way: CreateOnly must not correct it.
+		pool := service.ConnectionPoolOut{
+			PoolName:      cp.Name,
+			Database:      cp.Spec.DatabaseName,
+			PoolMode:      service.PoolModeType(cp.Spec.PoolMode),
+			PoolSize:      10,
+			ConnectionUri: "postgres://avnadmin:svc-pass@pg.example.com:24655/test-db?sslmode=require",
+		}
+
+		// No ServicePGBouncerUpdate expectation: the mock fails the test if Update runs.
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, cp.Spec.Project, cp.Spec.ServiceName, mock.Anything).
+			Return(serviceGetOut(cp, pool), nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, cp.Spec.Project).Return("ca-cert", nil).Once()
+
+		r, res := runScenario(t, cp, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: cp.Name, Namespace: cp.Namespace}, secret))
+		require.Equal(t, []byte("svc-pass"), secret.Data["CONNECTIONPOOL_PASSWORD"])
+		require.Equal(t, []byte("ca-cert"), secret.Data["CONNECTIONPOOL_CA_CERT"])
+	})
+
+	t.Run("Adopts a drifted pool under management-policy CreateOnly and becomes Running", func(t *testing.T) {
+		cp := newObjectFromYAML[v1alpha1.ConnectionPool](t, yamlConnectionPool)
+		cp.Generation = 1
+		// CreateOnly from the start, never applied: the Console owns this pool.
+		cp.Annotations = map[string]string{managementPolicyAnnotation: string(managementPolicyCreateOnly)}
+
+		pool := service.ConnectionPoolOut{
+			PoolName:      cp.Name,
+			Database:      cp.Spec.DatabaseName,
+			PoolMode:      service.PoolModeType(cp.Spec.PoolMode),
+			PoolSize:      10,
+			ConnectionUri: "postgres://avnadmin:svc-pass@pg.example.com:24655/test-db?sslmode=require",
+		}
+
+		// No ServicePGBouncerUpdate expectation: the mock fails the test if Update runs.
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, cp.Spec.Project, cp.Spec.ServiceName, mock.Anything).
+			Return(serviceGetOut(cp, pool), nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, cp.Spec.Project).Return("ca-cert", nil).Once()
+
+		r, res := runScenario(t, cp, avn)
+		// Ready on the first pass: the poll cadence, not the not-ready retry.
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.ConnectionPool{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: cp.Name, Namespace: cp.Namespace}, got))
+		require.True(t, IsReadyToUse(got), "dependents may use the adopted pool")
+		require.True(t, meta.IsStatusConditionTrue(got.Status.Conditions, conditionTypeRunning))
+		// Never applied: no change to report, and nothing to restore but the pending spec once lifted.
+		require.NotContains(t, recorderEvents(r.Recorder.(*record.FakeRecorder)),
+			"Warning SpecChangeIgnored update not applied: controllers.aiven.io/management-policy is CreateOnly")
+		require.Empty(t, got.Annotations[appliedGenerationAnnotation])
+		require.Contains(t, got.Annotations, appliedGenerationAnnotation)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: cp.Name, Namespace: cp.Namespace}, secret))
+		require.Equal(t, []byte("svc-pass"), secret.Data["CONNECTIONPOOL_PASSWORD"])
 	})
 
 	t.Run("Deletes connection pool and removes finalizer on deletion", func(t *testing.T) {

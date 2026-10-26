@@ -72,6 +72,8 @@ func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.Serv
 		return Observation{}, err
 	}
 
+	markInstanceRunning(user)
+
 	// Empty password with a source secret: Update so the declared value gets pushed back to Aiven.
 	// Empty without a source: nothing to enforce, user may change it bypassing the API.
 	if u.Password == "" && user.Spec.ConnInfoSecretSource != nil {

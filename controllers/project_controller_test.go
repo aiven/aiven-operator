@@ -345,6 +345,64 @@ spec:
 		require.Equal(t, "ca-cert", string(secret.Data["PROJECT_CA_CERT"]))
 	})
 
+	t.Run("Publishes secret without updating under management-policy CreateOnly after a spec change", func(t *testing.T) {
+		project := newObjectFromYAML[v1alpha1.Project](t, yamlProject)
+		project.Generation = 2
+		project.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+			managementPolicyAnnotation:    string(managementPolicyCreateOnly),
+		}
+
+		// No ProjectUpdate expectation: the mock fails the test if Update runs.
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ProjectGet(mock.Anything, project.Name).
+			Return(&avnproject.ProjectGetOut{ProjectName: project.Name}, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, project.Name).
+			Return("ca-cert", nil).Once()
+
+		r, res, err := runScenario(t, project, avn)
+		require.NoError(t, err)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.Project{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: project.Name, Namespace: project.Namespace}, got))
+		require.Equal(t, "2", got.Annotations[processedGenerationAnnotation])
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: project.Name, Namespace: project.Namespace}, secret))
+		require.Equal(t, "ca-cert", string(secret.Data["PROJECT_CA_CERT"]))
+	})
+
+	t.Run("Applies the skipped spec once management-policy CreateOnly is removed", func(t *testing.T) {
+		project := newObjectFromYAML[v1alpha1.Project](t, yamlProject)
+		project.Generation = 2
+		// Generation 2 was skipped under CreateOnly; the annotation is gone now.
+		project.Annotations = map[string]string{
+			processedGenerationAnnotation: "2",
+			appliedGenerationAnnotation:   "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ProjectGet(mock.Anything, project.Name).
+			Return(&avnproject.ProjectGetOut{ProjectName: project.Name}, nil).Once()
+		avn.EXPECT().
+			ProjectUpdate(mock.Anything, project.Name, mock.Anything).
+			Return(&avnproject.ProjectUpdateOut{}, nil).Once()
+
+		r, _, err := runScenario(t, project, avn)
+		require.NoError(t, err)
+
+		got := &v1alpha1.Project{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: project.Name, Namespace: project.Namespace}, got))
+		require.Equal(t, "2", got.Annotations[processedGenerationAnnotation])
+		require.NotContains(t, got.Annotations, appliedGenerationAnnotation)
+	})
+
 	t.Run("Does not mark Project running when CA fetch fails", func(t *testing.T) {
 		project := newObjectFromYAML[v1alpha1.Project](t, yamlProject)
 		project.Generation = 1

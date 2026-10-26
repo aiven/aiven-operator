@@ -1,8 +1,10 @@
 package controllers
 
 import (
+	"errors"
 	"testing"
 
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -62,6 +64,35 @@ func TestInstanceReconcilerHelper_reconcile(t *testing.T) {
 		require.Equal(t, metav1.ConditionUnknown, running.Status)
 		require.Equal(t, string(errConditionConnInfoSecret), running.Reason)
 		require.Nil(t, meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError))
+	})
+
+	t.Run("Warns that management-policy is not supported on the legacy path", func(t *testing.T) {
+		pg := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgres)
+		pg.Generation = 1
+		pg.Finalizers = []string{instanceDeletionFinalizer}
+		metav1.SetMetaDataAnnotation(&pg.ObjectMeta, managementPolicyAnnotation, string(managementPolicyCreateOnly))
+
+		// createOrUpdate still runs: the annotation only produces a warning here.
+		h := NewMockHandlers(t)
+		h.EXPECT().checkPreconditions(mock.Anything, mock.Anything, mock.Anything).Return(true, nil).Once()
+		h.EXPECT().createOrUpdate(mock.Anything, mock.Anything, mock.Anything, mock.Anything).Return(errors.New("stop here")).Once()
+
+		scheme := runtime.NewScheme()
+		require.NoError(t, clientgoscheme.AddToScheme(scheme))
+		require.NoError(t, v1alpha1.AddToScheme(scheme))
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.PostgreSQL{}).
+			WithObjects(pg.DeepCopy()).
+			Build()
+
+		recorder := record.NewFakeRecorder(10)
+		helper := &instanceReconcilerHelper{k8s: k8sClient, h: h, rec: recorder}
+
+		_, _ = helper.reconcile(t.Context(), pg)
+		require.NotNil(t, meta.FindStatusCondition(pg.Status.Conditions, ConditionTypeError), "createOrUpdate ran and failed")
+		require.Contains(t, recorderEvents(recorder),
+			"Warning ManagementPolicyNotSupported controllers.aiven.io/management-policy is not supported for this kind yet, spec changes are applied")
 	})
 
 	t.Run("Sets error condition when a ref points to a disabled kind", func(t *testing.T) {

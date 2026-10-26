@@ -37,6 +37,9 @@ func newClickhouseGrantReconciler(c Controller) reconcilerType {
 	)
 }
 
+// ClickHouse does not expose which grants the operator owns, so there is nothing to observe or adopt.
+func (r *ClickhouseGrantController) managementPolicyUnsupported() {}
+
 func (r *ClickhouseGrantController) Observe(ctx context.Context, g *v1alpha1.ClickhouseGrant) (Observation, error) {
 	if _, err := getServiceIfOperational(ctx, r.avnGen, g.Spec.Project, g.Spec.ServiceName); err != nil {
 		return Observation{}, err

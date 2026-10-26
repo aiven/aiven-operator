@@ -109,6 +109,8 @@ const (
 	eventConnInfoSecretCreationDisabled     = "ConnInfoSecretCreationDisabled"
 	eventCannotPublishConnectionDetails     = "CannotPublishConnectionDetails"
 	eventInstanceMissingAtAiven             = "InstanceMissingAtAiven"
+	eventSpecChangeIgnored                  = "SpecChangeIgnored"
+	eventManagementPolicyNotSupported       = "ManagementPolicyNotSupported"
 )
 
 // +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;create;update
@@ -302,6 +304,10 @@ func (i *instanceReconcilerHelper) reconcileInstance(ctx context.Context, o v1al
 	}
 
 	if !hasLatestGeneration(o) {
+		if _, ok := o.GetAnnotations()[managementPolicyAnnotation]; ok {
+			i.rec.Event(o, corev1.EventTypeWarning, eventManagementPolicyNotSupported,
+				fmt.Sprintf("%s is not supported for this kind yet, spec changes are applied", managementPolicyAnnotation))
+		}
 		i.rec.Event(o, corev1.EventTypeNormal, eventCreateOrUpdatedAtAiven, "about to create instance at aiven")
 		requeue, err = i.createOrUpdateInstance(ctx, o, refs)
 		if err != nil {

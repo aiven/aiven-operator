@@ -175,13 +175,12 @@ func (r *KafkaSchemaController) Observe(ctx context.Context, schema *v1alpha1.Ka
 		metav1.SetMetaDataAnnotation(&schema.ObjectMeta, kafkaSchemaAppliedCompatibilityAnnotation, string(schema.Spec.CompatibilityLevel))
 	}
 
+	// Exists at Aiven: Running even when Update is skipped.
+	markInstanceRunning(schema)
+
 	if !ok || appliedFP != desiredFP {
 		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
 	}
-
-	meta.SetStatusCondition(&schema.Status.Conditions,
-		getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
-	metav1.SetMetaDataAnnotation(&schema.ObjectMeta, instanceIsRunningAnnotation, "true")
 
 	return Observation{
 		ResourceExists:   true,

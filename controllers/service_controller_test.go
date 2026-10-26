@@ -109,7 +109,7 @@ func TestServiceController_Observe(t *testing.T) {
 		gf.Generation = 2 // annotation still says "1" -> stale
 
 		avn := avngen.NewMockClient(t)
-		// No include-secrets query: the stale-generation path never builds secret details.
+		// No include-secrets query: Update discards the details, so the stale-generation path never builds them.
 		avn.EXPECT().
 			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
 			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
@@ -119,10 +119,57 @@ func TestServiceController_Observe(t *testing.T) {
 		require.NoError(t, err)
 		require.True(t, obs.ResourceExists)
 		require.False(t, obs.ResourceUpToDate)
+		require.Nil(t, obs.SecretDetails)
 		// Observed state is recorded even while not up to date.
 		require.Equal(t, service.ServiceStateTypeRunning, gf.Status.State)
 		// No running annotation on the update path.
 		require.False(t, hasIsRunningAnnotation(gf))
+	})
+
+	t.Run("stale generation under management-policy CreateOnly -> secret details", func(t *testing.T) {
+		t.Parallel()
+
+		gf := newRunningGrafana(t)
+		gf.Generation = 2 // annotation still says "1" -> stale
+		ctx := withManagementPolicy(t.Context(), managementPolicyCreateOnly)
+
+		avn := avngen.NewMockClient(t)
+		// Secrets are fetched on the stale-generation path: they are published in place of the skipped Update.
+		avn.EXPECT().
+			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, [][2]string{service.ServiceGetIncludeSecrets(true)}).
+			Return(&service.ServiceGetOut{
+				State:            service.ServiceStateTypeRunning,
+				ServiceUriParams: map[string]string{"host": "grafana.example.com", "port": "3000", "user": "avnadmin", "password": "secret"},
+				ServiceUri:       "https://grafana.example.com:3000",
+				ConnectionInfo:   &service.ConnectionInfoOut{Grafana: []string{"grafana.example.com"}},
+			}, nil).Once()
+
+		c := newTestController(avn, grafanaKind, nil)
+		obs, err := c.Observe(ctx, gf)
+		require.NoError(t, err)
+		require.True(t, obs.ResourceExists)
+		require.False(t, obs.ResourceUpToDate)
+		require.Equal(t, "grafana.example.com", obs.SecretDetails["GRAFANA_HOST"])
+		require.True(t, obs.PruneSecretKeys)
+	})
+
+	t.Run("stale generation under management-policy CreateOnly while not running -> no secret details", func(t *testing.T) {
+		t.Parallel()
+
+		gf := newRunningGrafana(t)
+		gf.Generation = 2
+		ctx := withManagementPolicy(t.Context(), managementPolicyCreateOnly)
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRebuilding}, nil).Once()
+
+		c := newTestController(avn, grafanaKind, nil)
+		obs, err := c.Observe(ctx, gf)
+		require.NoError(t, err)
+		require.False(t, obs.ResourceUpToDate)
+		require.Nil(t, obs.SecretDetails)
 	})
 
 	t.Run("running -> running annotation + secret details", func(t *testing.T) {

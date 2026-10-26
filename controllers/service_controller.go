@@ -55,9 +55,10 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 	spec := obj.ServiceCommonSpec()
 	powered := isPowered(spec)
 
-	// Fetch secrets only when they can be published this round.
+	// Fetch secrets only when they can be published this round: Update discards them.
+	publishable := hasLatestGeneration(obj) || !managementPolicyFrom(ctx).allowsUpdate()
 	var query [][2]string
-	if hasLatestGeneration(obj) && powered && !obj.NoSecret() {
+	if publishable && powered && !obj.NoSecret() {
 		query = append(query, service.ServiceGetIncludeSecrets(true))
 	}
 	avnService, err := c.avnGen.ServiceGet(ctx, spec.Project, obj.GetName(), query...)
@@ -95,9 +96,15 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 	status.State = avnService.State
 	status.Version = serviceVersion(c.kind.serviceType, avnService.Metadata)
 
-	// Unprocessed generation.
 	if !hasLatestGeneration(obj) {
-		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
+		var details map[string]string
+		if publishable && powered && status.State == service.ServiceStateTypeRunning && !obj.NoSecret() {
+			details, err = c.buildSecretDetails(ctx, obj, avnService)
+			if err != nil {
+				return Observation{}, err
+			}
+		}
+		return Observation{ResourceExists: true, ResourceUpToDate: false, SecretDetails: details, PruneSecretKeys: true}, nil
 	}
 
 	// Not in its target state yet: keep polling without touching the running marker.

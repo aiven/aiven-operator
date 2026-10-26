@@ -49,23 +49,23 @@ func (r *ProjectController) Observe(ctx context.Context, cr *v1alpha1.Project) (
 
 	setProjectStatus(cr, p)
 
-	if !hasLatestGeneration(cr) {
-		return Observation{
-			ResourceExists:   true,
-			ResourceUpToDate: false,
-		}, nil
+	// Update discards the details, so the CA is fetched only when they are published.
+	inSync := hasLatestGeneration(cr)
+	if !inSync && managementPolicyFrom(ctx).allowsUpdate() {
+		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
 	}
 
 	cert, err := r.avnGen.ProjectKmsGetCA(ctx, cr.Name)
 	if err != nil {
 		return Observation{}, fmt.Errorf("getting project KMS CA: %w", err)
 	}
+
 	markInstanceRunning(cr)
 
 	prefix := getSecretPrefix(cr)
 	return Observation{
 		ResourceExists:   true,
-		ResourceUpToDate: true,
+		ResourceUpToDate: inSync,
 		SecretDetails: SecretDetails{
 			prefix + "CA_CERT": cert,
 			// todo: remove in future releases

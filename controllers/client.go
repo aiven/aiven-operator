@@ -53,6 +53,8 @@ type Observation struct {
 
 	// SecretDetails contains secret data for the resource (credentials, endpoints, CA certs, etc.).
 	// Will be written to the connInfoSecretTarget if not nil and not empty.
+	// Observe must return them when ResourceUpToDate is false and managementPolicyFrom(ctx)
+	// forbids Update: they are published in place of the update.
 	// Keys are published as-is and must already carry the target prefix (see getSecretPrefix),
 	// e.g. "POSTGRESQL_HOST".
 	SecretDetails SecretDetails

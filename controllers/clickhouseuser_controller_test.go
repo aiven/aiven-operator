@@ -98,6 +98,10 @@ func TestClickhouseUserController_Observe(t *testing.T) {
 		require.True(t, obs.ResourceExists)
 		require.False(t, obs.ResourceUpToDate)
 		require.Equal(t, "uuid-1", user.Status.UUID)
+		// Published as-is under management-policy CreateOnly, so they must be present while not up to date.
+		require.NotEmpty(t, obs.SecretDetails)
+		// An adopted user is Running before Update, so a skipped Update (management-policy CreateOnly) still becomes ready.
+		require.True(t, hasIsRunningAnnotation(user))
 	})
 
 	t.Run("Marks resource up to date when IsReadyToUse", func(t *testing.T) {
@@ -247,9 +251,16 @@ func TestClickhouseUserController_Observe(t *testing.T) {
 		require.Equal(t, "external-observe-password", obs.SecretDetails["PASSWORD"])
 	})
 
-	t.Run("Omits password in operator mode (Aiven API doesn't expose it)", func(t *testing.T) {
+	t.Run("Omits the source password under management-policy CreateOnly", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+		user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{
+			Name:        "src",
+			PasswordKey: "PASSWORD",
+		}
+		// The reconciler parses the annotation and hands the policy over through the context.
+		ctx := withManagementPolicy(t.Context(), managementPolicyCreateOnly)
 
+		// No source Secret in the client: the test fails if Observe reads it.
 		scheme := runtime.NewScheme()
 		require.NoError(t, clientgoscheme.AddToScheme(scheme))
 		require.NoError(t, v1alpha1.AddToScheme(scheme))
@@ -264,12 +275,12 @@ func TestClickhouseUserController_Observe(t *testing.T) {
 			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
 			Return(&service.ServiceGetOut{
 				State:            service.ServiceStateTypeRunning,
-				ServiceUriParams: map[string]string{"host": "host", "port": "9440"},
+				ServiceUriParams: map[string]string{"host": "host", "port": "8443"},
 			}, nil).
 			Once()
 		avn.EXPECT().
 			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
-			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-nopw"}}, nil).
+			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-ext"}}, nil).
 			Once()
 
 		ctrl := &ClickhouseUserController{
@@ -277,12 +288,14 @@ func TestClickhouseUserController_Observe(t *testing.T) {
 			avnGen: avn,
 		}
 
-		obs, err := ctrl.Observe(t.Context(), user)
+		obs, err := ctrl.Observe(ctx, user)
 
 		require.NoError(t, err)
 		require.True(t, obs.ResourceExists)
-		require.Equal(t, "uuid-nopw", user.Status.UUID)
+		// A skipped rotation is not at Aiven: a missing key beats a password that does not work.
 		require.NotContains(t, obs.SecretDetails, "PASSWORD")
+		require.NotContains(t, obs.SecretDetails, "CLICKHOUSEUSER_PASSWORD")
+		require.Equal(t, "host", obs.SecretDetails["HOST"])
 	})
 
 	t.Run("Returns error when reading password from source secret fails in external mode", func(t *testing.T) {
@@ -319,6 +332,44 @@ func TestClickhouseUserController_Observe(t *testing.T) {
 		_, err := ctrl.Observe(t.Context(), user)
 
 		require.EqualError(t, err, `failed to read connInfoSecretSource default/missing-src: secrets "missing-src" not found`)
+	})
+
+	t.Run("Omits password in operator mode (Aiven API doesn't expose it)", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+		scheme := runtime.NewScheme()
+		require.NoError(t, clientgoscheme.AddToScheme(scheme))
+		require.NoError(t, v1alpha1.AddToScheme(scheme))
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithObjects(user).
+			Build()
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:            service.ServiceStateTypeRunning,
+				ServiceUriParams: map[string]string{"host": "host", "port": "9440"},
+			}, nil).
+			Once()
+		avn.EXPECT().
+			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
+			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-nopw"}}, nil).
+			Once()
+
+		ctrl := &ClickhouseUserController{
+			Client: k8sClient,
+			avnGen: avn,
+		}
+
+		obs, err := ctrl.Observe(t.Context(), user)
+
+		require.NoError(t, err)
+		require.True(t, obs.ResourceExists)
+		require.Equal(t, "uuid-nopw", user.Status.UUID)
+		require.NotContains(t, obs.SecretDetails, "PASSWORD")
 	})
 }
 

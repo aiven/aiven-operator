@@ -598,6 +598,68 @@ func TestOrganizationProjectReconciler(t *testing.T) {
 		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
 	})
 
+	t.Run("Publishes secret without updating under management-policy CreateOnly while tags drift", func(t *testing.T) {
+		op := newOrganizationProject(t)
+		op.Generation = 1
+		op.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+			managementPolicyAnnotation:    string(managementPolicyCreateOnly),
+		}
+
+		// Tags were changed in the Console and stay that way: CreateOnly must not revert them.
+		drifted := remoteFromSpec(op)
+		drifted.Tags = map[string]string{"env": "console-owned"}
+
+		// No OrganizationProjectsUpdate expectation: the mock fails the test if Update runs.
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			OrganizationProjectsGet(mock.Anything, op.Spec.OrganizationID, op.Spec.ProjectID).
+			Return(drifted, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, op.Spec.ProjectID).
+			Return("ca-cert", nil).Once()
+
+		r, res := runScenario(t, op, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: op.Spec.ConnInfoSecretTarget.Name, Namespace: op.Namespace}, secret))
+		require.Equal(t, "ca-cert", string(secret.Data["ORGANIZATIONPROJECT_CA_CERT"]))
+	})
+
+	t.Run("Adopts a drifted project under management-policy CreateOnly and becomes Running", func(t *testing.T) {
+		op := newOrganizationProject(t)
+		op.Generation = 1
+		// CreateOnly from the start, never applied: the Console owns this project.
+		op.Annotations = map[string]string{managementPolicyAnnotation: string(managementPolicyCreateOnly)}
+
+		drifted := remoteFromSpec(op)
+		drifted.Tags = map[string]string{"env": "console-owned"}
+
+		// No OrganizationProjectsUpdate expectation: the mock fails the test if Update runs.
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			OrganizationProjectsGet(mock.Anything, op.Spec.OrganizationID, op.Spec.ProjectID).
+			Return(drifted, nil).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, op.Spec.ProjectID).
+			Return("ca-cert", nil).Once()
+
+		r, res := runScenario(t, op, avn)
+		// Ready on the first pass: the poll cadence, not the not-ready retry.
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.OrganizationProject{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: op.Name, Namespace: op.Namespace}, got))
+		require.True(t, IsReadyToUse(got), "dependents may use the adopted project")
+		require.True(t, meta.IsStatusConditionTrue(got.Status.Conditions, conditionTypeRunning))
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: op.Spec.ConnInfoSecretTarget.Name, Namespace: op.Namespace}, secret))
+		require.Equal(t, "ca-cert", string(secret.Data["ORGANIZATIONPROJECT_CA_CERT"]))
+	})
+
 	t.Run("Requeues on transient server error during Get", func(t *testing.T) {
 		op := newOrganizationProject(t)
 		op.Generation = 1

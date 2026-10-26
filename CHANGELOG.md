@@ -2,6 +2,11 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `controllers.aiven.io/management-policy: CreateOnly` annotation. The operator still creates a
+  missing resource and keeps its connection Secret in sync, but no longer applies spec changes or
+  reverts changes made outside Kubernetes. Not yet supported on service kinds such as `PostgreSQL`
+  or `Kafka`, which only emit a warning and apply the change.
+
 ## v0.49.0 - 2026-10-26
 
 - Setting both `projectVpcId` and `projectVPCRef` is now rejected when the resource is applied, also
