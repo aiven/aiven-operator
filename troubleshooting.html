@@ -11,6 +11,7 @@
         <link rel="canonical" href="https://aiven.github.io/aiven-operator/troubleshooting.html">
       
       
+      
         <link rel="prev" href="./authentication.html">
       
       
@@ -21,7 +22,7 @@
       
       
       <link rel="icon" href="./assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.67">
+      <meta name="generator" content="zensical-0.0.73">
     
     
       
@@ -32,12 +33,12 @@
       
         
       
-      <link rel="stylesheet" href="./assets/stylesheets/modern/main.4ae390e2.min.css">
+      <link rel="stylesheet" href="./assets/stylesheets/modern/main.4ab2de0c.min.css">
       
         
           
         
-        <link rel="stylesheet" href="./assets/stylesheets/modern/palette.96d1a7e4.min.css">
+        <link rel="stylesheet" href="./assets/stylesheets/modern/palette.b60ce83d.min.css">
       
       
 
@@ -81,14 +82,11 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
     <div data-md-component="skip">
-      
-        
-        <a href="#verify-operator-status" class="md-skip">
-          Skip to content
-        </a>
-      
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
     </div>
     <div data-md-component="announce">
       
@@ -104,9 +102,10 @@
   <img src="./assets/aiven_logo_RGB_blk.svg" alt="Aiven Operator">
 
     </a>
-    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+    <label class="md-header__button md-icon" for="__drawer">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -158,9 +157,10 @@
     
       
       
-        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+        <label class="md-header__button md-icon" for="__search">
           
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
         </label>
         <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
   <button type="button" class="md-search__button">
@@ -823,6 +823,17 @@
     <span class="md-ellipsis">
       <span class="md-typeset">
         Common Misconception
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#serviceuser-or-serviceuserrotation-has-no-connection-secret-or-the-secret-has-the-wrong-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ServiceUser or ServiceUserRotation has no connection secret or the secret has the wrong host
       </span>
     </span>
   </a>
@@ -3733,6 +3744,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#serviceuser-or-serviceuserrotation-has-no-connection-secret-or-the-secret-has-the-wrong-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        ServiceUser or ServiceUserRotation has no connection secret or the secret has the wrong host
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#how-to-force-reconciliation" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3788,6 +3810,7 @@
             <div class="md-content" data-md-component="content">
               
               <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
                 
                   
 
@@ -3803,7 +3826,7 @@
   
 
 
-  <h1 id="__skip">Troubleshooting</h1>
+  <h1>Troubleshooting</h1>
 
 <h2 id="verify-operator-status">Verify operator status<a class="headerlink" href="#verify-operator-status" title="Permanent link">&para;</a></h2>
 <p>Use the following checks to help you troubleshoot the Aiven Operator for Kubernetes.</p>
@@ -3868,6 +3891,21 @@ it and are working to fix it. If your problem isn't listed below, report it as a
 <h3 id="common-misconception">Common Misconception<a class="headerlink" href="#common-misconception" title="Permanent link">&para;</a></h3>
 <p><strong>Expected behavior</strong>: "If I manually delete a resource from the Aiven console, the operator should recreate it automatically."</p>
 <p><strong>Actual behavior</strong>: Once a resource/secret is ready, the operator stops continuous reconciliation. Manual changes in the Aiven console will <strong>not</strong> trigger automatic recreation.</p>
+<h3 id="serviceuser-or-serviceuserrotation-has-no-connection-secret-or-the-secret-has-the-wrong-host">ServiceUser or ServiceUserRotation has no connection secret or the secret has the wrong host<a class="headerlink" href="#serviceuser-or-serviceuserrotation-has-no-connection-secret-or-the-secret-has-the-wrong-host" title="Permanent link">&para;</a></h3>
+<p><code>kubectl describe serviceuser &lt;name&gt;</code> (or <code>serviceuserrotation &lt;name&gt;</code>) shows an <code>Error</code> condition
+with reason <code>Preconditions</code> and a <code>PreconditionsNotMet</code> warning event such as
+<code>component "pg" with route "privatelink" not found on service "my-pg"</code>: the service does not expose
+the route set in <code>spec.connInfoSecretRoute</code>. Establish the PrivateLink connection or set the route
+back to <code>dynamic</code>. Note that <code>private</code> and <code>public</code> are not always listed: a service in a project VPC
+has no <code>private</code> route on any cloud, and most clouds outside a VPC do not list one either; <code>public</code>
+and <code>private</code> are listed only while <code>public_access</code> or <code>private_access</code> is enabled for that component
+in the service's <code>userConfig</code>. Selecting an unlisted route waits forever. Even <code>dynamic</code> is reported
+the same way if the service lists no primary component for it. An existing secret keeps
+its previous host until then; for <code>ServiceUserRotation</code> the rotation schedule also pauses until the
+route is available. The route is re-checked once per poll interval (<code>--poll-interval</code>, 10 minutes by
+default); to pick it up sooner, force a reconciliation as described below. With
+<code>spec.connInfoSecretRoute</code> unset, the same situation is reported as in previous releases, with the
+message <code>service component "kafka" not found</code>.</p>
 <h3 id="how-to-force-reconciliation">How to Force Reconciliation<a class="headerlink" href="#how-to-force-reconciliation" title="Permanent link">&para;</a></h3>
 <p>If you need to force the operator to reconcile a resource (for example, after manually deleting it from Aiven), you have several options:</p>
 <h4 id="option-1-delete-and-recreate-the-kubernetes-resource">Option 1: Delete and Recreate the Kubernetes Resource<a class="headerlink" href="#option-1-delete-and-recreate-the-kubernetes-resource" title="Permanent link">&para;</a></h4>
@@ -3993,10 +4031,10 @@ it and are working to fix it. If your problem isn't listed below, report it as a
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"./assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":".","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"./assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="./assets/javascripts/bundle.67a597eb.min.js"></script>
+      <script src="./assets/javascripts/bundle.77dd0ce9.min.js"></script>
       
     
   </body>

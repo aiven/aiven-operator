@@ -11,6 +11,7 @@
         <link rel="canonical" href="https://aiven.github.io/aiven-operator/resources/valkey.html">
       
       
+      
         <link rel="prev" href="./serviceuserrotation.html">
       
       
@@ -21,7 +22,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.67">
+      <meta name="generator" content="zensical-0.0.73">
     
     
       
@@ -32,12 +33,12 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.4ae390e2.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.4ab2de0c.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.96d1a7e4.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
       
       
 
@@ -81,14 +82,11 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
     <div data-md-component="skip">
-      
-        
-        <a href="#prerequisites" class="md-skip">
-          Skip to content
-        </a>
-      
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
     </div>
     <div data-md-component="announce">
       
@@ -104,9 +102,10 @@
   <img src="../assets/aiven_logo_RGB_blk.svg" alt="Aiven Operator">
 
     </a>
-    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+    <label class="md-header__button md-icon" for="__drawer">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -158,9 +157,10 @@
     
       
       
-        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+        <label class="md-header__button md-icon" for="__search">
           
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
         </label>
         <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
   <button type="button" class="md-search__button">
@@ -3774,6 +3774,7 @@
             <div class="md-content" data-md-component="content">
               
               <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
                 
                   
 
@@ -3789,7 +3790,7 @@
   
 
 
-  <h1 id="__skip">Valkey</h1>
+  <h1>Valkey</h1>
 
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <ul>
@@ -3966,7 +3967,9 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
     For more information please see <a href="https://aiven.io/docs/platform/concepts/service-power-cycle">Aiven documentation</a>.
     Note that:<ul>
 <li>When set to <code>false</code> the annotation <code>controllers.aiven.io/instance-is-running</code> is also set to <code>false</code>.</li>
-<li>Services cannot be created in a powered off state. The value is ignored during creation.</li>
+<li>Services cannot be created in a powered off state. A resource with <code>powered: false</code> whose service
+  does not exist at Aiven reports an error until <code>powered</code> is set to <code>true</code>; an existing powered off
+  service can be adopted as is.</li>
 <li>It is highly recommended to not run dependent resources when the service is powered off.
   Creating a new resource or updating an existing resource that depends on a powered off service will result in an error.
   Existing resources will need to be manually recreated after the service is powered on.</li>
@@ -4049,8 +4052,10 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.project_to_fork_from-property" name="spec.userConfig.project_to_fork_from-property"><code>project_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 63). Name of another project to fork a service from. This has effect only when a new service is being created.</li>
 <li><a href="#spec.userConfig.public_access-property" name="spec.userConfig.public_access-property"><code>public_access</code></a> (object). Allow access to selected service ports from the public Internet. See below for <a href="#spec.userConfig.public_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.recovery_basebackup_name-property" name="spec.userConfig.recovery_basebackup_name-property"><code>recovery_basebackup_name</code></a> (string, Pattern: <code>^[a-zA-Z0-9-_:.]+$</code>, MaxLength: 128). Name of the basebackup to restore in forked service.</li>
+<li><a href="#spec.userConfig.replicas-property" name="spec.userConfig.replicas-property"><code>replicas</code></a> (integer, Minimum: 0, Maximum: 2). Number of replicas per shard in the Valkey cluster. Only applies to cluster plans.</li>
 <li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
 <li><a href="#spec.userConfig.service_to_fork_from-property" name="spec.userConfig.service_to_fork_from-property"><code>service_to_fork_from</code></a> (string, Immutable, Pattern: <code>^[a-z][-a-z0-9]{0,63}$|^$</code>, MaxLength: 64). Name of another service to fork from. This has effect only when a new service is being created.</li>
+<li><a href="#spec.userConfig.shard_count-property" name="spec.userConfig.shard_count-property"><code>shard_count</code></a> (integer, Minimum: 1, Maximum: 5). Number of shards (primaries) in the Valkey cluster. Required for cluster plans.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
 <li><a href="#spec.userConfig.valkey_acl_channels_default-property" name="spec.userConfig.valkey_acl_channels_default-property"><code>valkey_acl_channels_default</code></a> (string, Enum: <code>allchannels</code>, <code>resetchannels</code>). Determines default pub/sub channels' ACL for new users if ACL is not supplied. When this option is not defined, all_channels is assumed to keep backward compatibility. This option doesn't affect Valkey configuration acl-pubsub-default.</li>
 <li><a href="#spec.userConfig.valkey_active_defrag_ignore_bytes-property" name="spec.userConfig.valkey_active_defrag_ignore_bytes-property"><code>valkey_active_defrag_ignore_bytes</code></a> (integer, Minimum: 1048576, Maximum: 1073741824). Minimum amount of fragmentation waste, in bytes, before active defragmentation starts. Only takes effect when <code>valkey_activedefrag</code> is enabled.</li>
@@ -4233,10 +4238,10 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.67a597eb.min.js"></script>
+      <script src="../assets/javascripts/bundle.77dd0ce9.min.js"></script>
       
     
   </body>

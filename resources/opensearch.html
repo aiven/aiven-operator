@@ -11,6 +11,7 @@
         <link rel="canonical" href="https://aiven.github.io/aiven-operator/resources/opensearch.html">
       
       
+      
         <link rel="prev" href="./mysql.html">
       
       
@@ -21,7 +22,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.67">
+      <meta name="generator" content="zensical-0.0.73">
     
     
       
@@ -32,12 +33,12 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.4ae390e2.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.4ab2de0c.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.96d1a7e4.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
       
       
 
@@ -81,14 +82,11 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
     <div data-md-component="skip">
-      
-        
-        <a href="#prerequisites" class="md-skip">
-          Skip to content
-        </a>
-      
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
     </div>
     <div data-md-component="announce">
       
@@ -104,9 +102,10 @@
   <img src="../assets/aiven_logo_RGB_blk.svg" alt="Aiven Operator">
 
     </a>
-    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+    <label class="md-header__button md-icon" for="__drawer">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -158,9 +157,10 @@
     
       
       
-        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+        <label class="md-header__button md-icon" for="__search">
           
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
         </label>
         <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
   <button type="button" class="md-search__button">
@@ -4562,6 +4562,7 @@
             <div class="md-content" data-md-component="content">
               
               <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
                 
                   
 
@@ -4577,7 +4578,7 @@
   
 
 
-  <h1 id="__skip">OpenSearch</h1>
+  <h1>OpenSearch</h1>
 
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <ul>
@@ -4738,7 +4739,9 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
     For more information please see <a href="https://aiven.io/docs/platform/concepts/service-power-cycle">Aiven documentation</a>.
     Note that:<ul>
 <li>When set to <code>false</code> the annotation <code>controllers.aiven.io/instance-is-running</code> is also set to <code>false</code>.</li>
-<li>Services cannot be created in a powered off state. The value is ignored during creation.</li>
+<li>Services cannot be created in a powered off state. A resource with <code>powered: false</code> whose service
+  does not exist at Aiven reports an error until <code>powered</code> is set to <code>true</code>; an existing powered off
+  service can be adopted as is.</li>
 <li>It is highly recommended to not run dependent resources when the service is powered off.
   Creating a new resource or updating an existing resource that depends on a powered off service will result in an error.
   Existing resources will need to be manually recreated after the service is powered on.</li>
@@ -4824,7 +4827,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.openid-property" name="spec.userConfig.openid-property"><code>openid</code></a> (object). OpenSearch OpenID Connect Configuration. See below for <a href="#spec.userConfig.openid">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch-property" name="spec.userConfig.opensearch-property"><code>opensearch</code></a> (object). OpenSearch settings. See below for <a href="#spec.userConfig.opensearch">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch_dashboards-property" name="spec.userConfig.opensearch_dashboards-property"><code>opensearch_dashboards</code></a> (object). OpenSearch Dashboards settings. See below for <a href="#spec.userConfig.opensearch_dashboards">nested schema</a>.</li>
-<li><a href="#spec.userConfig.opensearch_version-property" name="spec.userConfig.opensearch_version-property"><code>opensearch_version</code></a> (string). Available versions: <code>2</code>, <code>2.19</code>, <code>3.3</code>, <code>3.6</code>. Newer versions may also be available.
+<li><a href="#spec.userConfig.opensearch_version-property" name="spec.userConfig.opensearch_version-property"><code>opensearch_version</code></a> (string). Available versions: <code>2</code>, <code>2.19</code>, <code>3.3</code>, <code>3.6</code>, <code>3.8</code>. Newer versions may also be available.
     OpenSearch version. Deprecated values: <code>2</code>.</li>
 <li><a href="#spec.userConfig.private_access-property" name="spec.userConfig.private_access-property"><code>private_access</code></a> (object). Allow access to selected service ports from private networks. See below for <a href="#spec.userConfig.private_access">nested schema</a>.</li>
 <li><a href="#spec.userConfig.privatelink_access-property" name="spec.userConfig.privatelink_access-property"><code>privatelink_access</code></a> (object). Allow access to selected service components through Privatelink. See below for <a href="#spec.userConfig.privatelink_access">nested schema</a>.</li>
@@ -5003,10 +5006,16 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.opensearch.ism_history_max_docs-property" name="spec.userConfig.opensearch.ism_history_max_docs-property"><code>ism_history_max_docs</code></a> (integer, Minimum: 1). The maximum number of documents before rolling over the audit history index.</li>
 <li><a href="#spec.userConfig.opensearch.ism_history_rollover_check_period-property" name="spec.userConfig.opensearch.ism_history_rollover_check_period-property"><code>ism_history_rollover_check_period</code></a> (integer, Minimum: 1, Maximum: 2147483647). The time between rollover checks for the audit history index in hours.</li>
 <li><a href="#spec.userConfig.opensearch.ism_history_rollover_retention_period-property" name="spec.userConfig.opensearch.ism_history_rollover_retention_period-property"><code>ism_history_rollover_retention_period</code></a> (integer, Minimum: 1, Maximum: 2147483647). How long audit history indices are kept in days.</li>
+<li><a href="#spec.userConfig.opensearch.knn_cache_item_expiry_enabled-property" name="spec.userConfig.opensearch.knn_cache_item_expiry_enabled-property"><code>knn_cache_item_expiry_enabled</code></a> (boolean). Enable or disable removing KNN graphs from the cache when they are idle. Disabled by default.</li>
+<li><a href="#spec.userConfig.opensearch.knn_cache_item_expiry_minutes-property" name="spec.userConfig.opensearch.knn_cache_item_expiry_minutes-property"><code>knn_cache_item_expiry_minutes</code></a> (integer, Minimum: 1, Maximum: 10080). If enabled, the amount of time in minutes a KNN graph can be idle in the cache before being evicted.</li>
+<li><a href="#spec.userConfig.opensearch.knn_circuit_breaker_unset_percentage-property" name="spec.userConfig.opensearch.knn_circuit_breaker_unset_percentage-property"><code>knn_circuit_breaker_unset_percentage</code></a> (number, Minimum: 0, Maximum: 100). The native memory usage, as a percentage below the KNN memory circuit breaker limit, at which a tripped circuit breaker resets. Defaults to 5%.</li>
 <li><a href="#spec.userConfig.opensearch.knn_memory_circuit_breaker_enabled-property" name="spec.userConfig.opensearch.knn_memory_circuit_breaker_enabled-property"><code>knn_memory_circuit_breaker_enabled</code></a> (boolean). Enable or disable KNN memory circuit breaker. Defaults to true.</li>
 <li><a href="#spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property" name="spec.userConfig.opensearch.knn_memory_circuit_breaker_limit-property"><code>knn_memory_circuit_breaker_limit</code></a> (integer, Minimum: 0, Maximum: 100). Maximum amount of memory in percentage that can be used for the KNN index. Defaults to 50% of the JVM heap size. 0 is used to set it to null which can be used to invalidate caches.</li>
 <li><a href="#spec.userConfig.opensearch.ml_commons_connector_access_control_enabled-property" name="spec.userConfig.opensearch.ml_commons_connector_access_control_enabled-property"><code>ml_commons_connector_access_control_enabled</code></a> (boolean). When set to true, the setting allows admins to control access and permissions to the connector API using backend_roles. Defaults to false.</li>
+<li><a href="#spec.userConfig.opensearch.ml_commons_max_model_on_node-property" name="spec.userConfig.opensearch.ml_commons_max_model_on_node-property"><code>ml_commons_max_model_on_node</code></a> (integer, Minimum: 1). Maximum number of ML models that can be deployed on a single ML node. Defaults to 10.</li>
 <li><a href="#spec.userConfig.opensearch.ml_commons_model_access_control_enabled-property" name="spec.userConfig.opensearch.ml_commons_model_access_control_enabled-property"><code>ml_commons_model_access_control_enabled</code></a> (boolean). Enable or disable model access control for ML Commons. When enabled, access to ML models is controlled by security permissions. Defaults to false.</li>
+<li><a href="#spec.userConfig.opensearch.ml_commons_model_auto_deploy_enable-property" name="spec.userConfig.opensearch.ml_commons_model_auto_deploy_enable-property"><code>ml_commons_model_auto_deploy_enable</code></a> (boolean). For externally hosted models only: automatically deploy a model on its first predict request instead of requiring an explicit deploy call first. Defaults to true.</li>
+<li><a href="#spec.userConfig.opensearch.ml_commons_model_auto_redeploy_enable-property" name="spec.userConfig.opensearch.ml_commons_model_auto_redeploy_enable-property"><code>ml_commons_model_auto_redeploy_enable</code></a> (boolean). Automatically redeploy deployed or partially deployed models after ML nodes rejoin the cluster, e.g. after a node replacement. Defaults to true.</li>
 <li><a href="#spec.userConfig.opensearch.ml_commons_native_memory_threshold-property" name="spec.userConfig.opensearch.ml_commons_native_memory_threshold-property"><code>ml_commons_native_memory_threshold</code></a> (integer, Minimum: 1, Maximum: 100). Native memory threshold percentage for ML Commons. Controls the maximum percentage of native memory that can be used by ML Commons operations. Defaults to 90%.</li>
 <li><a href="#spec.userConfig.opensearch.ml_commons_only_run_on_ml_node-property" name="spec.userConfig.opensearch.ml_commons_only_run_on_ml_node-property"><code>ml_commons_only_run_on_ml_node</code></a> (boolean). Enable or disable running ML Commons tasks only on ML nodes. When enabled, ML tasks will only execute on nodes designated as ML nodes. Defaults to true.</li>
 <li><a href="#spec.userConfig.opensearch.ml_commons_trusted_connector_endpoints_regex-property" name="spec.userConfig.opensearch.ml_commons_trusted_connector_endpoints_regex-property"><code>ml_commons_trusted_connector_endpoints_regex</code></a> (array of strings, MaxItems: 50). Adds the trusted endpoints to the cluster settings. Supports Java regex expressions.</li>
@@ -5431,10 +5440,10 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.67a597eb.min.js"></script>
+      <script src="../assets/javascripts/bundle.77dd0ce9.min.js"></script>
       
     
   </body>

@@ -11,6 +11,7 @@
         <link rel="canonical" href="https://aiven.github.io/aiven-operator/resources/serviceuserrotation.html">
       
       
+      
         <link rel="prev" href="./serviceuser.html">
       
       
@@ -21,7 +22,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.67">
+      <meta name="generator" content="zensical-0.0.73">
     
     
       
@@ -32,12 +33,12 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.4ae390e2.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.4ab2de0c.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.96d1a7e4.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
       
       
 
@@ -81,14 +82,11 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
     <div data-md-component="skip">
-      
-        
-        <a href="#prerequisites" class="md-skip">
-          Skip to content
-        </a>
-      
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
     </div>
     <div data-md-component="announce">
       
@@ -104,9 +102,10 @@
   <img src="../assets/aiven_logo_RGB_blk.svg" alt="Aiven Operator">
 
     </a>
-    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+    <label class="md-header__button md-icon" for="__drawer">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -158,9 +157,10 @@
     
       
       
-        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+        <label class="md-header__button md-icon" for="__search">
           
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
         </label>
         <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
   <button type="button" class="md-search__button">
@@ -1835,10 +1835,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#usage-example" class="md-nav__link">
+  <a href="#usage-examples" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Usage example
+        Usage examples
       </span>
     </span>
   </a>
@@ -3498,10 +3498,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#usage-example" class="md-nav__link">
+  <a href="#usage-examples" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
-        Usage example
+        Usage examples
       </span>
     </span>
   </a>
@@ -3564,6 +3564,7 @@
             <div class="md-content" data-md-component="content">
               
               <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
                 
                   
 
@@ -3579,7 +3580,7 @@
   
 
 
-  <h1 id="__skip">ServiceUserRotation</h1>
+  <h1>ServiceUserRotation</h1>
 
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <ul>
@@ -3612,7 +3613,10 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 </tr>
 </tbody>
 </table>
-<h2 id="usage-example">Usage example<a class="headerlink" href="#usage-example" title="Permanent link">&para;</a></h2>
+<h2 id="usage-examples">Usage examples<a class="headerlink" href="#usage-examples" title="Permanent link">&para;</a></h2>
+<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">privatelink</label><label for="__tabbed_1_2">example</label></div>
+<div class="tabbed-content">
+<div class="tabbed-block">
 <div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-0-1"> 1</a></span>
 <span class="normal"><a href="#__codelineno-0-2"> 2</a></span>
 <span class="normal"><a href="#__codelineno-0-3"> 3</a></span>
@@ -3633,58 +3637,123 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <span class="normal"><a href="#__codelineno-0-18">18</a></span>
 <span class="normal"><a href="#__codelineno-0-19">19</a></span>
 <span class="normal"><a href="#__codelineno-0-20">20</a></span>
-<span class="normal"><a href="#__codelineno-0-21">21</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
-<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceUserRotation</span>
-<a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="nt">metadata</span><span class="p">:</span>
-<a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-users</span>
-<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="nt">spec</span><span class="p">:</span>
-<a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
-<a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
-<a id="__codelineno-0-8" name="__codelineno-0-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
-<a id="__codelineno-0-9" name="__codelineno-0-9"></a>
-<a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-aiven-project</span>
-<a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-postgresql</span>
-<a id="__codelineno-0-12" name="__codelineno-0-12"></a>
-<a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="w">  </span><span class="c1"># Create both users and configure their permissions before enabling rotation.</span>
-<a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">  </span><span class="nt">usernames</span><span class="p">:</span>
-<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-user-a</span>
-<a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-user-b</span>
-<a id="__codelineno-0-17" name="__codelineno-0-17"></a><span class="w">  </span><span class="nt">rotationInterval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">720h</span>
-<a id="__codelineno-0-18" name="__codelineno-0-18"></a>
-<a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
-<a id="__codelineno-0-20" name="__codelineno-0-20"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-database-credentials</span>
-<a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="w">    </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SERVICEUSER_</span>
+<span class="normal"><a href="#__codelineno-0-21">21</a></span>
+<span class="normal"><a href="#__codelineno-0-22">22</a></span>
+<span class="normal"><a href="#__codelineno-0-23">23</a></span>
+<span class="normal"><a href="#__codelineno-0-24">24</a></span>
+<span class="normal"><a href="#__codelineno-0-25">25</a></span>
+<span class="normal"><a href="#__codelineno-0-26">26</a></span>
+<span class="normal"><a href="#__codelineno-0-27">27</a></span>
+<span class="normal"><a href="#__codelineno-0-28">28</a></span>
+<span class="normal"><a href="#__codelineno-0-29">29</a></span>
+<span class="normal"><a href="#__codelineno-0-30">30</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1"></a><span class="c1"># Writes the PrivateLink host and port to the connection Secret. The service must have</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2"></a><span class="c1"># a PrivateLink connection; until it does, the Secret is not created or updated, rotation</span>
+<a id="__codelineno-0-3" name="__codelineno-0-3"></a><span class="c1"># pauses and the resource reports an Error condition and a PreconditionsNotMet event.</span>
+<a id="__codelineno-0-4" name="__codelineno-0-4"></a><span class="c1"># Changing connInfoSecretRoute on an existing ServiceUserRotation rewrites the Secret; pods</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5"></a><span class="c1"># that consume it through environment variables pick up the new host only after a restart.</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6"></a><span class="c1"># With several PrivateLink connections, the endpoints of one connection are published;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7"></a><span class="c1"># selecting a connection is not supported.</span>
+<a id="__codelineno-0-8" name="__codelineno-0-8"></a>
+<a id="__codelineno-0-9" name="__codelineno-0-9"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-0-10" name="__codelineno-0-10"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceUserRotation</span>
+<a id="__codelineno-0-11" name="__codelineno-0-11"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-0-12" name="__codelineno-0-12"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-users</span>
+<a id="__codelineno-0-13" name="__codelineno-0-13"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-0-14" name="__codelineno-0-14"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-0-15" name="__codelineno-0-15"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-0-16" name="__codelineno-0-16"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-0-17" name="__codelineno-0-17"></a>
+<a id="__codelineno-0-18" name="__codelineno-0-18"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-aiven-project</span>
+<a id="__codelineno-0-19" name="__codelineno-0-19"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-postgresql</span>
+<a id="__codelineno-0-20" name="__codelineno-0-20"></a>
+<a id="__codelineno-0-21" name="__codelineno-0-21"></a><span class="w">  </span><span class="nt">usernames</span><span class="p">:</span>
+<a id="__codelineno-0-22" name="__codelineno-0-22"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-user-a</span>
+<a id="__codelineno-0-23" name="__codelineno-0-23"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-user-b</span>
+<a id="__codelineno-0-24" name="__codelineno-0-24"></a><span class="w">  </span><span class="nt">rotationInterval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">720h</span>
+<a id="__codelineno-0-25" name="__codelineno-0-25"></a>
+<a id="__codelineno-0-26" name="__codelineno-0-26"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
+<a id="__codelineno-0-27" name="__codelineno-0-27"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-database-credentials</span>
+<a id="__codelineno-0-28" name="__codelineno-0-28"></a><span class="w">    </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SERVICEUSER_</span>
+<a id="__codelineno-0-29" name="__codelineno-0-29"></a>
+<a id="__codelineno-0-30" name="__codelineno-0-30"></a><span class="w">  </span><span class="nt">connInfoSecretRoute</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">privatelink</span>
 </code></pre></div></td></tr></table></div>
+</div>
+<div class="tabbed-block">
+<div class="highlight"><table class="highlighttable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"><a href="#__codelineno-1-1"> 1</a></span>
+<span class="normal"><a href="#__codelineno-1-2"> 2</a></span>
+<span class="normal"><a href="#__codelineno-1-3"> 3</a></span>
+<span class="normal"><a href="#__codelineno-1-4"> 4</a></span>
+<span class="normal"><a href="#__codelineno-1-5"> 5</a></span>
+<span class="normal"><a href="#__codelineno-1-6"> 6</a></span>
+<span class="normal"><a href="#__codelineno-1-7"> 7</a></span>
+<span class="normal"><a href="#__codelineno-1-8"> 8</a></span>
+<span class="normal"><a href="#__codelineno-1-9"> 9</a></span>
+<span class="normal"><a href="#__codelineno-1-10">10</a></span>
+<span class="normal"><a href="#__codelineno-1-11">11</a></span>
+<span class="normal"><a href="#__codelineno-1-12">12</a></span>
+<span class="normal"><a href="#__codelineno-1-13">13</a></span>
+<span class="normal"><a href="#__codelineno-1-14">14</a></span>
+<span class="normal"><a href="#__codelineno-1-15">15</a></span>
+<span class="normal"><a href="#__codelineno-1-16">16</a></span>
+<span class="normal"><a href="#__codelineno-1-17">17</a></span>
+<span class="normal"><a href="#__codelineno-1-18">18</a></span>
+<span class="normal"><a href="#__codelineno-1-19">19</a></span>
+<span class="normal"><a href="#__codelineno-1-20">20</a></span>
+<span class="normal"><a href="#__codelineno-1-21">21</a></span></pre></div></td><td class="code"><div><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1"></a><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven.io/v1alpha1</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2"></a><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ServiceUserRotation</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3"></a><span class="nt">metadata</span><span class="p">:</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4"></a><span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-users</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5"></a><span class="nt">spec</span><span class="p">:</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6"></a><span class="w">  </span><span class="nt">authSecretRef</span><span class="p">:</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">aiven-token</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8"></a><span class="w">    </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">token</span>
+<a id="__codelineno-1-9" name="__codelineno-1-9"></a>
+<a id="__codelineno-1-10" name="__codelineno-1-10"></a><span class="w">  </span><span class="nt">project</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-aiven-project</span>
+<a id="__codelineno-1-11" name="__codelineno-1-11"></a><span class="w">  </span><span class="nt">serviceName</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">my-postgresql</span>
+<a id="__codelineno-1-12" name="__codelineno-1-12"></a>
+<a id="__codelineno-1-13" name="__codelineno-1-13"></a><span class="w">  </span><span class="c1"># Create both users and configure their permissions before enabling rotation.</span>
+<a id="__codelineno-1-14" name="__codelineno-1-14"></a><span class="w">  </span><span class="nt">usernames</span><span class="p">:</span>
+<a id="__codelineno-1-15" name="__codelineno-1-15"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-user-a</span>
+<a id="__codelineno-1-16" name="__codelineno-1-16"></a><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-user-b</span>
+<a id="__codelineno-1-17" name="__codelineno-1-17"></a><span class="w">  </span><span class="nt">rotationInterval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">720h</span>
+<a id="__codelineno-1-18" name="__codelineno-1-18"></a>
+<a id="__codelineno-1-19" name="__codelineno-1-19"></a><span class="w">  </span><span class="nt">connInfoSecretTarget</span><span class="p">:</span>
+<a id="__codelineno-1-20" name="__codelineno-1-20"></a><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">application-database-credentials</span>
+<a id="__codelineno-1-21" name="__codelineno-1-21"></a><span class="w">    </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">SERVICEUSER_</span>
+</code></pre></div></td></tr></table></div>
+</div>
+</div>
+</div>
 <p>Apply the resource with:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>example.yaml
 </code></pre></div>
 <p>Verify the newly created <code>ServiceUserRotation</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>serviceuserrotations<span class="w"> </span>application-users
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>serviceuserrotations<span class="w"> </span>application-users
 </code></pre></div>
 <p>The output is similar to the following:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>Name<span class="w">                 </span>Service<span class="w"> </span>Name<span class="w">     </span>Project<span class="w">             </span>Active<span class="w"> </span>User<span class="w">         </span>Next<span class="w"> </span>Rotation<span class="w">       </span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>application-users<span class="w">    </span>my-postgresql<span class="w">    </span>my-aiven-project<span class="w">    </span>&lt;activeUsername&gt;<span class="w">    </span>&lt;nextRotationAt&gt;<span class="w">    </span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>Name<span class="w">                 </span>Service<span class="w"> </span>Name<span class="w">     </span>Project<span class="w">             </span>Active<span class="w"> </span>User<span class="w">         </span>Next<span class="w"> </span>Rotation<span class="w">       </span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>application-users<span class="w">    </span>my-postgresql<span class="w">    </span>my-aiven-project<span class="w">    </span>&lt;activeUsername&gt;<span class="w">    </span>&lt;nextRotationAt&gt;<span class="w">    </span>
 </code></pre></div></p>
 <p>To view the details of the <code>Secret</code>, use the following command:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>application-database-credentials
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>describe<span class="w"> </span>secret<span class="w"> </span>application-database-credentials
 </code></pre></div></p>
 <p>You can use the <a href="https://github.com/jqlang/jq">jq</a> to quickly decode the <code>Secret</code>:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>application-database-credentials<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data | map_values(@base64d)'</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>kubectl<span class="w"> </span>get<span class="w"> </span>secret<span class="w"> </span>application-database-credentials<span class="w"> </span>-o<span class="w"> </span>json<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span><span class="s1">'.data | map_values(@base64d)'</span>
 </code></pre></div>
 <p>The output is similar to the following:</p>
-<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="p">{</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span><span class="nt">"SERVICEUSER_HOST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="nt">"SERVICEUSER_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="nt">"SERVICEUSER_USERNAME"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="nt">"SERVICEUSER_PASSWORD"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="w">    </span><span class="nt">"SERVICEUSER_CA_CERT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="w">    </span><span class="nt">"SERVICEUSER_ACCESS_CERT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="nt">"SERVICEUSER_ACCESS_KEY"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="nt">"SERVICEUSER_SASL_HOST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="nt">"SERVICEUSER_SASL_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="nt">"SERVICEUSER_SCHEMA_REGISTRY_HOST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="nt">"SERVICEUSER_SCHEMA_REGISTRY_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="p">}</span>
+<div class="no-copy highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="p">{</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span><span class="nt">"SERVICEUSER_HOST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span><span class="nt">"SERVICEUSER_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="nt">"SERVICEUSER_USERNAME"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="w">    </span><span class="nt">"SERVICEUSER_PASSWORD"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a><span class="w">    </span><span class="nt">"SERVICEUSER_CA_CERT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="w">    </span><span class="nt">"SERVICEUSER_ACCESS_CERT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="w">    </span><span class="nt">"SERVICEUSER_ACCESS_KEY"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a><span class="w">    </span><span class="nt">"SERVICEUSER_SASL_HOST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a><span class="w">    </span><span class="nt">"SERVICEUSER_SASL_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a><span class="w">    </span><span class="nt">"SERVICEUSER_SCHEMA_REGISTRY_HOST"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a><span class="w">    </span><span class="nt">"SERVICEUSER_SCHEMA_REGISTRY_PORT"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;secret&gt;"</span><span class="p">,</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a><span class="p">}</span>
 </code></pre></div>
 <hr />
 <h2 id="ServiceUserRotation">ServiceUserRotation<a class="headerlink" href="#ServiceUserRotation" title="Permanent link">&para;</a></h2>
@@ -3726,6 +3795,11 @@ See <a href="../guides/serviceuser-rotation.html">Service user rotation</a> for 
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.authSecretRef-property" name="spec.authSecretRef-property"><code>authSecretRef</code></a> (object). Authentication reference to Aiven token in a secret. See below for <a href="#spec.authSecretRef">nested schema</a>.</li>
+<li><a href="#spec.connInfoSecretRoute-property" name="spec.connInfoSecretRoute-property"><code>connInfoSecretRoute</code></a> (string, Enum: <code>dynamic</code>, <code>public</code>, <code>private</code>, <code>privatelink</code>). Network route whose host and port are written to the connection secret.
+    Set a route, including dynamic, to take the primary component on that
+    route; for Kafka this also selects the SASL and schema registry host and port on it.
+    While the service does not expose the selected route, the Secret is not written and rotation pauses.
+    With several PrivateLink connections, the endpoints of one connection (the lowest connection ID) are published.</li>
 </ul>
 <h2 id="spec.authSecretRef">authSecretRef<a class="headerlink" href="#spec.authSecretRef" title="Permanent link">&para;</a></h2>
 <p><em>Appears on <a href="#spec"><code>spec</code></a>.</em></p>
@@ -3862,10 +3936,10 @@ A name is required; the name and effective key prefix are immutable. An empty pr
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.67a597eb.min.js"></script>
+      <script src="../assets/javascripts/bundle.77dd0ce9.min.js"></script>
       
     
   </body>

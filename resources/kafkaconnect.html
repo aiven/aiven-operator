@@ -11,6 +11,7 @@
         <link rel="canonical" href="https://aiven.github.io/aiven-operator/resources/kafkaconnect.html">
       
       
+      
         <link rel="prev" href="./kafkaacl.html">
       
       
@@ -21,7 +22,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.67">
+      <meta name="generator" content="zensical-0.0.73">
     
     
       
@@ -32,12 +33,12 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.4ae390e2.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.4ab2de0c.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.96d1a7e4.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
       
       
 
@@ -81,14 +82,11 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
     <div data-md-component="skip">
-      
-        
-        <a href="#prerequisites" class="md-skip">
-          Skip to content
-        </a>
-      
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
     </div>
     <div data-md-component="announce">
       
@@ -104,9 +102,10 @@
   <img src="../assets/aiven_logo_RGB_blk.svg" alt="Aiven Operator">
 
     </a>
-    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+    <label class="md-header__button md-icon" for="__drawer">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -158,9 +157,10 @@
     
       
       
-        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+        <label class="md-header__button md-icon" for="__search">
           
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
         </label>
         <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
   <button type="button" class="md-search__button">
@@ -1510,6 +1510,17 @@
   
     <nav class="md-nav" aria-label="userConfig">
       <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec.userConfig.custom_plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        custom_plugins
+      </span>
+    </span>
+  </a>
+  
+</li>
         
           <li class="md-nav__item">
   <a href="#spec.userConfig.ip_filter" class="md-nav__link">
@@ -3755,6 +3766,17 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
+  <a href="#spec.userConfig.custom_plugins" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        custom_plugins
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#spec.userConfig.ip_filter" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -3898,6 +3920,7 @@
             <div class="md-content" data-md-component="content">
               
               <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
                 
                   
 
@@ -3913,7 +3936,7 @@
   
 
 
-  <h1 id="__skip">KafkaConnect</h1>
+  <h1>KafkaConnect</h1>
 
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <ul>
@@ -4050,7 +4073,9 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
     For more information please see <a href="https://aiven.io/docs/platform/concepts/service-power-cycle">Aiven documentation</a>.
     Note that:<ul>
 <li>When set to <code>false</code> the annotation <code>controllers.aiven.io/instance-is-running</code> is also set to <code>false</code>.</li>
-<li>Services cannot be created in a powered off state. The value is ignored during creation.</li>
+<li>Services cannot be created in a powered off state. A resource with <code>powered: false</code> whose service
+  does not exist at Aiven reports an error until <code>powered</code> is set to <code>true</code>; an existing powered off
+  service can be adopted as is.</li>
 <li>It is highly recommended to not run dependent resources when the service is powered off.
   Creating a new resource or updating an existing resource that depends on a powered off service will result in an error.
   Existing resources will need to be manually recreated after the service is powered on.</li>
@@ -4107,6 +4132,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <p><strong>Optional</strong></p>
 <ul>
 <li><a href="#spec.userConfig.additional_backup_regions-property" name="spec.userConfig.additional_backup_regions-property"><code>additional_backup_regions</code></a> (array of strings, MaxItems: 1). Deprecated. Additional Cloud Regions for Backup Replication.</li>
+<li><a href="#spec.userConfig.custom_plugins-property" name="spec.userConfig.custom_plugins-property"><code>custom_plugins</code></a> (array of objects, MaxItems: 10). Install custom plugins uploaded via the custom file service. See below for <a href="#spec.userConfig.custom_plugins">nested schema</a>.</li>
 <li><a href="#spec.userConfig.gcp_auth_allowed_urls-property" name="spec.userConfig.gcp_auth_allowed_urls-property"><code>gcp_auth_allowed_urls</code></a> (array of strings). Allow-list of HTTPS URLs used to validate GCP credential_source requests for Kafka Connect.</li>
 <li><a href="#spec.userConfig.ip_filter-property" name="spec.userConfig.ip_filter-property"><code>ip_filter</code></a> (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. <code>10.20.0.0/16</code>. See below for <a href="#spec.userConfig.ip_filter">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_connect-property" name="spec.userConfig.kafka_connect-property"><code>kafka_connect</code></a> (object). Kafka Connect configuration values. See below for <a href="#spec.userConfig.kafka_connect">nested schema</a>.</li>
@@ -4119,6 +4145,14 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.secret_providers-property" name="spec.userConfig.secret_providers-property"><code>secret_providers</code></a>. See below for } (array of objects). Configure external secret providers in order to reference external secrets in connector configuration. Currently Hashicorp Vault (provider: vault, auth_method: token) and AWS Secrets Manager (provider: aws, auth_method: credentials) are supported. Secrets can be referenced in connector config with ${<provider_name>:<secret_path>:<key_name><a href="#spec.userConfig.secret_providers">nested schema</a>.</li>
 <li><a href="#spec.userConfig.service_log-property" name="spec.userConfig.service_log-property"><code>service_log</code></a> (boolean). Store logs for the service so that they are available in the HTTP API and console.</li>
 <li><a href="#spec.userConfig.static_ips-property" name="spec.userConfig.static_ips-property"><code>static_ips</code></a> (boolean). Use static public IP addresses.</li>
+</ul>
+<h3 id="spec.userConfig.custom_plugins">custom_plugins<a class="headerlink" href="#spec.userConfig.custom_plugins" title="Permanent link">&para;</a></h3>
+<p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
+<p>Install a custom plugin uploaded via the custom file service.</p>
+<p><strong>Required</strong></p>
+<ul>
+<li><a href="#spec.userConfig.custom_plugins.plugin_name-property" name="spec.userConfig.custom_plugins.plugin_name-property"><code>plugin_name</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MinLength: 1, MaxLength: 64). The name of the custom plugin as specified during upload.</li>
+<li><a href="#spec.userConfig.custom_plugins.plugin_version-property" name="spec.userConfig.custom_plugins.plugin_version-property"><code>plugin_version</code></a> (string, MinLength: 1, MaxLength: 32). The version to install. Use a semver version (e.g. <code>1.0.0</code>) or <code>latest</code> to always use the most recent version.</li>
 </ul>
 <h3 id="spec.userConfig.ip_filter">ip_filter<a class="headerlink" href="#spec.userConfig.ip_filter" title="Permanent link">&para;</a></h3>
 <p><em>Appears on <a href="#spec.userConfig"><code>spec.userConfig</code></a>.</em></p>
@@ -4360,10 +4394,10 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.67a597eb.min.js"></script>
+      <script src="../assets/javascripts/bundle.77dd0ce9.min.js"></script>
       
     
   </body>

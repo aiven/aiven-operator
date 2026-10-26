@@ -11,6 +11,7 @@
         <link rel="canonical" href="https://aiven.github.io/aiven-operator/resources/kafka.html">
       
       
+      
         <link rel="prev" href="./grafana.html">
       
       
@@ -21,7 +22,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.67">
+      <meta name="generator" content="zensical-0.0.73">
     
     
       
@@ -32,12 +33,12 @@
       
         
       
-      <link rel="stylesheet" href="../assets/stylesheets/modern/main.4ae390e2.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/modern/main.4ab2de0c.min.css">
       
         
           
         
-        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.96d1a7e4.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/modern/palette.b60ce83d.min.css">
       
       
 
@@ -81,14 +82,11 @@
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
-    <label class="md-overlay" for="__drawer" aria-label="Navigation"></label>
+    <label class="md-overlay" for="__drawer" aria-hidden="true"></label>
     <div data-md-component="skip">
-      
-        
-        <a href="#prerequisites" class="md-skip">
-          Skip to content
-        </a>
-      
+      <a href="#__skip" class="md-skip">
+        Skip to content
+      </a>
     </div>
     <div data-md-component="announce">
       
@@ -104,9 +102,10 @@
   <img src="../assets/aiven_logo_RGB_blk.svg" alt="Aiven Operator">
 
     </a>
-    <label class="md-header__button md-icon" for="__drawer" aria-label="Navigation">
+    <label class="md-header__button md-icon" for="__drawer">
       
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-menu" viewBox="0 0 24 24"><path d="M4 5h16M4 12h16M4 19h16"/></svg>
+      <span class="md-visually-hidden">Navigation</span>
     </label>
     <div class="md-header__title" data-md-component="header-title">
       <div class="md-header__ellipsis">
@@ -158,9 +157,10 @@
     
       
       
-        <label class="md-header__button md-icon" for="__search" aria-label="Search">
+        <label class="md-header__button md-icon" for="__search">
           
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" class="lucide lucide-search" viewBox="0 0 24 24"><path d="m21 21-4.34-4.34"/><circle cx="11" cy="11" r="8"/></svg>
+          <span class="md-visually-hidden">Search</span>
         </label>
         <div class="md-search" data-md-component="search" role="dialog" aria-label="Search">
   <button type="button" class="md-search__button">
@@ -4208,6 +4208,7 @@
             <div class="md-content" data-md-component="content">
               
               <article class="md-content__inner md-typeset">
+                <a id="__skip" tabindex="-1"></a>
                 
                   
 
@@ -4223,7 +4224,7 @@
   
 
 
-  <h1 id="__skip">Kafka</h1>
+  <h1>Kafka</h1>
 
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
 <ul>
@@ -4393,7 +4394,9 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
     For more information please see <a href="https://aiven.io/docs/platform/concepts/service-power-cycle">Aiven documentation</a>.
     Note that:<ul>
 <li>When set to <code>false</code> the annotation <code>controllers.aiven.io/instance-is-running</code> is also set to <code>false</code>.</li>
-<li>Services cannot be created in a powered off state. The value is ignored during creation.</li>
+<li>Services cannot be created in a powered off state. A resource with <code>powered: false</code> whose service
+  does not exist at Aiven reports an error until <code>powered</code> is set to <code>true</code>; an existing powered off
+  service can be adopted as is.</li>
 <li>It is highly recommended to not run dependent resources when the service is powered off.
   Creating a new resource or updating an existing resource that depends on a powered off service will result in an error.
   Existing resources will need to be manually recreated after the service is powered on.</li>
@@ -4485,9 +4488,9 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.kafka_rest_authorization-property" name="spec.userConfig.kafka_rest_authorization-property"><code>kafka_rest_authorization</code></a> (boolean). Enable authorization in Kafka-REST service.</li>
 <li><a href="#spec.userConfig.kafka_rest_config-property" name="spec.userConfig.kafka_rest_config-property"><code>kafka_rest_config</code></a> (object). Kafka REST configuration. See below for <a href="#spec.userConfig.kafka_rest_config">nested schema</a>.</li>
 <li><a href="#spec.userConfig.kafka_sasl_mechanisms-property" name="spec.userConfig.kafka_sasl_mechanisms-property"><code>kafka_sasl_mechanisms</code></a> (object). Kafka SASL mechanisms. See below for <a href="#spec.userConfig.kafka_sasl_mechanisms">nested schema</a>.</li>
-<li><a href="#spec.userConfig.kafka_version-property" name="spec.userConfig.kafka_version-property"><code>kafka_version</code></a> (string). Available versions: <code>4.0</code>, <code>4.1</code>, <code>4.2</code>. Newer versions may also be available.
+<li><a href="#spec.userConfig.kafka_version-property" name="spec.userConfig.kafka_version-property"><code>kafka_version</code></a> (string). Available versions: <code>4.0</code>, <code>4.1</code>, <code>4.2</code>, <code>4.3</code>. Newer versions may also be available.
     Kafka major version. Deprecated values: <code>4.1</code>.</li>
-<li><a href="#spec.userConfig.karapace_version-property" name="spec.userConfig.karapace_version-property"><code>karapace_version</code></a> (string). Available versions: <code>6.2.1</code>, <code>6.2.2</code>, <code>6.2.3</code>. Newer versions may also be available.
+<li><a href="#spec.userConfig.karapace_version-property" name="spec.userConfig.karapace_version-property"><code>karapace_version</code></a> (string). Available versions: <code>6.2.1</code>, <code>6.2.2</code>, <code>6.2.3</code>, <code>6.2.4</code>. Newer versions may also be available.
     Select a Karapace version for this service, or select Latest to use the latest available version automatically. New versions become available after installation during a maintenance update.</li>
 <li><a href="#spec.userConfig.letsencrypt_sasl-property" name="spec.userConfig.letsencrypt_sasl-property"><code>letsencrypt_sasl</code></a> (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication. (Default: False).</li>
 <li><a href="#spec.userConfig.letsencrypt_sasl_privatelink-property" name="spec.userConfig.letsencrypt_sasl_privatelink-property"><code>letsencrypt_sasl_privatelink</code></a> (boolean). Use a Let's Encrypt certificate authority (CA) for Kafka SASL authentication via Privatelink. (Default: False).</li>
@@ -4538,6 +4541,12 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.kafka.compression_type-property" name="spec.userConfig.kafka.compression_type-property"><code>compression_type</code></a> (string, Enum: <code>gzip</code>, <code>lz4</code>, <code>producer</code>, <code>snappy</code>, <code>uncompressed</code>, <code>zstd</code>). Specify the final compression type for a given topic. This configuration accepts the standard compression codecs (<code>gzip</code>, <code>snappy</code>, <code>lz4</code>, <code>zstd</code>). It additionally accepts <code>uncompressed</code> which is equivalent to no compression; and <code>producer</code> which means retain the original compression codec set by the producer.(Default: producer).</li>
 <li><a href="#spec.userConfig.kafka.connections_max_idle_ms-property" name="spec.userConfig.kafka.connections_max_idle_ms-property"><code>connections_max_idle_ms</code></a> (integer, Minimum: 1000, Maximum: 3600000). Idle connections timeout: the server socket processor threads close the connections that idle for longer than this. (Default: 600000 ms (10 minutes)).</li>
 <li><a href="#spec.userConfig.kafka.default_replication_factor-property" name="spec.userConfig.kafka.default_replication_factor-property"><code>default_replication_factor</code></a> (integer, Minimum: 1, Maximum: 10). Replication factor for auto-created topics (Default: 3).</li>
+<li><a href="#spec.userConfig.kafka.group_consumer_heartbeat_interval_ms-property" name="spec.userConfig.kafka.group_consumer_heartbeat_interval_ms-property"><code>group_consumer_heartbeat_interval_ms</code></a> (integer, Minimum: 500, Maximum: 1800000). The heartbeat interval given to the members of a consumer group using the consumer rebalance protocol. Must be between group.consumer.min.heartbeat.interval.ms and group.consumer.max.heartbeat.interval.ms, and lower than group.consumer.session.timeout.ms. (Default: 5000 ms (5 seconds)) Requires Kafka 4.0 or later.</li>
+<li><a href="#spec.userConfig.kafka.group_consumer_max_heartbeat_interval_ms-property" name="spec.userConfig.kafka.group_consumer_max_heartbeat_interval_ms-property"><code>group_consumer_max_heartbeat_interval_ms</code></a> (integer, Minimum: 500, Maximum: 1800000). The maximum heartbeat interval allowed for consumer group members using the consumer rebalance protocol. Must not be less than group.consumer.min.heartbeat.interval.ms. (Default: 15000 ms (15 seconds)) Requires Kafka 4.0 or later.</li>
+<li><a href="#spec.userConfig.kafka.group_consumer_max_session_timeout_ms-property" name="spec.userConfig.kafka.group_consumer_max_session_timeout_ms-property"><code>group_consumer_max_session_timeout_ms</code></a> (integer, Minimum: 1000, Maximum: 1800000). The maximum session timeout allowed for consumer group members using the consumer rebalance protocol. Must not be less than group.consumer.min.session.timeout.ms. (Default: 60000 ms (60 seconds)) Requires Kafka 4.0 or later.</li>
+<li><a href="#spec.userConfig.kafka.group_consumer_min_heartbeat_interval_ms-property" name="spec.userConfig.kafka.group_consumer_min_heartbeat_interval_ms-property"><code>group_consumer_min_heartbeat_interval_ms</code></a> (integer, Minimum: 500, Maximum: 1800000). The minimum heartbeat interval allowed for consumer group members using the consumer rebalance protocol. Must not be greater than group.consumer.max.heartbeat.interval.ms. (Default: 5000 ms (5 seconds)) Requires Kafka 4.0 or later.</li>
+<li><a href="#spec.userConfig.kafka.group_consumer_min_session_timeout_ms-property" name="spec.userConfig.kafka.group_consumer_min_session_timeout_ms-property"><code>group_consumer_min_session_timeout_ms</code></a> (integer, Minimum: 1000, Maximum: 1800000). The minimum session timeout allowed for consumer group members using the consumer rebalance protocol. Must not be greater than group.consumer.max.session.timeout.ms. (Default: 45000 ms (45 seconds)) Requires Kafka 4.0 or later.</li>
+<li><a href="#spec.userConfig.kafka.group_consumer_session_timeout_ms-property" name="spec.userConfig.kafka.group_consumer_session_timeout_ms-property"><code>group_consumer_session_timeout_ms</code></a> (integer, Minimum: 1000, Maximum: 1800000). The timeout used to detect consumer group member failures when using the consumer rebalance protocol. Must be between group.consumer.min.session.timeout.ms and group.consumer.max.session.timeout.ms. (Default: 45000 ms (45 seconds)) Requires Kafka 4.0 or later.</li>
 <li><a href="#spec.userConfig.kafka.group_coordinator_rebalance_protocols-property" name="spec.userConfig.kafka.group_coordinator_rebalance_protocols-property"><code>group_coordinator_rebalance_protocols</code></a> (string, Enum: <code>classic</code>, <code>classic,consumer</code>, <code>classic,consumer,share</code>, <code>classic,consumer,share,streams</code>, <code>classic,consumer,streams</code>, <code>classic,share</code>, <code>classic,streams</code>). The enabled consumer group rebalance protocols. Use consumer, classic, share, streams to enable Kafka share groups.</li>
 <li><a href="#spec.userConfig.kafka.group_initial_rebalance_delay_ms-property" name="spec.userConfig.kafka.group_initial_rebalance_delay_ms-property"><code>group_initial_rebalance_delay_ms</code></a> (integer, Minimum: 0, Maximum: 300000). The amount of time, in milliseconds, the group coordinator will wait for more consumers to join a new group before performing the first rebalance. A longer delay means potentially fewer rebalances, but increases the time until processing begins. The default value for this is 3 seconds. During development and testing it might be desirable to set this to 0 in order to not delay test execution time. (Default: 3000 ms (3 seconds)).</li>
 <li><a href="#spec.userConfig.kafka.group_max_session_timeout_ms-property" name="spec.userConfig.kafka.group_max_session_timeout_ms-property"><code>group_max_session_timeout_ms</code></a> (integer, Minimum: 0, Maximum: 1800000). The maximum allowed session timeout for registered consumers. Longer timeouts give consumers more time to process messages in between heartbeats at the cost of a longer time to detect failures. Default: 1800000 ms (30 minutes).</li>
@@ -4927,10 +4936,10 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.7d14d953.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.67a597eb.min.js"></script>
+      <script src="../assets/javascripts/bundle.77dd0ce9.min.js"></script>
       
     
   </body>
