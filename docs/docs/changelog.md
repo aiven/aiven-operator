@@ -1,6 +1,73 @@
 # Changelog
 
 
+## v0.49.0 - 2026-10-26
+
+- Setting both `projectVpcId` and `projectVPCRef` is now rejected when the resource is applied, also
+  when webhooks are disabled. A resource that already sets both must drop one before its next update
+- Change Go type of `BaseServiceFields.ProjectVPCID` from `string` to `*string` and the JSON tag of
+  `Tags` and `TechnicalEmails` from `omitempty` to `omitzero`. CRD schema and manifests are
+  unchanged; only Go code importing `api/v1alpha1` is affected
+- Fix service webhooks refusing to delete a resource that sets both `projectVpcId` and `projectVPCRef`;
+  the conflict is still rejected on create and update
+- Add `Kafka` field `userConfig.kafka.group_consumer_heartbeat_interval_ms`, type `integer`: The heartbeat
+  interval given to the members of a consumer group using the consumer rebalance protocol
+- Add `Kafka` field `userConfig.kafka.group_consumer_max_heartbeat_interval_ms`, type `integer`: The
+  maximum heartbeat interval allowed for consumer group members using the consumer rebalance protocol
+- Add `Kafka` field `userConfig.kafka.group_consumer_max_session_timeout_ms`, type `integer`: The maximum
+  session timeout allowed for consumer group members using the consumer rebalance protocol
+- Add `Kafka` field `userConfig.kafka.group_consumer_min_heartbeat_interval_ms`, type `integer`: The
+  minimum heartbeat interval allowed for consumer group members using the consumer rebalance protocol
+- Add `Kafka` field `userConfig.kafka.group_consumer_min_session_timeout_ms`, type `integer`: The minimum
+  session timeout allowed for consumer group members using the consumer rebalance protocol
+- Add `Kafka` field `userConfig.kafka.group_consumer_session_timeout_ms`, type `integer`: The timeout
+  used to detect consumer group member failures when using the consumer rebalance protocol
+- Add `MySQL` field `userConfig.mysql.innodb_max_dirty_pages_pct_lwm`, type `number`: Percentage of dirty
+  pages in the InnoDB buffer pool at which InnoDB starts pre-flushing, to keep the dirty page ratio
+  from reaching innodb_max_dirty_pages_pct
+- Add `MySQL` field `userConfig.mysql.innodb_max_dirty_pages_pct`, type `number`: Percentage of dirty
+  pages in the InnoDB buffer pool at which InnoDB starts flushing aggressively
+- Add `MySQL` field `userConfig.mysql.innodb_max_purge_lag_delay`, type `integer`: Cap in microseconds
+  on the per-row delay innodb_max_purge_lag applies to INSERT, UPDATE and DELETE
+- Add `MySQL` field `userConfig.mysql.innodb_max_purge_lag`, type `integer`: Number of outstanding transactions
+  the InnoDB purge operation may fall behind by before INSERT, UPDATE and DELETE are delayed
+  to let it catch up
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_max_model_on_node`, type `integer`: Maximum
+  number of ML models that can be deployed on a single ML node. Defaults to 10
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_model_auto_deploy_enable`, type `boolean`:
+  For externally hosted models only: automatically deploy a model on its first predict request instead
+  of requiring an explicit deploy call first
+- Add `OpenSearch` field `userConfig.opensearch.ml_commons_model_auto_redeploy_enable`, type `boolean`:
+  Automatically redeploy deployed or partially deployed models after ML nodes rejoin the cluster,
+  e.g
+- Change `PostgreSQL` field `userConfig.variant`: enum add `pg_lake`
+- Add `ServiceIntegration` field `datadog.datadog_pg_dbname`, type `string`: Database the Datadog PostgreSQL
+  check connects to
+- Add `Valkey` field `userConfig.replicas`, type `integer`: Number of replicas per shard in the Valkey
+  cluster. Only applies to cluster plans
+- Add `Valkey` field `userConfig.shard_count`, type `integer`: Number of shards (primaries) in the Valkey
+  cluster. Required for cluster plans
+- Add `KafkaConnect` field `userConfig.custom_plugins`, type `array`: Install custom plugins uploaded
+  via the custom file service
+- Add `connInfoSecretRoute` (`dynamic`, `public`, `private`, `privatelink`) to `ServiceUser` and
+  `ServiceUserRotation`. It selects the service endpoint published to the connection Secret as
+  `HOST` and `PORT`; for Kafka also `SASL_HOST`/`SASL_PORT` and `SCHEMA_REGISTRY_HOST`/`SCHEMA_REGISTRY_PORT`.
+  Set `privatelink` to publish the PrivateLink endpoint. Until the service exposes the chosen route,
+  the Secret is left untouched and the resource reports an `Error` condition with reason
+  `Preconditions`; a `ServiceUserRotation` also pauses rotation and runs as soon as the route appears.
+  Leaving the field unset keeps the behavior of previous releases, so existing Secrets are not rewritten on upgrade.
+- Fix `Reconciler error` ("the object has been modified") logged when a resource changed while the
+  operator was writing its status. The conflict is now ignored and the state is recomputed by the next reconcile.
+- Add `OpenSearch` field `userConfig.opensearch.knn_cache_item_expiry_enabled`, type `boolean`: Enable
+  or disable removing KNN graphs from the cache when they are idle. Disabled by default
+- Add `OpenSearch` field `userConfig.opensearch.knn_cache_item_expiry_minutes`, type `integer`: If enabled,
+  the amount of time in minutes a KNN graph can be idle in the cache before being evicted
+- Add `OpenSearch` field `userConfig.opensearch.knn_circuit_breaker_unset_percentage`, type `number`:
+  The native memory usage, as a percentage below the KNN memory circuit breaker limit, at which a tripped
+  circuit breaker resets
+- Fix resources staying `ReadyToUse` after their connection secret failed to publish. The resource is
+  now reported as not ready until the secret is published successfully.
+
 ## v0.48.0 - 2026-10-01
 
 - **BREAKING**: `ServiceUser` now applies `spec.authentication` when creating Aiven users and
