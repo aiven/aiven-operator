@@ -5,10 +5,12 @@ package tests
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	grafanauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/grafana"
@@ -69,8 +71,16 @@ func TestGrafana(t *testing.T) {
 	require.NoError(t, s.GetRunning(grafana, name))
 
 	// THEN
-	grafanaAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
-	require.NoError(t, err)
+	// Aiven may omit grafana_version from the metadata for a while after the service turns RUNNING
+	var grafanaAvn *service.ServiceGetOut
+	require.EventuallyWithT(t, func(collect *assert.CollectT) {
+		var err error
+		grafanaAvn, err = avnGen.ServiceGet(ctx, cfg.Project, name)
+		require.NoError(collect, err)
+		require.NoError(collect, k8sClient.Get(ctx, types.NamespacedName{Name: name, Namespace: defaultNamespace}, grafana))
+		assert.NotNil(collect, grafanaAvn.Metadata["grafana_version"])
+		assert.NotEmpty(collect, grafana.Status.Version)
+	}, 3*time.Minute, 10*time.Second)
 	assert.Equal(t, grafanaAvn.ServiceName, grafana.GetName())
 	assert.Equal(t, serviceRunningState, grafana.Status.State)
 	assertServiceVersion(t, grafanaAvn.Metadata["grafana_version"], grafana.Status.Version)
