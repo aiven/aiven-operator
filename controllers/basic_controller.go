@@ -111,6 +111,8 @@ const (
 	eventInstanceMissingAtAiven             = "InstanceMissingAtAiven"
 	eventSpecChangeIgnored                  = "SpecChangeIgnored"
 	eventManagementPolicyNotSupported       = "ManagementPolicyNotSupported"
+	eventDriftDetected                      = "DriftDetected"
+	eventDiskSpaceNotApplied                = "DiskSpaceNotApplied"
 )
 
 // +kubebuilder:rbac:groups=coordination.k8s.io,resources=leases,verbs=get;list;create;update

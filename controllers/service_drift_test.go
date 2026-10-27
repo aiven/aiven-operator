@@ -103,6 +103,16 @@ func TestDetectDrift(t *testing.T) {
 			require.Equal(t, []fieldDrift{{"disk_space", "102400", "0"}}, detectDrift(fields, desired(spec), live))
 		})
 
+		t.Run("disk owned by the autoscaler never drifts", func(t *testing.T) {
+			spec := fullSpec()
+			live := liveFor(spec)
+			live.DiskSpaceMb = new(204800)
+			live.ServiceIntegrations = []service.ServiceIntegrationOut{{IntegrationType: service.IntegrationTypeReadReplica}}
+			require.Equal(t, []fieldDrift{{"disk_space", "102400", "204800"}}, detectDrift(fields, desired(spec), live))
+			live.ServiceIntegrations = append(live.ServiceIntegrations, service.ServiceIntegrationOut{IntegrationType: service.IntegrationTypeAutoscaler})
+			require.Empty(t, detectDrift(fields, desired(spec), live))
+		})
+
 		t.Run("values Aiven rejects on apply are plain drift", func(t *testing.T) {
 			spec := fullSpec()
 			live := liveFor(spec)

@@ -102,6 +102,13 @@ func TestCreateUpdateService(t *testing.T) {
 	assert.Equal(t, service.MaintenanceDowTypeFriday, avnPg.Maintenance.Dow)
 	assert.Equal(t, "09:00:00", avnPg.Maintenance.Time)
 
+	// The CRD only caps maintenanceWindowTime at 8 chars; a value Aiven normalized instead would drift forever.
+	t.Run("short maintenance time is rejected, not normalized", func(t *testing.T) {
+		req := &service.ServiceUpdateIn{Maintenance: &service.MaintenanceIn{Dow: service.DowTypeFriday, Time: anyPointer("09:00")}}
+		_, err := avnGen.ServiceUpdate(ctx, cfg.Project, pgName, req)
+		require.ErrorContains(t, err, "Must be HH:MM:SS")
+	})
+
 	// Removes the tags and updates the maintenance window
 	ymlUpdate := getUpdateServiceYaml(cfg.Project, pgName, true)
 	require.NoError(t, err)

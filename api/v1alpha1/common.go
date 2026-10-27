@@ -323,6 +323,10 @@ const (
 	MigrationReasonInProgress = "MigrationInProgress"
 )
 
+// ConditionTypeDrifted lists the spec fields the live resource differs from, set only while
+// the management policy forbids correcting them.
+const ConditionTypeDrifted = "Drifted"
+
 // Service integrations to specify when creating a service. Not applied after initial service creation
 type ServiceIntegrationItem struct {
 	// +kubebuilder:validation:Enum=read_replica

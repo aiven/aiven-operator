@@ -52,6 +52,13 @@ func newRecordingTestController[T v1alpha1.ServiceObject](avn avngen.Client, kin
 	}, avn, kind), rec
 }
 
+// inSync sets live's plan and cloud to the spec's, the owned fields the test specs set.
+func inSync(obj v1alpha1.ServiceObject, live *service.ServiceGetOut) *service.ServiceGetOut {
+	spec := obj.ServiceCommonSpec()
+	live.Plan, live.CloudName = spec.Plan, spec.CloudName
+	return live
+}
+
 // markGeneration stamps gen as both the generation and the processed generation.
 func markGeneration(obj metav1.Object, gen int64) {
 	obj.SetGeneration(gen)
@@ -204,7 +211,7 @@ func TestServiceController_Observe(t *testing.T) {
 			require.Equal(t, "grafana.example.com", obs.SecretDetails["GRAFANA_HOST"])
 		})
 
-		t.Run("processed generation -> running annotation + secret details", func(t *testing.T) {
+		t.Run("processed generation -> Drifted powered + running annotation + secret details", func(t *testing.T) {
 			t.Parallel()
 
 			gf := newRunningGrafana(t)
@@ -213,18 +220,19 @@ func TestServiceController_Observe(t *testing.T) {
 			avn := avngen.NewMockClient(t)
 			avn.EXPECT().
 				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, [][2]string{service.ServiceGetIncludeSecrets(true)}).
-				Return(running, nil).Once()
+				Return(inSync(gf, running), nil).Once()
 
 			c := newTestController(avn, grafanaKind, nil)
 			obs, err := c.Observe(ctx, gf)
 			require.NoError(t, err)
-			require.True(t, obs.ResourceUpToDate)
+			require.False(t, obs.ResourceUpToDate)
 			require.Equal(t, "grafana.example.com", obs.SecretDetails["GRAFANA_HOST"])
 			require.Equal(t, "true", gf.Annotations[instanceIsRunningAnnotation])
+			require.Equal(t, "powered", meta.FindStatusCondition(gf.Status.Conditions, v1alpha1.ConditionTypeDrifted).Message)
 		})
 	})
 
-	t.Run("powered off at Aiven under management-policy CreateOnly -> markInstancePoweredOff", func(t *testing.T) {
+	t.Run("powered off at Aiven under management-policy CreateOnly -> Drifted powered + markInstancePoweredOff", func(t *testing.T) {
 		t.Parallel()
 
 		gf := newRunningGrafana(t)
@@ -233,14 +241,15 @@ func TestServiceController_Observe(t *testing.T) {
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
 			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, [][2]string{service.ServiceGetIncludeSecrets(true)}).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypePoweroff}, nil).Once()
+			Return(inSync(gf, &service.ServiceGetOut{State: service.ServiceStateTypePoweroff}), nil).Once()
 
 		c := newTestController(avn, grafanaKind, nil)
 		obs, err := c.Observe(ctx, gf)
 		require.NoError(t, err)
-		require.True(t, obs.ResourceUpToDate)
+		require.False(t, obs.ResourceUpToDate)
 		require.Nil(t, obs.SecretDetails)
 		require.Equal(t, "false", gf.Annotations[instanceIsRunningAnnotation])
+		require.Equal(t, "powered", meta.FindStatusCondition(gf.Status.Conditions, v1alpha1.ConditionTypeDrifted).Message)
 	})
 
 	t.Run("running -> running annotation + secret details", func(t *testing.T) {
@@ -250,7 +259,7 @@ func TestServiceController_Observe(t *testing.T) {
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
 			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, [][2]string{service.ServiceGetIncludeSecrets(true)}).
-			Return(&service.ServiceGetOut{
+			Return(inSync(gf, &service.ServiceGetOut{
 				State: service.ServiceStateTypeRunning,
 				ServiceUriParams: map[string]string{
 					"host":     "grafana.example.com",
@@ -261,7 +270,7 @@ func TestServiceController_Observe(t *testing.T) {
 				ServiceUri:     "https://grafana.example.com:3000",
 				ConnectionInfo: &service.ConnectionInfoOut{Grafana: []string{"grafana.example.com"}},
 				Metadata:       map[string]any{"grafana_version": "11.4"},
-			}, nil).Once()
+			}), nil).Once()
 
 		c := newTestController(avn, grafanaKind, nil)
 		obs, err := c.Observe(t.Context(), gf)
@@ -306,7 +315,7 @@ func TestServiceController_Observe(t *testing.T) {
 		// Steady state: no backup check, no secrets fetch.
 		avn.EXPECT().
 			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypePoweroff}, nil).Once()
+			Return(inSync(gf, &service.ServiceGetOut{State: service.ServiceStateTypePoweroff}), nil).Once()
 
 		c := newTestController(avn, grafanaKind, nil)
 		obs, err := c.Observe(t.Context(), gf)
@@ -336,6 +345,226 @@ func TestServiceController_Observe(t *testing.T) {
 		_, err := c.Observe(t.Context(), gf)
 		// Only Aiven taking a backup unblocks it: the reconciler polls at PollInterval.
 		require.ErrorIs(t, err, errPreconditionExternal)
+	})
+
+	t.Run("drift", func(t *testing.T) {
+		t.Parallel()
+
+		t.Run("running -> Warning per field, not up to date, no secret details", func(t *testing.T) {
+			t.Parallel()
+
+			gf := newRunningGrafana(t)
+			markInstanceRunning(gf)
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+				Return(&service.ServiceGetOut{
+					State:     service.ServiceStateTypeRunning,
+					Plan:      "startup-4",
+					CloudName: "aws-eu-west-1",
+				}, nil).Once()
+
+			c, rec := newRecordingTestController(avn, grafanaKind, nil)
+			obs, err := c.Observe(t.Context(), gf)
+			require.NoError(t, err)
+			require.True(t, obs.ResourceExists)
+			require.False(t, obs.ResourceUpToDate)
+			require.Nil(t, obs.SecretDetails)
+			require.Equal(t, []string{
+				"Warning DriftDetected plan: startup-4 (live) -> startup-1 (spec)",
+				"Warning DriftDetected cloudName: aws-eu-west-1 (live) -> google-europe-west1 (spec)",
+			}, recorderEvents(rec))
+			// Readiness is revoked by the correcting Update, not by Observe.
+			require.True(t, hasIsRunningAnnotation(gf))
+		})
+
+		t.Run("not compared while REBALANCING", func(t *testing.T) {
+			t.Parallel()
+
+			gf := newRunningGrafana(t)
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+				Return(&service.ServiceGetOut{State: service.ServiceStateTypeRebalancing, Plan: "startup-4"}, nil).Once()
+
+			c, rec := newRecordingTestController(avn, grafanaKind, nil)
+			obs, err := c.Observe(t.Context(), gf)
+			require.NoError(t, err)
+			require.True(t, obs.ResourceUpToDate)
+			require.Empty(t, recorderEvents(rec))
+		})
+
+		t.Run("a field omitted from the spec is unmanaged", func(t *testing.T) {
+			t.Parallel()
+
+			gf := newRunningGrafana(t)
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+				Return(inSync(gf, &service.ServiceGetOut{
+					State:          service.ServiceStateTypeRunning,
+					Tags:           map[string]string{"console": "yes"},
+					ConnectionInfo: &service.ConnectionInfoOut{Grafana: []string{"grafana.example.com"}},
+				}), nil).Once()
+
+			c, rec := newRecordingTestController(avn, grafanaKind, nil)
+			obs, err := c.Observe(t.Context(), gf)
+			require.NoError(t, err)
+			require.True(t, obs.ResourceUpToDate)
+			require.NotNil(t, obs.SecretDetails)
+			require.Empty(t, recorderEvents(rec))
+		})
+
+		t.Run("powered off in the Console -> powered drift, not marked powered off", func(t *testing.T) {
+			t.Parallel()
+
+			gf := newRunningGrafana(t)
+			markInstanceRunning(gf)
+			avn := avngen.NewMockClient(t)
+			// Spec powered: no backup check.
+			avn.EXPECT().
+				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+				Return(inSync(gf, &service.ServiceGetOut{State: service.ServiceStateTypePoweroff}), nil).Once()
+
+			c, rec := newRecordingTestController(avn, grafanaKind, nil)
+			obs, err := c.Observe(t.Context(), gf)
+			require.NoError(t, err)
+			require.False(t, obs.ResourceUpToDate)
+			require.Equal(t, []string{"Warning DriftDetected powered: false (live) -> true (spec)"}, recorderEvents(rec))
+			require.Equal(t, "true", gf.Annotations[instanceIsRunningAnnotation])
+		})
+
+		t.Run("powered: false while running without backups -> errPreconditionExternal, no drift event", func(t *testing.T) {
+			t.Parallel()
+
+			gf := newRunningGrafana(t)
+			gf.Spec.Powered = new(false)
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
+				Return(inSync(gf, &service.ServiceGetOut{State: service.ServiceStateTypeRunning}), nil).Once()
+			avn.EXPECT().
+				ServiceBackupsGet(mock.Anything, gf.Spec.Project, gf.Name).
+				Return(&service.ServiceBackupsGetOut{Backups: []service.BackupOut{}}, nil).Once()
+
+			c, rec := newRecordingTestController(avn, grafanaKind, nil)
+			_, err := c.Observe(t.Context(), gf)
+			require.ErrorIs(t, err, errPreconditionExternal)
+			require.Empty(t, recorderEvents(rec))
+		})
+
+		t.Run("projectVPCRef is resolved and compared", func(t *testing.T) {
+			t.Parallel()
+
+			gf := newRunningGrafana(t)
+			gf.Spec.ProjectVPCRef = &v1alpha1.ResourceReference{Name: "test-vpc"}
+			vpc := &v1alpha1.ProjectVPC{
+				ObjectMeta: metav1.ObjectMeta{Name: "test-vpc", Namespace: "default"},
+				Status:     v1alpha1.ProjectVPCStatus{ID: "vpc-2"},
+			}
+			k8s := fake.NewClientBuilder().WithScheme(newLifecycleScheme(t)).WithObjects(vpc).Build()
+
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+				Return(inSync(gf, &service.ServiceGetOut{State: service.ServiceStateTypeRunning, ProjectVpcId: "vpc-1"}), nil).Once()
+
+			c, rec := newRecordingTestController(avn, grafanaKind, k8s)
+			obs, err := c.Observe(t.Context(), gf)
+			require.NoError(t, err)
+			require.False(t, obs.ResourceUpToDate)
+			require.Equal(t, []string{"Warning DriftDetected projectVpcId: vpc-1 (live) -> vpc-2 (spec)"}, recorderEvents(rec))
+		})
+
+		t.Run("projectVPCRef without an ID -> errPreconditionNotMet", func(t *testing.T) {
+			t.Parallel()
+
+			gf := newRunningGrafana(t)
+			gf.Spec.ProjectVPCRef = &v1alpha1.ResourceReference{Name: "test-vpc"}
+			vpc := &v1alpha1.ProjectVPC{ObjectMeta: metav1.ObjectMeta{Name: "test-vpc", Namespace: "default"}}
+			k8s := fake.NewClientBuilder().WithScheme(newLifecycleScheme(t)).WithObjects(vpc).Build()
+
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+				Return(inSync(gf, &service.ServiceGetOut{State: service.ServiceStateTypeRunning}), nil).Once()
+
+			c := newTestController(avn, grafanaKind, k8s)
+			_, err := c.Observe(t.Context(), gf)
+			require.ErrorIs(t, err, errPreconditionNotMet)
+		})
+
+		t.Run("CreateOnly -> Drifted condition, no events, secret details", func(t *testing.T) {
+			t.Parallel()
+
+			gf := newRunningGrafana(t)
+			ctx := withManagementPolicy(t.Context(), managementPolicyCreateOnly)
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, [][2]string{service.ServiceGetIncludeSecrets(true)}).
+				Return(&service.ServiceGetOut{
+					State:          service.ServiceStateTypeRunning,
+					Plan:           "startup-4",
+					CloudName:      "aws-eu-west-1",
+					ConnectionInfo: &service.ConnectionInfoOut{Grafana: []string{"grafana.example.com"}},
+				}, nil).Once()
+
+			c, rec := newRecordingTestController(avn, grafanaKind, nil)
+			obs, err := c.Observe(ctx, gf)
+			require.NoError(t, err)
+			require.False(t, obs.ResourceUpToDate)
+			require.NotNil(t, obs.SecretDetails)
+			require.True(t, obs.PruneSecretKeys)
+			require.Empty(t, recorderEvents(rec))
+			require.Equal(t, "true", gf.Annotations[instanceIsRunningAnnotation])
+			drifted := meta.FindStatusCondition(gf.Status.Conditions, v1alpha1.ConditionTypeDrifted)
+			require.NotNil(t, drifted)
+			require.Equal(t, metav1.ConditionTrue, drifted.Status)
+			require.Equal(t, "plan, cloudName", drifted.Message)
+		})
+
+		t.Run("Drifted is removed once live matches, under either policy", func(t *testing.T) {
+			t.Parallel()
+
+			for _, policy := range []managementPolicy{managementPolicyCreateOnly, managementPolicyFull} {
+				t.Run(string(policy), func(t *testing.T) {
+					t.Parallel()
+
+					gf := newRunningGrafana(t)
+					setDriftedCondition(&gf.Status.Conditions, []fieldDrift{{name: "plan"}})
+					avn := avngen.NewMockClient(t)
+					avn.EXPECT().
+						ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+						Return(inSync(gf, &service.ServiceGetOut{
+							State:          service.ServiceStateTypeRunning,
+							ConnectionInfo: &service.ConnectionInfoOut{Grafana: []string{"grafana.example.com"}},
+						}), nil).Once()
+
+					c := newTestController(avn, grafanaKind, nil)
+					obs, err := c.Observe(withManagementPolicy(t.Context(), policy), gf)
+					require.NoError(t, err)
+					require.True(t, obs.ResourceUpToDate)
+					require.Nil(t, meta.FindStatusCondition(gf.Status.Conditions, v1alpha1.ConditionTypeDrifted))
+				})
+			}
+		})
+
+		t.Run("Full drops Drifted when the policy is lifted while live still differs", func(t *testing.T) {
+			t.Parallel()
+
+			gf := newRunningGrafana(t)
+			setDriftedCondition(&gf.Status.Conditions, []fieldDrift{{name: "plan"}})
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+				Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning, Plan: "startup-4", CloudName: "google-europe-west1"}, nil).Once()
+
+			c := newTestController(avn, grafanaKind, nil)
+			obs, err := c.Observe(t.Context(), gf)
+			require.NoError(t, err)
+			require.False(t, obs.ResourceUpToDate)
+			require.Nil(t, meta.FindStatusCondition(gf.Status.Conditions, v1alpha1.ConditionTypeDrifted))
+		})
 	})
 
 	t.Run("powered off and missing at Aiven -> hard error before the backup check", func(t *testing.T) {
@@ -389,10 +618,10 @@ func TestServiceController_Observe(t *testing.T) {
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
 			ServiceGet(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
-			Return(&service.ServiceGetOut{
+			Return(inSync(pg, &service.ServiceGetOut{
 				State:            service.ServiceStateTypeRunning,
 				ServiceUriParams: map[string]string{"host": "pg.example.com", "port": "5432"},
-			}, nil).Once()
+			}), nil).Once()
 		avn.EXPECT().
 			ProjectKmsGetCA(mock.Anything, pg.Spec.Project).
 			Return("", newAivenError(500, "kms boom")).Once()
@@ -426,7 +655,7 @@ func TestServiceController_Observe(t *testing.T) {
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
 			ServiceGet(mock.Anything, kc.Spec.Project, kc.Name, mock.Anything).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
+			Return(inSync(kc, &service.ServiceGetOut{State: service.ServiceStateTypeRunning}), nil).Once()
 
 		c := newTestController(avn, kafkaConnectKind, nil)
 		obs, err := c.Observe(t.Context(), kc)
@@ -447,11 +676,11 @@ func TestServiceController_Observe(t *testing.T) {
 		// No include-secrets query: secret creation is disabled for the resource.
 		avn.EXPECT().
 			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
-			Return(&service.ServiceGetOut{
+			Return(inSync(gf, &service.ServiceGetOut{
 				State:            service.ServiceStateTypeRunning,
 				ServiceUriParams: map[string]string{"host": "grafana.example.com", "port": "3000"},
 				ConnectionInfo:   &service.ConnectionInfoOut{Grafana: []string{"grafana.example.com"}},
-			}, nil).Twice()
+			}), nil).Twice()
 
 		c, rec := newRecordingTestController(avn, grafanaKind, nil)
 
@@ -494,11 +723,11 @@ spec:
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
 			ServiceGet(mock.Anything, kf.Spec.Project, kf.Name).
-			Return(&service.ServiceGetOut{
+			Return(inSync(kf, &service.ServiceGetOut{
 				State:            service.ServiceStateTypeRunning,
 				ServiceUriParams: map[string]string{"host": "kafka.example.com", "port": "9092"},
 				ConnectionInfo:   &service.ConnectionInfoOut{},
-			}, nil).Once()
+			}), nil).Once()
 
 		c := newTestController(avn, kafkaKind, nil)
 		obs, err := c.Observe(t.Context(), kf)
@@ -616,10 +845,10 @@ spec:
 			// Only the replica's own fetch: no source ServiceGet or ServiceBackupsGet per poll.
 			avn.EXPECT().
 				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, [][2]string{service.ServiceGetIncludeSecrets(true)}).
-				Return(&service.ServiceGetOut{
+				Return(inSync(gf, &service.ServiceGetOut{
 					State:          service.ServiceStateTypeRunning,
 					ConnectionInfo: &service.ConnectionInfoOut{Grafana: []string{"replica.example.com"}},
-				}, nil).Once()
+				}), nil).Once()
 
 			c := newTestController(avn, grafanaKind, nil)
 			obs, err := c.Observe(t.Context(), gf)
@@ -661,6 +890,7 @@ spec:
 		require.NoError(t, corev1.AddToScheme(scheme))
 
 		runningPGOut := &service.ServiceGetOut{
+			Plan:  "hobby",
 			State: service.ServiceStateTypeRunning,
 			ServiceUriParams: map[string]string{
 				"host":     "pg.example.com",
@@ -793,7 +1023,7 @@ spec:
 			avn := avngen.NewMockClient(t)
 			avn.EXPECT().
 				ServiceGet(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
-				Return(svcOut, nil).Once()
+				Return(inSync(pg, svcOut), nil).Once()
 			avn.EXPECT().
 				ProjectKmsGetCA(mock.Anything, pg.Spec.Project).Return("ca-cert", nil).Once()
 
@@ -850,7 +1080,7 @@ spec:
 			avn := avngen.NewMockClient(t)
 			avn.EXPECT().
 				ServiceGet(mock.Anything, kafka.Spec.Project, kafka.Name, mock.Anything).
-				Return(svcOut, nil).Once()
+				Return(inSync(kafka, svcOut), nil).Once()
 			avn.EXPECT().
 				ProjectKmsGetCA(mock.Anything, kafka.Spec.Project).Return("ca-cert", nil).Once()
 
@@ -1322,7 +1552,34 @@ func TestServiceController_Update(t *testing.T) {
 		require.Equal(t, metav1.ConditionUnknown, running.Status)
 	})
 
-	t.Run("disk space with autoscaler integration errors before ServiceUpdate", func(t *testing.T) {
+	t.Run("drift correction keeps readiness", func(t *testing.T) {
+		t.Parallel()
+
+		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+		markGeneration(gf, 1)
+		markInstanceRunning(gf)
+		require.True(t, IsReadyToUse(gf))
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
+			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
+		avn.EXPECT().
+			ServiceUpdate(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+			Return(&service.ServiceUpdateOut{}, nil).Once()
+
+		c := newTestController(avn, grafanaKind, nil)
+		_, err := c.Update(t.Context(), gf)
+		require.NoError(t, err)
+
+		require.True(t, hasLatestGeneration(gf))
+		require.True(t, IsReadyToUse(gf))
+		running := meta.FindStatusCondition(gf.Status.Conditions, conditionTypeRunning)
+		require.NotNil(t, running)
+		require.Equal(t, metav1.ConditionTrue, running.Status)
+	})
+
+	t.Run("disk space with autoscaler integration is not sent -> Warning", func(t *testing.T) {
 		t.Parallel()
 
 		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
@@ -1335,11 +1592,17 @@ func TestServiceController_Update(t *testing.T) {
 				State:               service.ServiceStateTypeRunning,
 				ServiceIntegrations: []service.ServiceIntegrationOut{{IntegrationType: service.IntegrationTypeAutoscaler}},
 			}, nil).Once()
-		// ServiceUpdate must NOT be called: the guard fails first.
+		var updateReq *service.ServiceUpdateIn
+		avn.EXPECT().
+			ServiceUpdate(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+			Run(func(_ context.Context, _, _ string, in *service.ServiceUpdateIn, _ ...[2]string) { updateReq = in }).
+			Return(&service.ServiceUpdateOut{}, nil).Once()
 
-		c := newTestController(avn, grafanaKind, nil)
+		c, rec := newRecordingTestController(avn, grafanaKind, nil)
 		_, err := c.Update(t.Context(), gf)
-		require.ErrorContains(t, err, "autoscaler integration")
+		require.NoError(t, err)
+		require.Nil(t, updateReq.DiskSpaceMb)
+		require.Equal(t, []string{"Warning DiskSpaceNotApplied diskSpace is not applied: the autoscaler integration manages the disk"}, recorderEvents(rec))
 	})
 
 	t.Run("upgrade task runs before ServiceUpdate and blocks on error", func(t *testing.T) {

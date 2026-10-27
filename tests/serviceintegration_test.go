@@ -399,6 +399,19 @@ func TestServiceIntegrationAutoscalerRef(t *testing.T) {
 	assert.Equal(t, endpoint.Status.ID, *siAvn.DestEndpointId)
 	assert.True(t, siAvn.Active)
 	assert.True(t, siAvn.Enabled)
+
+	// Service drift detection skips diskSpace when ServiceGet lists an autoscaler integration.
+	t.Run("ServiceGet lists the autoscaler integration", func(t *testing.T) {
+		require.EventuallyWithT(t, func(collect *assert.CollectT) {
+			live, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+			require.NoError(collect, err)
+			types := make([]service.IntegrationType, 0, len(live.ServiceIntegrations))
+			for _, i := range live.ServiceIntegrations {
+				types = append(types, i.IntegrationType)
+			}
+			assert.Contains(collect, types, service.IntegrationTypeAutoscaler)
+		}, 2*time.Minute, 10*time.Second)
+	})
 }
 
 func TestServiceIntegrationRejectsEndpointIDAndRefTogether(t *testing.T) {
