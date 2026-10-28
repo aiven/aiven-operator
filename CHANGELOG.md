@@ -2,6 +2,10 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- `ServiceUser` no longer becomes `Running` with an empty password: it stays pending until Aiven returns
+  the password or `connInfoSecretSource` assigns one, and reports an `Error` condition if that takes
+  too long. A user that already exists at Aiven is adopted instead of failing with `409`
+
 ## v0.49.0 - 2026-10-26
 
 - Setting both `projectVpcId` and `projectVPCRef` is now rejected when the resource is applied, also
