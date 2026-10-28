@@ -6,6 +6,10 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"net/http"
+	"net/http/httptest"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -15,6 +19,7 @@ import (
 	"time"
 
 	"github.com/kelseyhightower/envconfig"
+	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/discovery"
@@ -199,6 +204,30 @@ func (c *suiteClient) Update(ctx context.Context, obj client.Object, opts ...cli
 		}
 	}
 	return update()
+}
+
+// withAivenAPIProxy intercepts controller requests while forwarding to the configured API.
+// Tests using it must run sequentially because the SDK reads AIVEN_WEB_URL for each new client.
+// The suite's avnGen was created earlier and continues to access Aiven directly.
+func withAivenAPIProxy(t *testing.T, intercept func(http.ResponseWriter, *http.Request, http.Handler)) {
+	t.Helper()
+	upstream := os.Getenv("AIVEN_WEB_URL")
+	if upstream == "" {
+		upstream = "https://api.aiven.io"
+	}
+	target, err := url.Parse(upstream)
+	require.NoError(t, err)
+	require.NotEmpty(t, target.Host)
+	require.Contains(t, []string{"http", "https"}, target.Scheme)
+	proxy := &httputil.ReverseProxy{
+		Rewrite: func(req *httputil.ProxyRequest) { req.SetURL(target) },
+	}
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, req *http.Request) {
+		intercept(w, req, proxy)
+	}))
+	t.Cleanup(server.Close)
+	// Register restoration after server cleanup so the original endpoint is restored first.
+	t.Setenv("AIVEN_WEB_URL", server.URL)
 }
 
 func recoverPanic(t *testing.T) {

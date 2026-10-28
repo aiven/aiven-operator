@@ -4,9 +4,14 @@ package tests
 
 import (
 	"context"
+	"crypto/rand"
 	"fmt"
+	"net/http"
+	"net/url"
 	"strconv"
 	"strings"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 
@@ -17,6 +22,7 @@ import (
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -479,6 +485,176 @@ func TestServiceUserCustomCredentials(t *testing.T) {
 		require.Error(t, err, "ServiceUser should fail to be created with empty password")
 		require.Contains(t, err.Error(), "password length must be between 8 and 256 characters")
 	})
+}
+
+// TestServiceUserRetriesInitialPassword verifies recovery when creating the Aiven user
+// succeeds but installing its source password fails for the entire first SDK call.
+func TestServiceUserRetriesInitialPassword(t *testing.T) {
+	// The proxy changes AIVEN_WEB_URL and pauses a ServiceUser worker; do not run in parallel.
+	ctx, cancel := testCtx()
+	defer cancel()
+	pgName := sharedResources.AcquirePostgreSQL(t, shared).GetName()
+	pg, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+	require.NoError(t, err)
+	pgURI, err := url.Parse(pg.ServiceUri)
+	require.NoError(t, err)
+	require.NotEmpty(t, pgURI.Host)
+	directClient, err := client.New(restConfig, client.Options{Scheme: k8sClient.Scheme()})
+	require.NoError(t, err)
+
+	for _, policy := range []string{"Full", "CreateOnly"} {
+		t.Run(policy, func(t *testing.T) {
+			s := NewSession(ctx, k8sClient)
+			defer s.Destroy(t)
+			username := randName("su-initial-password")
+			password := rand.Text()
+			source := &corev1.Secret{
+				TypeMeta:   metav1.TypeMeta{APIVersion: "v1", Kind: "Secret"},
+				ObjectMeta: metav1.ObjectMeta{Name: username + "-source", Namespace: defaultNamespace},
+				Data:       map[string][]byte{"PASSWORD": []byte(password)},
+			}
+			user := &v1alpha1.ServiceUser{
+				TypeMeta:   metav1.TypeMeta{APIVersion: "aiven.io/v1alpha1", Kind: "ServiceUser"},
+				ObjectMeta: metav1.ObjectMeta{Name: username, Namespace: defaultNamespace},
+			}
+			user.Spec.Project = cfg.Project
+			user.Spec.ServiceName = pgName
+			user.Spec.AuthSecretRef = &v1alpha1.AuthSecretReference{Name: secretRefName, Key: secretRefKey}
+			user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{Name: source.Name, PasswordKey: "PASSWORD"}
+			if policy == "CreateOnly" {
+				user.Annotations = map[string]string{"controllers.aiven.io/management-policy": policy}
+			}
+
+			_, err := avnGen.ServiceUserGet(ctx, cfg.Project, pgName, username)
+			require.True(t, avngen.IsNotFound(err), "the user must be absent before applying the CR")
+
+			const injectedError = "injected initial password installation failure"
+			userPath := fmt.Sprintf("/v1/project/%s/service/%s/user/%s",
+				url.PathEscape(cfg.Project), url.PathEscape(pgName), url.PathEscape(username))
+			var rejected, forwarded atomic.Int64
+			nextObserve := make(chan struct{})
+			notifyObserve := sync.OnceFunc(func() { close(nextObserve) })
+			resume := make(chan struct{})
+			release := sync.OnceFunc(func() { close(resume) })
+			defer release() // Unblock the worker before session cleanup, including on assertion failures.
+			withAivenAPIProxy(t, func(w http.ResponseWriter, req *http.Request, upstream http.Handler) {
+				if req.URL.EscapedPath() == userPath {
+					switch req.Method {
+					case http.MethodPut:
+						// This CR requests only a password change: no ACL or authentication updates.
+						select {
+						case <-resume:
+							forwarded.Add(1)
+						default:
+							// Reject every SDK retry so Create returns an error to the reconciler.
+							rejected.Add(1)
+							w.Header().Set("Content-Type", "application/json")
+							w.WriteHeader(http.StatusServiceUnavailable)
+							_, _ = fmt.Fprintf(w, `{"message":%q}`, injectedError)
+							return
+						}
+					case http.MethodGet:
+						if rejected.Load() > 0 {
+							// After a failed password write, the next GET belongs to a new reconcile.
+							// Hold it so the first error cannot disappear before the test reads it.
+							notifyObserve()
+							select {
+							case <-resume:
+							case <-req.Context().Done():
+								return
+							case <-ctx.Done():
+								return
+							}
+						}
+					}
+				}
+				upstream.ServeHTTP(w, req)
+			})
+
+			require.NoError(t, s.ApplyObjects(source))
+			require.NoError(t, s.ApplyObjects(user))
+			created := user.DeepCopy()
+			userKey, sourceKey := client.ObjectKeyFromObject(user), client.ObjectKeyFromObject(source)
+			sourceUID := source.UID
+			select {
+			case <-nextObserve:
+			case <-time.After(5 * time.Minute):
+				t.Fatal("the controller did not retry observation after the injected password failure")
+			case <-ctx.Done():
+				t.Fatal("test context expired while waiting for the injected password failure")
+			}
+			require.Positive(t, rejected.Load(), "the proxy must have rejected the password installation")
+			require.NoError(t, directClient.Get(ctx, userKey, user))
+			condition := meta.FindStatusCondition(user.Status.Conditions, controllers.ConditionTypeError)
+			require.NotNil(t, condition, "the initial creation error must be persisted before retrying")
+			// This operator records Error conditions with Unknown, not True.
+			require.Equal(t, metav1.ConditionUnknown, condition.Status)
+			require.Contains(t, condition.Message, injectedError)
+			require.False(t, controllers.IsReadyToUse(user))
+			require.Empty(t, user.Annotations["controllers.aiven.io/generation-was-processed"])
+
+			remote, err := getServiceUserWithRetry(ctx, avnGen, cfg.Project, pgName, username)
+			require.NoError(t, err)
+			require.Equal(t, username, remote.Username)
+			require.True(t, remote.Password != "" && remote.Password != password,
+				"Aiven must have created the user with a generated password before the failure")
+			connect := func(password string) bool {
+				uri := *pgURI
+				uri.User = url.UserPassword(username, password)
+				attemptCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+				defer cancel()
+				return testConnectionToDatabase(attemptCtx, t, uri.String(), username)
+			}
+			require.Eventually(t, func() bool { return connect(remote.Password) }, 3*time.Minute, 10*time.Second,
+				"the newly created user must authenticate with its generated password")
+			t.Logf("Initial creation failed after the user was created: rejected password requests=%d, Ready=false, ErrorPresent=true", rejected.Load())
+			release()
+
+			// The desired password never changes. This is completion of the initial Create,
+			// not password rotation or adoption of a user that existed before the CR.
+			assert.EventuallyWithT(t, func(collect *assert.CollectT) {
+				got := &v1alpha1.ServiceUser{}
+				if !assert.NoError(collect, directClient.Get(ctx, userKey, got)) {
+					return
+				}
+				assert.Equal(collect, created.UID, got.UID)
+				assert.Equal(collect, created.Generation, got.Generation)
+				assert.Equal(collect, created.Spec, got.Spec)
+				assert.Equal(collect, created.Annotations["controllers.aiven.io/management-policy"], got.Annotations["controllers.aiven.io/management-policy"])
+				assert.True(collect, controllers.IsReadyToUse(got))
+				assert.Nil(collect, meta.FindStatusCondition(got.Status.Conditions, controllers.ConditionTypeError),
+					"the initial creation error must be cleared after recovery")
+				assert.Positive(collect, forwarded.Load(), "the failed initial password installation must be retried")
+
+				currentSource := &corev1.Secret{}
+				if !assert.NoError(collect, directClient.Get(ctx, sourceKey, currentSource)) {
+					return
+				}
+				assert.Equal(collect, sourceUID, currentSource.UID)
+				assert.True(collect, string(currentSource.Data["PASSWORD"]) == password, "the source password must stay unchanged")
+				secret, err := s.GetSecret(username)
+				if !assert.NoError(collect, err) {
+					return
+				}
+				assert.Equal(collect, username, string(secret.Data["SERVICEUSER_USERNAME"]))
+				// Boolean assertions keep passwords out of failure output.
+				assert.True(collect, string(secret.Data["SERVICEUSER_PASSWORD"]) == password,
+					"the published password must match connInfoSecretSource after recovering from the creation failure")
+				remote, err := avnGen.ServiceUserGet(ctx, cfg.Project, pgName, username)
+				if !assert.NoError(collect, err) {
+					return
+				}
+				assert.True(collect, remote.Password == password, "Aiven must have the requested initial password")
+				assert.True(collect, connect(password), "the unchanged source password must authenticate as the created user")
+			}, 3*time.Minute, 10*time.Second)
+			final := &v1alpha1.ServiceUser{}
+			if err := directClient.Get(ctx, userKey, final); assert.NoError(t, err) {
+				t.Logf("After recovery: Ready=%t, ErrorPresent=%t, rejected password requests=%d, forwarded password requests=%d",
+					controllers.IsReadyToUse(final), meta.FindStatusCondition(final.Status.Conditions, controllers.ConditionTypeError) != nil,
+					rejected.Load(), forwarded.Load())
+			}
+		})
+	}
 }
 
 // TestServiceUserSpecUsername tests spec.username decoupling the Aiven username from the resource name.
