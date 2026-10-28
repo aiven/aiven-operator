@@ -12,6 +12,7 @@ import (
 	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/postgresql"
 	"github.com/aiven/go-client-codegen/handler/service"
 	_ "github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
@@ -144,6 +145,156 @@ func TestConnectionPool(t *testing.T) {
 		_, err = getConnectionPoolByName(ctx, cfg.Project, pgName, poolName)
 		return err
 	}))
+}
+
+func TestConnectionPoolAdoptionCredentials(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	ctx, cancel := testCtx()
+	defer cancel()
+	pgName := sharedResources.AcquirePostgreSQL(t, shared).GetName()
+	pg, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+	require.NoError(t, err)
+	dbName := pg.ServiceUriParams["dbname"]
+	require.NotEmpty(t, dbName)
+	require.Contains(t, pg.Databases, dbName)
+
+	createUser := func(name string) *service.ServiceUserCreateOut {
+		t.Helper()
+		username := randName(name)
+		t.Cleanup(func() {
+			cleanupCtx, cancel := context.WithTimeout(context.Background(), deleteTimeout)
+			defer cancel()
+			if err := avnGen.ServiceUserDelete(cleanupCtx, cfg.Project, pgName, username); !avngen.IsNotFound(err) {
+				assert.NoError(t, err)
+			}
+		})
+		user, err := avnGen.ServiceUserCreate(ctx, cfg.Project, pgName, &service.ServiceUserCreateIn{Username: username})
+		require.NoError(t, err)
+		require.NotEmpty(t, user.Password)
+		return user
+	}
+	observedUser := createUser("pool-observed-user")
+	specUser := createUser("pool-spec-user")
+	require.True(t, observedUser.Password != specUser.Password, "the users must have distinct passwords")
+
+	for _, tc := range []struct {
+		name         string
+		policy       string
+		expectedUser *service.ServiceUserCreateOut
+	}{
+		{name: "Full", expectedUser: specUser}, // Full is the default when the annotation is absent.
+		{name: "CreateOnly", policy: "CreateOnly", expectedUser: observedUser},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			poolName := randName("connection-pool-adopt")
+			pool := &v1alpha1.ConnectionPool{
+				TypeMeta: metav1.TypeMeta{APIVersion: "aiven.io/v1alpha1", Kind: "ConnectionPool"},
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      poolName,
+					Namespace: defaultNamespace,
+				},
+			}
+			pool.Spec.Project = cfg.Project
+			pool.Spec.ServiceName = pgName
+			pool.Spec.AuthSecretRef = &v1alpha1.AuthSecretReference{Name: secretRefName, Key: secretRefKey}
+			pool.Spec.DatabaseName = dbName
+			pool.Spec.Username = specUser.Username
+			pool.Spec.PoolMode = "transaction"
+			pool.Spec.PoolSize = 25
+			if tc.policy != "" {
+				pool.Annotations = map[string]string{"controllers.aiven.io/management-policy": tc.policy}
+			}
+
+			// Register cleanup before creating the external pool, even if no CR is ever applied.
+			t.Cleanup(func() {
+				cleanupCtx, cancel := context.WithTimeout(context.Background(), deleteTimeout)
+				defer cancel()
+				// The finalizer may have removed the pool already; deleting it again returns 403.
+				_, err := getConnectionPoolByName(cleanupCtx, cfg.Project, pgName, poolName)
+				if avngen.IsNotFound(err) {
+					return
+				}
+				if !assert.NoError(t, err) {
+					return
+				}
+				if err := avnGen.ServicePGBouncerDelete(cleanupCtx, cfg.Project, pgName, poolName); !avngen.IsNotFound(err) {
+					assert.NoError(t, err)
+				}
+			})
+			require.NoError(t, avnGen.ServicePGBouncerCreate(ctx, cfg.Project, pgName, &postgresql.ServicePGBouncerCreateIn{
+				Database: dbName,
+				PoolName: poolName,
+				PoolMode: pool.Spec.PoolMode,
+				PoolSize: &pool.Spec.PoolSize,
+				Username: &observedUser.Username,
+			}))
+
+			connect := func(rawURI, username, password, expectedUser string) bool {
+				uri, err := url.Parse(rawURI)
+				if err != nil {
+					t.Log("connection pool URI is invalid")
+					return false
+				}
+				// Aiven's URI may contain correct credentials even when the Secret fields do not.
+				uri.User = url.UserPassword(username, password)
+				attemptCtx, cancel := context.WithTimeout(ctx, 10*time.Second)
+				defer cancel()
+				return testConnectionToDatabase(attemptCtx, t, uri.String(), expectedUser)
+			}
+
+			// Prove the existing pool works before the operator sees the CR.
+			require.EventuallyWithT(t, func(collect *assert.CollectT) {
+				remote, err := getConnectionPoolByName(ctx, cfg.Project, pgName, poolName)
+				if !assert.NoError(collect, err) {
+					return
+				}
+				assert.Equal(collect, observedUser.Username, fromPtr(remote.Username))
+				if !assert.NotEmpty(collect, remote.ConnectionUri) {
+					return
+				}
+				assert.True(collect, connect(remote.ConnectionUri, observedUser.Username, observedUser.Password, observedUser.Username),
+					"the original pool credentials must authenticate before adoption")
+			}, 3*time.Minute, 10*time.Second)
+
+			s := NewSession(ctx, k8sClient)
+			defer s.Destroy(t)
+			require.NoError(t, s.ApplyObjects(pool))
+			require.NoError(t, s.GetRunning(pool, poolName))
+			assert.Equal(t, specUser.Username, pool.Spec.Username)
+			assert.Equal(t, tc.policy, pool.Annotations["controllers.aiven.io/management-policy"])
+
+			require.EventuallyWithT(t, func(collect *assert.CollectT) {
+				remote, err := getConnectionPoolByName(ctx, cfg.Project, pgName, poolName)
+				if !assert.NoError(collect, err) {
+					return
+				}
+				assert.Equal(collect, tc.expectedUser.Username, fromPtr(remote.Username))
+				assert.Equal(collect, dbName, remote.Database)
+				assert.Equal(collect, pool.Spec.PoolSize, remote.PoolSize)
+				assert.EqualValues(collect, pool.Spec.PoolMode, remote.PoolMode)
+
+				secret, err := s.GetSecret(poolName)
+				if !assert.NoError(collect, err) {
+					return
+				}
+				assert.Equal(collect, tc.expectedUser.Username, string(secret.Data["CONNECTIONPOOL_USER"]))
+				assert.Equal(collect, tc.expectedUser.Username, string(secret.Data["PGUSER"]))
+				// Boolean assertions keep generated passwords out of failure output.
+				assert.True(collect, string(secret.Data["CONNECTIONPOOL_PASSWORD"]) == tc.expectedUser.Password,
+					"CONNECTIONPOOL_PASSWORD must belong to the observed pool user")
+				assert.True(collect, string(secret.Data["PGPASSWORD"]) == tc.expectedUser.Password,
+					"PGPASSWORD must belong to the observed pool user")
+				if !assert.NotEmpty(collect, secret.Data["CONNECTIONPOOL_DATABASE_URI"]) {
+					return
+				}
+				assert.True(collect, connect(string(secret.Data["CONNECTIONPOOL_DATABASE_URI"]),
+					string(secret.Data["CONNECTIONPOOL_USER"]), string(secret.Data["CONNECTIONPOOL_PASSWORD"]), tc.expectedUser.Username),
+					"published credentials must authenticate as the observed pool user")
+			}, 3*time.Minute, 10*time.Second)
+		})
+	}
 }
 
 // TestConnectionPoolWithReuseInboundUser verifies that a ConnectionPool can be created without
@@ -438,7 +589,7 @@ func testConnectionToDatabase(ctx context.Context, t *testing.T, connectionURI s
 
 func getConnectionPoolByName(ctx context.Context, projectName, serviceName, poolName string) (*service.ConnectionPoolOut, error) {
 	services, err := avnGen.ServiceGet(ctx, projectName, serviceName)
-	if errors.IsNotFound(err) {
+	if err != nil {
 		return nil, err
 	}
 
