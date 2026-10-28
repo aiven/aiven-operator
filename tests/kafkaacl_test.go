@@ -14,6 +14,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/api/meta"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	"github.com/aiven/aiven-operator/controllers"
@@ -140,6 +141,85 @@ func TestKafkaACL(t *testing.T) {
 		_, err = getKafkaACLbyID(ctx, avnGen, cfg.Project, kafkaName, aclWrite.Status.ID)
 		return err
 	}))
+}
+
+func TestKafkaACLRecreatesDeletedACL(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	kafkaName := sharedResources.AcquireKafka(t, shared).GetName()
+
+	for _, tc := range []struct {
+		name   string
+		policy string
+	}{
+		{name: "Full"}, // Full is the default when the annotation is absent.
+		{name: "CreateOnly", policy: "CreateOnly"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			ctx, cancel := testCtx()
+			defer cancel()
+
+			topicName := randName("kafka-topic")
+			aclName := randName("kafka-acl-recreate")
+			objs, err := parseObjs(getKafkaACLComponentsYaml(cfg.Project, kafkaName, topicName, aclName))
+			require.NoError(t, err)
+			if tc.policy != "" {
+				objs[aclName].SetAnnotations(map[string]string{
+					"controllers.aiven.io/management-policy": tc.policy,
+				})
+			}
+
+			s := NewSession(ctx, k8sClient)
+			defer s.Destroy(t)
+			require.NoError(t, s.ApplyObjects(objs[topicName], objs[aclName]))
+			require.NoError(t, s.GetRunning(new(v1alpha1.KafkaTopic), topicName))
+
+			acl := new(v1alpha1.KafkaACL)
+			require.NoError(t, s.GetRunning(acl, aclName))
+			originalID := acl.Status.ID
+			require.NotEmpty(t, originalID)
+			require.EventuallyWithT(t, func(collect *assert.CollectT) {
+				_, err := getKafkaACLbyID(ctx, avnGen, cfg.Project, kafkaName, originalID)
+				assert.NoError(collect, err)
+			}, 2*time.Minute, 10*time.Second)
+
+			// Delete only the external ACL. The CR keeps its spec, policy and cached ID.
+			_, err = avnGen.ServiceKafkaAclDelete(ctx, cfg.Project, kafkaName, originalID)
+			require.NoError(t, err)
+			require.EventuallyWithT(t, func(collect *assert.CollectT) {
+				_, err := getKafkaACLbyID(ctx, avnGen, cfg.Project, kafkaName, originalID)
+				assert.True(collect, isNotFound(err), "deleted ACL %q is still visible: %v", originalID, err)
+			}, 2*time.Minute, 10*time.Second)
+
+			// Running alone is insufficient: it can remain set while the ACL is absent.
+			// Wait for periodic reconciliation to publish a new ID backed by a real ACL.
+			require.EventuallyWithT(t, func(collect *assert.CollectT) {
+				got := new(v1alpha1.KafkaACL)
+				key := types.NamespacedName{Name: aclName, Namespace: defaultNamespace}
+				if !assert.NoError(collect, k8sClient.Get(ctx, key, got)) {
+					return
+				}
+				assert.Equal(collect, acl.UID, got.UID)
+				assert.Equal(collect, acl.Generation, got.Generation)
+				assert.Equal(collect, acl.Spec, got.Spec)
+				assert.Equal(collect, tc.policy, got.Annotations["controllers.aiven.io/management-policy"])
+				if !assert.NotEmpty(collect, got.Status.ID) ||
+					!assert.NotEqual(collect, originalID, got.Status.ID, "operator must replace the deleted ACL's cached ID") {
+					return
+				}
+
+				restored, err := getKafkaACLbyID(ctx, avnGen, cfg.Project, kafkaName, got.Status.ID)
+				if !assert.NoError(collect, err) {
+					return
+				}
+				assert.Equal(collect, acl.Spec.Topic, restored.Topic)
+				assert.Equal(collect, acl.Spec.Username, restored.Username)
+				assert.Equal(collect, acl.Spec.Permission, restored.Permission)
+				assert.True(collect, controllers.IsReadyToUse(got))
+			}, 3*time.Minute, 5*time.Second)
+		})
+	}
 }
 
 func getKafkaACLbyID(ctx context.Context, avnGen avngen.Client, projectName, serviceName, aclID string) (*kafka.ServiceKafkaAclListOut, error) {
