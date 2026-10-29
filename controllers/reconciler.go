@@ -154,6 +154,24 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 		err = errors.Join(err, r.persistReconcileState(ctx, orig, obj))
 	}()
 
+	// Resolved before Observe so a bad value surfaces on the next poll, not on the next spec change.
+	policy, err := resolveManagementPolicy(obj, controller)
+	switch {
+	case errors.Is(err, errManagementPolicyNotSupported):
+		if !hasLatestGeneration(obj) {
+			r.Recorder.Event(obj, corev1.EventTypeWarning, eventManagementPolicyNotSupported, err.Error())
+		}
+		policy = managementPolicyFull
+	case err != nil:
+		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToCreateOrUpdateAtAiven, err.Error())
+		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionCreateOrUpdate, err))
+		return ctrl.Result{}, err
+	}
+	ctx = withManagementPolicy(ctx, policy)
+	if policy.allowsUpdate() {
+		restoreAppliedGeneration(obj)
+	}
+
 	meta.SetStatusCondition(obj.Conditions(), getInitializedCondition("Preconditions", "Checking preconditions"))
 	obs, err := controller.Observe(ctx, obj)
 	if err != nil {
@@ -165,6 +183,9 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 	}
 
 	if !obs.ResourceUpToDate {
+		if !policy.allowsUpdate() {
+			return r.ignoreSpecChange(ctx, obj, obs)
+		}
 		return r.updateResource(ctx, controller, obj)
 	}
 
@@ -420,6 +441,8 @@ func (r *Reconciler[T]) createResource(ctx context.Context, controller AivenCont
 		return ctrl.Result{}, fmt.Errorf("unable to create or update instance at aiven: %w", err)
 	}
 	r.Recorder.Event(obj, corev1.EventTypeNormal, eventCreatedOrUpdatedAtAiven, "instance was created at aiven but may not be running yet")
+	// Create applied the current spec, so no skipped generation is left to restore.
+	delete(obj.GetAnnotations(), appliedGenerationAnnotation)
 
 	if err := r.publishSecretDetails(ctx, obj, res.SecretDetails, res.PruneSecretKeys); err != nil {
 		return ctrl.Result{}, err
@@ -457,6 +480,59 @@ func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenCont
 	}
 
 	return r.completeReconcileSuccess(obj, res.RequeueAfter)
+}
+
+// ignoreSpecChange is the path for a policy that forbids Update: a skipped generation is
+// stamped as acknowledged and the connection secret stays in sync.
+func (r *Reconciler[T]) ignoreSpecChange(ctx context.Context, obj T, obs Observation) (ctrl.Result, error) {
+	if err := r.publishSecretDetails(ctx, obj, obs.SecretDetails, obs.PruneSecretKeys); err != nil {
+		return ctrl.Result{}, err
+	}
+
+	// Drift only: nothing to acknowledge, and it will not converge while the policy is set, so poll.
+	if hasLatestGeneration(obj) {
+		meta.RemoveStatusCondition(obj.Conditions(), ConditionTypeError)
+		if obs.RequeueAfter > 0 {
+			return ctrl.Result{RequeueAfter: obs.RequeueAfter}, nil
+		}
+		return r.pollRequeue(), nil
+	}
+
+	// After the publish, so a failed Secret sync does not repeat the warning on retry.
+	// An adopted resource was never applied, so there is no change to report; a source Secret
+	// rotation clears the processed stamp, so it is recognised by its own annotation.
+	if wasEverApplied(obj) || hasSecretSourceUpdatedAnnotation(obj) {
+		r.Recorder.Event(obj, corev1.EventTypeWarning, eventSpecChangeIgnored,
+			fmt.Sprintf("update not applied: %s is %s", managementPolicyAnnotation, managementPolicyFrom(ctx)))
+	}
+	rememberAppliedGeneration(obj)
+
+	return r.completeReconcileSuccess(obj, obs.RequeueAfter)
+}
+
+// rememberAppliedGeneration saves the processed stamp before the first skipped generation overwrites it.
+func rememberAppliedGeneration(obj client.Object) {
+	annotations := obj.GetAnnotations()
+	if _, ok := annotations[appliedGenerationAnnotation]; ok {
+		return
+	}
+	annotations[appliedGenerationAnnotation] = annotations[processedGenerationAnnotation]
+}
+
+// restoreAppliedGeneration puts the saved stamp back once CreateOnly is lifted, so the skipped
+// generations are pending again and Update runs.
+func restoreAppliedGeneration(obj client.Object) {
+	annotations := obj.GetAnnotations()
+	applied, ok := annotations[appliedGenerationAnnotation]
+	if !ok {
+		return
+	}
+	delete(annotations, appliedGenerationAnnotation)
+	if applied == "" {
+		delete(annotations, processedGenerationAnnotation)
+		return
+	}
+	annotations[processedGenerationAnnotation] = applied
 }
 
 func (r *Reconciler[T]) completeReconcileSuccess(obj v1alpha1.AivenManagedObject, requeueAfter time.Duration) (ctrl.Result, error) {
