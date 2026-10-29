@@ -36,6 +36,8 @@ const (
 	instanceDeletionFinalizer = "finalizers.aiven.io/delete-remote-resource"
 
 	processedGenerationAnnotation = "controllers.aiven.io/generation-was-processed"
+	// The processed stamp before CreateOnly started skipping generations; restored when the policy is lifted.
+	appliedGenerationAnnotation   = "controllers.aiven.io/generation-was-applied"
 	instanceIsRunningAnnotation   = "controllers.aiven.io/instance-is-running"
 	secretSourceUpdatedAnnotation = "controllers.aiven.io/secret-source-updated"
 
@@ -267,6 +269,12 @@ func hasLatestGeneration(o client.Object) bool {
 // wasEverApplied returns true if the client.Object's controller has successfully processed any generation of the object.
 func wasEverApplied(o client.Object) bool {
 	_, ok := o.GetAnnotations()[processedGenerationAnnotation]
+	return ok
+}
+
+// hasSecretSourceUpdatedAnnotation means the connInfoSecretSource was rotated at least once.
+func hasSecretSourceUpdatedAnnotation(o client.Object) bool {
+	_, ok := o.GetAnnotations()[secretSourceUpdatedAnnotation]
 	return ok
 }
 

@@ -51,13 +51,16 @@ func newServiceController[T v1alpha1.ServiceObject](
 	}
 }
 
+func (c *serviceController[T]) managementPolicySupported() {}
+
 func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation, error) {
 	spec := obj.ServiceCommonSpec()
-	powered := isPowered(spec)
+	skipUpdate := !managementPolicyFrom(ctx).allowsUpdate()
 
-	// Fetch secrets only when they can be published this round.
+	// Fetch secrets only when they can be published this round: Update discards them.
+	publishable := hasLatestGeneration(obj) || skipUpdate
 	var query [][2]string
-	if hasLatestGeneration(obj) && powered && !obj.NoSecret() {
+	if publishable && (skipUpdate || isPowered(spec)) && !obj.NoSecret() {
 		query = append(query, service.ServiceGetIncludeSecrets(true))
 	}
 	avnService, err := c.avnGen.ServiceGet(ctx, spec.Project, obj.GetName(), query...)
@@ -77,11 +80,12 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 	}
 
 	// Refuse to create a powered-off service.
-	if !exists && !powered {
+	if !exists && !isPowered(spec) {
 		return Observation{}, errServiceCreatePoweredOff
 	}
 
-	if !exists || !hasLatestGeneration(obj) {
+	// Preconditions guard Create and Update; without Update an existing service skips them.
+	if !exists || (!hasLatestGeneration(obj) && !skipUpdate) {
 		if err := c.kind.checkPreconditions(ctx, c.avnGen, obj); err != nil {
 			return Observation{}, err
 		}
@@ -91,13 +95,25 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 		return Observation{ResourceExists: false}, nil
 	}
 
+	// The target power state: the spec's, or the live one when Update is skipped.
+	powered := isPowered(spec)
+	if skipUpdate {
+		powered = avnService.State != service.ServiceStateTypePoweroff
+	}
+
 	status := obj.ServiceStatus()
 	status.State = avnService.State
 	status.Version = serviceVersion(c.kind.serviceType, avnService.Metadata)
 
-	// Unprocessed generation.
 	if !hasLatestGeneration(obj) {
-		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
+		var details map[string]string
+		if publishable && powered && status.State == service.ServiceStateTypeRunning && !obj.NoSecret() {
+			details, err = c.buildSecretDetails(ctx, obj, avnService)
+			if err != nil {
+				return Observation{}, err
+			}
+		}
+		return Observation{ResourceExists: true, ResourceUpToDate: false, SecretDetails: details, PruneSecretKeys: true}, nil
 	}
 
 	// Not in its target state yet: keep polling without touching the running marker.
