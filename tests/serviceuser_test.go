@@ -4,19 +4,32 @@ package tests
 
 import (
 	"context"
+	"crypto/rand"
+	"database/sql"
+	"encoding/json"
 	"fmt"
+	"net"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
+	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/avast/retry-go"
+	"github.com/lib/pq"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -342,6 +355,7 @@ func TestServiceUserPg(t *testing.T) {
 		userAvn, err := getServiceUserWithRetry(ctx, avnGen, cfg.Project, pgName, plName)
 		require.NoError(t, err)
 		assert.Equal(t, plName, userAvn.Username)
+		require.NotEmpty(t, userAvn.Type, "Aiven must report the created user's type")
 
 		_, err = s.GetSecret(plName + "-secret")
 		require.True(t, isNotFound(err), "secret must not be written before the route is available")
@@ -352,6 +366,7 @@ func TestServiceUserPg(t *testing.T) {
 		require.NoError(t, s.GetRunning(plUser, plName))
 		assert.Equal(t, service.RouteTypeDynamic, plUser.Spec.ConnInfoSecretRoute)
 		assert.Nil(t, meta.FindStatusCondition(plUser.Status.Conditions, controllers.ConditionTypeError))
+		assert.Equal(t, userAvn.Type, plUser.Status.Type, "status.type must match Aiven after recovering from a connection details error")
 
 		plSecret, err := s.GetSecret(plName + "-secret")
 		require.NoError(t, err)
@@ -397,6 +412,282 @@ func TestServiceUserPg(t *testing.T) {
 	// And we make sure that the controller can delete db itself
 	assert.NoError(t, s.Delete(user, func() error {
 		_, err = avnGen.ServiceUserGet(ctx, cfg.Project, pgName, userName)
+		return err
+	}))
+}
+
+func TestServiceUserPgPendingDeletionPreservesFinalizer(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+	pg := sharedResources.AcquirePostgreSQL(t, shared)
+
+	for _, tc := range []struct {
+		name         string
+		route        service.RouteType
+		hidePassword bool
+		precondition string
+	}{
+		{
+			name:         "EmptyPassword",
+			route:        service.RouteTypeDynamic,
+			hidePassword: true,
+			precondition: "password is not readable",
+		},
+		{
+			name:         "MissingRoute",
+			route:        service.RouteTypePrivatelink,
+			precondition: `route "privatelink"`,
+		},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			ctx, cancel := testCtx()
+			defer cancel()
+			s := NewSession(ctx, k8sClient)
+			userName := randName("su-pending-delete")
+			userPath := fmt.Sprintf("/v1/project/%s/service/%s/user/%s",
+				url.PathEscape(cfg.Project), url.PathEscape(pg.Name), url.PathEscape(userName))
+			getKey := http.MethodGet + " " + userPath
+			deleteKey := http.MethodDelete + " " + userPath
+			const finalizer = "finalizers.aiven.io/delete-remote-resource"
+
+			t.Cleanup(func() {
+				// Restore working credentials before Kubernetes cleanup; the direct client also
+				// removes an orphan if the controller has already dropped the finalizer.
+				aivenAPIHooks.Delete(getKey)
+				aivenAPIHooks.Delete(deleteKey)
+				s.Destroy(t)
+				cleanupCtx, cancel := context.WithTimeout(context.Background(), deleteTimeout)
+				defer cancel()
+				err := avnGen.ServiceUserDelete(cleanupCtx, cfg.Project, pg.Name, userName)
+				if !avngen.IsNotFound(err) {
+					assert.NoError(t, err, "cleaning up the pending Aiven user must succeed")
+				}
+				assert.Eventually(t, func() bool {
+					_, err := avnGen.ServiceUserGet(cleanupCtx, cfg.Project, pg.Name, userName)
+					return avngen.IsNotFound(err)
+				}, time.Minute, time.Second, "the pending Aiven user must be gone after cleanup")
+			})
+
+			var successfulGets, maskedPasswords, failedDeletes atomic.Int32
+			aivenAPIHooks.Store(getKey, aivenAPIHook(func(w http.ResponseWriter, r *http.Request, next http.Handler) {
+				// Forward the initial 404 and all real API errors unchanged. Only a successful
+				// GET of this test's user can have its password hidden from the controller.
+				r.Header.Set("Accept-Encoding", "identity")
+				response := httptest.NewRecorder()
+				next.ServeHTTP(response, r)
+				body := response.Body.Bytes()
+				if response.Code == http.StatusOK && tc.hidePassword {
+					var payload map[string]any
+					if !assert.NoError(t, json.Unmarshal(body, &payload), "decoding the real ServiceUser GET response") {
+						http.Error(w, "cannot decode ServiceUser response", http.StatusBadGateway)
+						return
+					}
+					apiUser, ok := payload["user"].(map[string]any)
+					if !assert.True(t, ok, "the ServiceUser GET response must contain a user object") {
+						http.Error(w, "missing ServiceUser in response", http.StatusBadGateway)
+						return
+					}
+					apiUser["password"] = ""
+					var err error
+					body, err = json.Marshal(payload)
+					if !assert.NoError(t, err, "encoding the ServiceUser response with an empty password") {
+						http.Error(w, "cannot encode ServiceUser response", http.StatusBadGateway)
+						return
+					}
+					maskedPasswords.Add(1)
+				}
+				if response.Code == http.StatusOK {
+					successfulGets.Add(1)
+				}
+				for name, values := range response.Header() {
+					w.Header()[name] = values
+				}
+				w.Header().Del("Content-Length")
+				w.WriteHeader(response.Code)
+				_, _ = w.Write(body)
+			}))
+			aivenAPIHooks.Store(deleteKey, aivenAPIHook(func(w http.ResponseWriter, _ *http.Request, _ http.Handler) {
+				failedDeletes.Add(1)
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(http.StatusUnauthorized)
+				_, _ = w.Write([]byte(`{"message":"Invalid token","errors":[]}`))
+			}))
+
+			user := &v1alpha1.ServiceUser{
+				TypeMeta:   metav1.TypeMeta{APIVersion: "aiven.io/v1alpha1", Kind: "ServiceUser"},
+				ObjectMeta: metav1.ObjectMeta{Name: userName, Namespace: defaultNamespace},
+			}
+			user.Spec.Project = cfg.Project
+			user.Spec.ServiceName = pg.Name
+			user.Spec.AuthSecretRef = &v1alpha1.AuthSecretReference{Name: secretRefName, Key: secretRefKey}
+			user.Spec.ConnInfoSecretTarget.Name = userName + "-secret"
+			user.Spec.ConnInfoSecretRoute = tc.route
+			require.NoError(t, s.ApplyObjects(user))
+
+			// This event comes from Create after the real POST, rather than an Observe
+			// failure before creation. The next GET proves that reconciliation finished.
+			require.Eventually(t, func() bool {
+				return hasPreconditionEvent(ctx, "ServiceUser", userName, "building connection details:") &&
+					hasPreconditionEvent(ctx, "ServiceUser", userName, tc.precondition)
+			}, 3*time.Minute, time.Second, "creation must stop at the intended connection-details precondition")
+			getsAfterCreate := successfulGets.Load()
+			require.Eventually(t, func() bool { return successfulGets.Load() > getsAfterCreate },
+				2*time.Minute, time.Second, "the controller must observe the pending user again after the failed Create")
+			require.NoError(t, k8sClient.Get(ctx, client.ObjectKeyFromObject(user), user))
+			require.Contains(t, user.Finalizers, finalizer)
+			require.False(t, controllers.IsReadyToUse(user), "connection details must still be unavailable")
+			_, err := s.GetSecret(user.Spec.ConnInfoSecretTarget.Name)
+			require.True(t, apierrors.IsNotFound(err), "the pending user must not publish connection credentials")
+			if tc.hidePassword {
+				require.Positive(t, maskedPasswords.Load(), "the controller must receive empty-password responses")
+			}
+			externalUser, err := getServiceUserWithRetry(ctx, avnGen, cfg.Project, pg.Name, userName)
+			require.NoError(t, err, "the real user must exist before requesting deletion")
+			require.Equal(t, userName, externalUser.Username)
+			t.Logf("Before deletion: real Aiven user exists, pending on %q, running annotation=%q, masked GETs=%d",
+				tc.precondition, user.Annotations["controllers.aiven.io/instance-is-running"], maskedPasswords.Load())
+
+			require.NoError(t, k8sClient.Delete(ctx, user))
+			var disappeared bool
+			require.Eventually(t, func() bool {
+				if failedDeletes.Load() == 0 {
+					return false
+				}
+				err := k8sClient.Get(ctx, client.ObjectKeyFromObject(user), user)
+				if apierrors.IsNotFound(err) {
+					disappeared = true
+					return true
+				}
+				if err != nil {
+					return false
+				}
+				condition := meta.FindStatusCondition(user.Status.Conditions, controllers.ConditionTypeError)
+				return condition != nil && condition.Reason == "Delete" && strings.Contains(condition.Message, "Invalid token")
+			}, time.Minute, time.Second, "the controller must finish handling the invalid-token deletion error")
+
+			externalUser, err = avnGen.ServiceUserGet(ctx, cfg.Project, pg.Name, userName)
+			require.NoError(t, err, "the rejected DELETE must leave the real Aiven user in place")
+			assert.Equal(t, userName, externalUser.Username)
+			t.Logf("After invalid-token DELETE: attempts=%d, Kubernetes object disappeared=%t, real Aiven user still exists",
+				failedDeletes.Load(), disappeared)
+			if assert.False(t, disappeared, "a successful remote create must preserve the finalizer on invalid-token deletion, even while connection details are pending") {
+				assert.False(t, user.DeletionTimestamp.IsZero())
+				assert.Contains(t, user.Finalizers, finalizer)
+			}
+		})
+	}
+}
+
+func TestServiceUserPgNoSecretWithExternalPassword(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+
+	ctx, cancel := testCtx()
+	defer cancel()
+	pg := sharedResources.AcquirePostgreSQL(t, shared)
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
+
+	userName := randName("su-no-secret")
+	t.Cleanup(func() {
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), deleteTimeout)
+		defer cancel()
+		err := avnGen.ServiceUserDelete(cleanupCtx, cfg.Project, pg.Name, userName)
+		if !avngen.IsNotFound(err) {
+			assert.NoError(t, err, "cleaning up the user created directly through the API must succeed")
+		}
+	})
+	_, err := avnGen.ServiceUserCreate(ctx, cfg.Project, pg.Name, &service.ServiceUserCreateIn{Username: userName})
+	require.NoError(t, err)
+
+	var initialPassword string
+	require.EventuallyWithT(t, func(c *assert.CollectT) {
+		u, err := avnGen.ServiceUserGet(ctx, cfg.Project, pg.Name, userName)
+		require.NoError(c, err)
+		require.NotEmpty(c, u.Password, "the API-created user must initially have a readable password")
+		initialPassword = u.Password
+	}, 3*time.Minute, 5*time.Second, "waiting for the API-created user")
+
+	pgSecret, err := s.GetSecret(pg.Name)
+	require.NoError(t, err)
+	ca, err := avnGen.ProjectKmsGetCA(ctx, cfg.Project)
+	require.NoError(t, err)
+	caPath := filepath.Join(t.TempDir(), "ca.pem")
+	require.NoError(t, os.WriteFile(caPath, []byte(ca), 0o600))
+	openConnection := func(password string) *sql.DB {
+		dsn := &url.URL{
+			Scheme: "postgres",
+			Host:   net.JoinHostPort(string(pgSecret.Data["POSTGRESQL_HOST"]), string(pgSecret.Data["POSTGRESQL_PORT"])),
+			User:   url.UserPassword(userName, password),
+			Path:   "/" + string(pgSecret.Data["POSTGRESQL_DATABASE"]),
+		}
+		query := dsn.Query()
+		query.Set("sslmode", "verify-full")
+		query.Set("sslrootcert", caPath)
+		query.Set("connect_timeout", "5")
+		dsn.RawQuery = query.Encode()
+		db, err := sql.Open("postgres", dsn.String())
+		// SQL driver errors can contain credentials; do not include them in test output.
+		require.True(t, err == nil, "opening the PostgreSQL connection must succeed")
+		return db
+	}
+
+	initialDB := openConnection(initialPassword)
+	defer initialDB.Close()
+	require.Eventually(t, func() bool {
+		return initialDB.PingContext(ctx) == nil
+	}, time.Minute, 5*time.Second, "the API-created user must be able to connect to PostgreSQL")
+
+	// Change the password outside Aiven before the operator starts managing this user.
+	externalPassword := rand.Text()
+	_, err = initialDB.ExecContext(ctx, fmt.Sprintf("ALTER ROLE %s PASSWORD %s", pq.QuoteIdentifier(userName), pq.QuoteLiteral(externalPassword)))
+	require.True(t, err == nil, "changing the user's own password through SQL must succeed")
+	require.NoError(t, initialDB.Close())
+	require.EventuallyWithT(t, func(c *assert.CollectT) {
+		u, err := avnGen.ServiceUserGet(ctx, cfg.Project, pg.Name, userName)
+		require.NoError(c, err)
+		assert.True(c, u.Password == "", "Aiven must stop returning the password after the SQL change")
+	}, 5*time.Minute, 5*time.Second, "waiting for Aiven to detect the externally managed password")
+	t.Log("The user exists in Aiven, and GET no longer returns its password after the SQL change")
+
+	user := &v1alpha1.ServiceUser{
+		TypeMeta:   metav1.TypeMeta{APIVersion: "aiven.io/v1alpha1", Kind: "ServiceUser"},
+		ObjectMeta: metav1.ObjectMeta{Name: userName, Namespace: defaultNamespace},
+	}
+	user.Spec.Project = cfg.Project
+	user.Spec.ServiceName = pg.Name
+	user.Spec.AuthSecretRef = &v1alpha1.AuthSecretReference{Name: secretRefName, Key: secretRefKey}
+	user.Spec.ConnInfoSecretTargetDisabled = anyPointer(true)
+	user.Spec.ConnInfoSecretTarget.Name = userName + "-secret"
+	require.NoError(t, s.ApplyObjects(user))
+
+	assert.EventuallyWithT(t, func(c *assert.CollectT) {
+		require.NoError(c, k8sClient.Get(ctx, client.ObjectKeyFromObject(user), user))
+		assert.True(c, controllers.IsReadyToUse(user),
+			"ServiceUser must become Ready without a readable API password when connection secrets are disabled; conditions: %+v", user.Status.Conditions)
+	}, 2*time.Minute, 5*time.Second, "adopting the user without publishing a connection secret")
+	assert.True(t, user.NoSecret())
+	assert.Nil(t, user.Spec.ConnInfoSecretSource)
+	_, err = s.GetSecret(user.Spec.ConnInfoSecretTarget.Name)
+	assert.True(t, apierrors.IsNotFound(err), "ServiceUser must not publish a connection secret")
+	if hasPreconditionEvent(ctx, "ServiceUser", userName, "password is not readable") {
+		t.Log("The operator reported an unreadable-password precondition despite connection secret publication being disabled")
+	}
+
+	observed, err := avnGen.ServiceUserGet(ctx, cfg.Project, pg.Name, userName)
+	require.NoError(t, err)
+	assert.True(t, observed.Password == "", "the operator must not assign a password to the adopted user")
+	// A fresh connection proves the externally managed password still works.
+	externalDB := openConnection(externalPassword)
+	defer externalDB.Close()
+	var currentUser string
+	err = externalDB.QueryRowContext(ctx, "SELECT current_user").Scan(&currentUser)
+	assert.True(t, err == nil, "the externally managed password must still authenticate a fresh SQL connection")
+	assert.Equal(t, userName, currentUser)
+
+	assert.NoError(t, externalDB.Close())
+	assert.NoError(t, s.Delete(user, func() error {
+		_, err := avnGen.ServiceUserGet(ctx, cfg.Project, pg.Name, userName)
 		return err
 	}))
 }

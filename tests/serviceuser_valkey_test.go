@@ -3,16 +3,25 @@
 package tests
 
 import (
+	"context"
 	"encoding/base64"
 	"fmt"
+	"net/http"
+	"net/http/httptest"
+	"net/url"
 	"slices"
 	"strings"
+	"sync/atomic"
 	"testing"
 	"time"
 
+	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -72,6 +81,42 @@ func TestServiceUserValkeyAccessControl(t *testing.T) {
 	valkey := new(v1alpha1.Valkey)
 	require.NoError(t, s.GetRunning(valkey, serviceName))
 
+	t.Run("CreateAndGetUserType", func(t *testing.T) {
+		apiUserName := randName("valkey-type")
+		t.Cleanup(func() {
+			cleanupCtx, cancel := context.WithTimeout(context.Background(), deleteTimeout)
+			defer cancel()
+			err := avnGen.ServiceUserDelete(cleanupCtx, cfg.Project, serviceName, apiUserName)
+			if !avngen.IsNotFound(err) {
+				assert.NoError(t, err, "cleaning up the user created directly through the API must succeed")
+			}
+		})
+
+		created, err := avnGen.ServiceUserCreate(ctx, cfg.Project, serviceName, &service.ServiceUserCreateIn{
+			Username: apiUserName,
+			AccessControl: &service.AccessControlIn{
+				ValkeyAclKeys:       &initialAccessControl.ValkeyACLKeys,
+				ValkeyAclCommands:   &initialAccessControl.ValkeyACLCommands,
+				ValkeyAclCategories: &initialAccessControl.ValkeyACLCategories,
+				ValkeyAclChannels:   &initialAccessControl.ValkeyACLChannels,
+			},
+		})
+		require.NoError(t, err)
+		assert.Equal(t, apiUserName, created.Username)
+		// Characterize the current API inconsistency: POST reports normal, while GET reports regular.
+		assert.Equal(t, "normal", created.Type, "Valkey POST currently reports the generic account type")
+
+		var observed *service.ServiceUserGetOut
+		require.EventuallyWithT(t, func(c *assert.CollectT) {
+			var err error
+			observed, err = avnGen.ServiceUserGet(ctx, cfg.Project, serviceName, apiUserName)
+			require.NoError(c, err)
+		}, 3*time.Minute, 10*time.Second, "the created Valkey user must become readable through GET")
+		assert.Equal(t, apiUserName, observed.Username)
+		assert.Equal(t, "regular", observed.Type, "Valkey GET must report the service-specific account type")
+		t.Logf("Valkey user type: POST=%q, GET=%q", created.Type, observed.Type)
+	})
+
 	user := new(v1alpha1.ServiceUser)
 	require.NoError(t, s.GetRunning(user, userName))
 
@@ -89,6 +134,7 @@ func TestServiceUserValkeyAccessControl(t *testing.T) {
 	userAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, serviceName, userName)
 	require.NoError(t, err)
 	assert.Equal(t, userName, userAvn.Username)
+	assert.Equal(t, userAvn.Type, user.Status.Type, "status.type must match GET after creation")
 	assert.Equal(t, initialPassword, userAvn.Password)
 	assert.True(t, serviceUserValkeyAccessControlEquals(userAvn.AccessControl, initialAccessControl))
 
@@ -137,6 +183,7 @@ func TestServiceUserValkeyAccessControl(t *testing.T) {
 
 	updatedUserAvn, err := avnGen.ServiceUserGet(ctx, cfg.Project, serviceName, userName)
 	require.NoError(t, err)
+	assert.Equal(t, updatedUserAvn.Type, updatedUser.Status.Type, "status.type must match GET after updating ACL and password")
 	assert.Equal(t, updatedPassword, updatedUserAvn.Password)
 	assert.True(t, serviceUserValkeyAccessControlEquals(updatedUserAvn.AccessControl, updatedAccessControl))
 
@@ -152,6 +199,164 @@ func TestServiceUserValkeyAccessControl(t *testing.T) {
 
 	assert.NoError(t, s.Delete(updatedUser, func() error {
 		_, err = avnGen.ServiceUserGet(ctx, cfg.Project, serviceName, userName)
+		return err
+	}))
+}
+
+func TestServiceUserValkeyAdoptionAppliesACLBeforeSecret(t *testing.T) {
+	t.Parallel()
+	defer recoverPanic(t)
+	ctx, cancel := testCtx()
+	defer cancel()
+	s := NewSession(ctx, k8sClient)
+	defer s.Destroy(t)
+
+	serviceName := randName("valkey-adoption")
+	userName := randName("valkey-adopt-user")
+	targetSecretName := randName("valkey-adopt-secret")
+	yml, err := loadExampleYaml("valkey.yaml", map[string]string{
+		"metadata.name":                  serviceName,
+		"spec.project":                   cfg.Project,
+		"spec.cloudName":                 cfg.PrimaryCloudName,
+		"spec.connInfoSecretTarget.name": serviceName,
+	})
+	require.NoError(t, err)
+	require.NoError(t, s.Apply(yml))
+	require.NoError(t, s.GetRunning(new(v1alpha1.Valkey), serviceName))
+
+	broadAccess := &v1alpha1.ServiceUserAccessControl{
+		ValkeyACLKeys:       []string{"*"},
+		ValkeyACLCommands:   []string{"-acl"},
+		ValkeyACLCategories: []string{"+@all"},
+		ValkeyACLChannels:   []string{"*"},
+	}
+	wantedAccess := &v1alpha1.ServiceUserAccessControl{
+		ValkeyACLKeys:       []string{"cache:*"},
+		ValkeyACLCommands:   []string{"-acl"},
+		ValkeyACLCategories: []string{"+@read"},
+		ValkeyACLChannels:   []string{"read:*"},
+	}
+	t.Cleanup(func() {
+		cleanupCtx, cancel := context.WithTimeout(context.Background(), deleteTimeout)
+		defer cancel()
+		err := avnGen.ServiceUserDelete(cleanupCtx, cfg.Project, serviceName, userName)
+		if !avngen.IsNotFound(err) {
+			assert.NoError(t, err, "cleaning up the adopted Aiven user must succeed")
+		}
+	})
+	_, err = avnGen.ServiceUserCreate(ctx, cfg.Project, serviceName, &service.ServiceUserCreateIn{
+		Username: userName,
+		AccessControl: &service.AccessControlIn{
+			ValkeyAclKeys:       &broadAccess.ValkeyACLKeys,
+			ValkeyAclCommands:   &broadAccess.ValkeyACLCommands,
+			ValkeyAclCategories: &broadAccess.ValkeyACLCategories,
+			ValkeyAclChannels:   &broadAccess.ValkeyACLChannels,
+		},
+	})
+	require.NoError(t, err)
+	require.EventuallyWithT(t, func(c *assert.CollectT) {
+		u, err := avnGen.ServiceUserGet(ctx, cfg.Project, serviceName, userName)
+		require.NoError(c, err)
+		assert.NotEmpty(c, u.Password)
+		assert.True(c, serviceUserValkeyAccessControlEquals(u.AccessControl, broadAccess))
+	}, 3*time.Minute, 5*time.Second, "the existing user must have a readable password and broad ACL")
+
+	usersPath := fmt.Sprintf("/v1/project/%s/service/%s/user", url.PathEscape(cfg.Project), url.PathEscape(serviceName))
+	getKey := http.MethodGet + " " + usersPath + "/" + url.PathEscape(userName)
+	createKey := http.MethodPost + " " + usersPath
+	var injectedNotFound, observedConflict atomic.Bool
+	aivenAPIHooks.Store(getKey, aivenAPIHook(func(w http.ResponseWriter, r *http.Request, next http.Handler) {
+		if injectedNotFound.CompareAndSwap(false, true) {
+			w.Header().Set("Content-Type", "application/json")
+			w.WriteHeader(http.StatusNotFound)
+			_, _ = w.Write([]byte(`{"message":"User not found","errors":[]}`))
+			return
+		}
+		next.ServeHTTP(w, r)
+	}))
+	aivenAPIHooks.Store(createKey, aivenAPIHook(func(w http.ResponseWriter, r *http.Request, next http.Handler) {
+		// Forward POST unchanged and record the real API's response.
+		response := httptest.NewRecorder()
+		next.ServeHTTP(response, r)
+		if response.Code == http.StatusConflict {
+			observedConflict.Store(true)
+		}
+		for name, values := range response.Header() {
+			w.Header()[name] = values
+		}
+		w.WriteHeader(response.Code)
+		_, _ = w.Write(response.Body.Bytes())
+	}))
+	t.Cleanup(func() {
+		aivenAPIHooks.Delete(getKey)
+		aivenAPIHooks.Delete(createKey)
+	})
+
+	// An empty target lets the existing Secret update hook capture the first credential publication.
+	target := &corev1.Secret{
+		TypeMeta:   metav1.TypeMeta{APIVersion: "v1", Kind: "Secret"},
+		ObjectMeta: metav1.ObjectMeta{Name: targetSecretName, Namespace: defaultNamespace},
+	}
+	require.NoError(t, s.ApplyObjects(target))
+	secretKey := client.ObjectKeyFromObject(target)
+	type publicationSnapshot struct {
+		accessControl *service.AccessControlOut
+		err           error
+	}
+	publications := make(chan publicationSnapshot, 1)
+	var captured atomic.Bool
+	secretUpdateHooks.Store(secretKey, secretUpdateHook(func(ctx context.Context, secret *corev1.Secret, update func() error) error {
+		if captured.Load() || string(secret.Data["SERVICEUSER_USERNAME"]) != userName {
+			return update()
+		}
+		u, readErr := avnGen.ServiceUserGet(ctx, cfg.Project, serviceName, userName)
+		if err := update(); err != nil {
+			return err
+		}
+		if captured.CompareAndSwap(false, true) {
+			snapshot := publicationSnapshot{err: readErr}
+			if u != nil {
+				snapshot.accessControl = u.AccessControl
+			}
+			publications <- snapshot
+		}
+		return nil
+	}))
+	t.Cleanup(func() { secretUpdateHooks.Delete(secretKey) })
+
+	user := &v1alpha1.ServiceUser{
+		TypeMeta:   metav1.TypeMeta{APIVersion: "aiven.io/v1alpha1", Kind: "ServiceUser"},
+		ObjectMeta: metav1.ObjectMeta{Name: userName, Namespace: defaultNamespace},
+	}
+	user.Spec.Project = cfg.Project
+	user.Spec.ServiceName = serviceName
+	user.Spec.AuthSecretRef = &v1alpha1.AuthSecretReference{Name: secretRefName, Key: secretRefKey}
+	user.Spec.ConnInfoSecretTarget.Name = targetSecretName
+	user.Spec.AccessControl = wantedAccess
+	require.NoError(t, s.ApplyObjects(user))
+
+	var first publicationSnapshot
+	select {
+	case first = <-publications:
+	case <-time.After(3 * time.Minute):
+		t.Fatal("the adopted user must publish connection credentials")
+	}
+	require.NoError(t, first.err, "reading the real ACL at first credential publication must succeed")
+	require.NotNil(t, first.accessControl)
+	require.NoError(t, s.GetRunning(user, userName))
+	assert.True(t, injectedNotFound.Load(), "Observe must receive the injected 404")
+	assert.True(t, observedConflict.Load(), "Create must receive a real 409 from Aiven")
+	t.Logf("At first credential publication: injected GET 404=%t, real POST 409=%t, ACL keys=%v, categories=%v",
+		injectedNotFound.Load(), observedConflict.Load(), first.accessControl.ValkeyAclKeys, first.accessControl.ValkeyAclCategories)
+	assert.True(t, serviceUserValkeyAccessControlEquals(first.accessControl, wantedAccess),
+		"the desired ACL must be applied before publishing credentials; requested: %+v; observed at first publication: %+v", wantedAccess, first.accessControl)
+
+	published, err := s.GetSecret(targetSecretName)
+	require.NoError(t, err)
+	assert.Equal(t, userName, string(published.Data["SERVICEUSER_USERNAME"]))
+	assert.NotEmpty(t, published.Data["SERVICEUSER_PASSWORD"])
+	assert.NoError(t, s.Delete(user, func() error {
+		_, err := avnGen.ServiceUserGet(ctx, cfg.Project, serviceName, userName)
 		return err
 	}))
 }

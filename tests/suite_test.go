@@ -4,8 +4,13 @@ package tests
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"net/http"
+	"net/http/httptest"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"os/signal"
 	"runtime/debug"
@@ -57,6 +62,10 @@ func TestMain(m *testing.M) {
 }
 
 func teardownSuite(env *envtest.Environment) {
+	if suiteAivenAPIProxy != nil {
+		defer suiteAivenAPIProxy.Close()
+	}
+
 	if sharedResources != nil {
 		err := sharedResources.Destroy()
 		if err != nil {
@@ -141,6 +150,10 @@ func setupSuite(ctx context.Context) (*envtest.Environment, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Keep the test client direct; only subsequently constructed controller clients use the proxy.
+	if err := setupAivenAPIProxy(); err != nil {
+		return nil, err
+	}
 
 	err = k8sClient.Create(ctx, secret)
 	if err != nil {
@@ -171,6 +184,46 @@ func setupSuite(ctx context.Context) (*envtest.Environment, error) {
 
 	sharedResources = NewSharedResources(ctx, k8sClient)
 	return env, nil
+}
+
+type aivenAPIHook func(http.ResponseWriter, *http.Request, http.Handler)
+
+// Hooks are scoped by HTTP method and escaped path. Unmatched requests reach the real API.
+var aivenAPIHooks sync.Map // "METHOD /escaped/path" -> aivenAPIHook
+
+var suiteAivenAPIProxy *httptest.Server
+
+func setupAivenAPIProxy() error {
+	apiURL := os.Getenv("AIVEN_WEB_URL")
+	if apiURL == "" {
+		apiURL = "https://api.aiven.io"
+	}
+	target, err := url.Parse(apiURL)
+	if err != nil || target.Host == "" || (target.Scheme != "http" && target.Scheme != "https") {
+		return errors.New("AIVEN_WEB_URL must be an absolute HTTP(S) URL")
+	}
+	upstream := &httputil.ReverseProxy{
+		Rewrite: func(r *httputil.ProxyRequest) {
+			r.SetURL(target)
+		},
+		ErrorHandler: func(w http.ResponseWriter, _ *http.Request, _ error) {
+			http.Error(w, "upstream Aiven API request failed", http.StatusBadGateway)
+		},
+	}
+	proxy := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if hook, ok := aivenAPIHooks.Load(r.Method + " " + r.URL.EscapedPath()); ok {
+			hook.(aivenAPIHook)(w, r, upstream)
+			return
+		}
+		upstream.ServeHTTP(w, r)
+	}))
+	// Configure once, before controller workers and parallel tests start.
+	if err := os.Setenv("AIVEN_WEB_URL", proxy.URL); err != nil {
+		proxy.Close()
+		return err
+	}
+	suiteAivenAPIProxy = proxy
+	return nil
 }
 
 type secretUpdateHook func(context.Context, *corev1.Secret, func() error) error
