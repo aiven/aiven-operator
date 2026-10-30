@@ -389,13 +389,16 @@ type GrafanaUserConfig struct {
 	// Google Analytics ID
 	GoogleAnalyticsUaId *string `groups:"create,update" json:"google_analytics_ua_id,omitempty"`
 
-	// Available versions: `11`. Newer versions may also be available.
+	// Available versions: `11`, `12`. Newer versions may also be available.
 	// Grafana major version
 	GrafanaVersion *string `groups:"create,update" json:"grafana_version,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=8000
 	// Allow incoming connections from CIDR address block, e.g. '10.20.0.0/16'
 	IpFilter []*IpFilter `groups:"create,update" json:"ip_filter,omitempty"`
+
+	// Do not collect the grafana_stat_total_* and grafana_stat_totals_* metrics, which require periodic database queries. Defaults to true, unless metrics_enabled is set
+	MetricsDisableTotalStats *bool `groups:"create,update" json:"metrics_disable_total_stats,omitempty"`
 
 	// Enable Grafana's /metrics endpoint
 	MetricsEnabled *bool `groups:"create,update" json:"metrics_enabled,omitempty"`

@@ -218,6 +218,6 @@ type ValkeyUserConfig struct {
 	ValkeyTimeout *int `groups:"create,update" json:"valkey_timeout,omitempty"`
 
 	// Available versions: `8.1`, `9.0`, `9.1`. Newer versions may also be available.
-	// Valkey major version. Deprecated values: `9.0`
+	// Valkey major version
 	ValkeyVersion *string `groups:"create,update" json:"valkey_version,omitempty"`
 }

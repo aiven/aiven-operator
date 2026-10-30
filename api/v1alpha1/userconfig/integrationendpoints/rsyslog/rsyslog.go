@@ -12,7 +12,7 @@ type RsyslogUserConfig struct {
 	// PEM encoded client certificate
 	Cert *string `groups:"create,update" json:"cert,omitempty"`
 
-	// When true, embedded newlines in a log message are escaped so a multi-line record (e.g. a stack trace) is delivered as one complete log entry. Useful for newline-delimited cloud log intakes that drop continuation lines.
+	// Escape embedded newlines so a multi-line record (e.g. a stack trace) is delivered as one complete log entry. Enabled by default. Set to false if the receiving server expects raw newlines in messages.
 	EscapeNewlines *bool `groups:"create,update" json:"escape_newlines,omitempty"`
 
 	// +kubebuilder:validation:Enum="custom";"rfc3164";"rfc5424"

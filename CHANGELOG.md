@@ -2,6 +2,9 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `Grafana` field `userConfig.metrics_disable_total_stats`, type `boolean`: Do not collect the grafana_stat_total_*
+  and grafana_stat_totals_* metrics, which require periodic database queries
+
 ## v0.49.0 - 2026-10-26
 
 - Setting both `projectVpcId` and `projectVPCRef` is now rejected when the resource is applied, also

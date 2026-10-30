@@ -691,7 +691,7 @@ spec:
                       type: string
                     grafana_version:
                       description: |-
-                        Available versions: `11`. Newer versions may also be available.
+                        Available versions: `11`, `12`. Newer versions may also be available.
                         Grafana major version
                       type: string
                     ip_filter:
@@ -716,6 +716,12 @@ spec:
                         type: object
                       maxItems: 8000
                       type: array
+                    metrics_disable_total_stats:
+                      description:
+                        Do not collect the grafana_stat_total_* and grafana_stat_totals_*
+                        metrics, which require periodic database queries. Defaults to
+                        true, unless metrics_enabled is set
+                      type: boolean
                     metrics_enabled:
                       description: Enable Grafana's /metrics endpoint
                       type: boolean
