@@ -133,6 +133,11 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 		logr.FromContextOrDiscard(ctx).Info("adopting existing service user", "username", user.GetUsername())
 		r.rec.Eventf(user, corev1.EventTypeNormal, eventAdoptedExistingUser,
 			"user %q already exists at Aiven, adopting it", user.GetUsername())
+		// The creation was rejected, so the existing user keeps whatever access control it had.
+		// Apply the spec's before its credentials are published, not on the next reconcile.
+		if err := r.setAccessControlIfProvided(ctx, user); err != nil {
+			return CreateResult{}, err
+		}
 	case err != nil:
 		return CreateResult{}, fmt.Errorf("creating service user: %w", err)
 	}
@@ -159,21 +164,8 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 		return UpdateResult{}, err
 	}
 
-	if ac := buildServiceUserAccessControlIn(user.Spec.AccessControl); ac != nil {
-		if _, err := r.avnGen.ServiceUserCredentialsModify(
-			ctx,
-			user.Spec.Project,
-			user.Spec.ServiceName,
-			user.GetUsername(),
-			&service.ServiceUserCredentialsModifyIn{
-				AccessControl: ac,
-				Operation:     service.ServiceUserCredentialsModifyOperationTypeSetAccessControl,
-			},
-		); err != nil {
-			return UpdateResult{}, fmt.Errorf("modifying service user access control: %w", err)
-		}
-	} else {
-		logr.FromContextOrDiscard(ctx).V(1).Info("skipping access control update since it isn't provided in the spec")
+	if err := r.setAccessControlIfProvided(ctx, user); err != nil {
+		return UpdateResult{}, err
 	}
 
 	authentication := user.Spec.Authentication
@@ -284,6 +276,30 @@ func (r *ServiceUserController) findDuplicate(ctx context.Context, user *v1alpha
 	}
 
 	return nil, nil
+}
+
+// setAccessControlIfProvided sets the access control from the spec, if any.
+func (r *ServiceUserController) setAccessControlIfProvided(ctx context.Context, user *v1alpha1.ServiceUser) error {
+	ac := buildServiceUserAccessControlIn(user.Spec.AccessControl)
+	if ac == nil {
+		logr.FromContextOrDiscard(ctx).V(1).Info("skipping access control update since it isn't provided in the spec")
+		return nil
+	}
+
+	if _, err := r.avnGen.ServiceUserCredentialsModify(
+		ctx,
+		user.Spec.Project,
+		user.Spec.ServiceName,
+		user.GetUsername(),
+		&service.ServiceUserCredentialsModifyIn{
+			AccessControl: ac,
+			Operation:     service.ServiceUserCredentialsModifyOperationTypeSetAccessControl,
+		},
+	); err != nil {
+		return fmt.Errorf("modifying service user access control: %w", err)
+	}
+
+	return nil
 }
 
 // setAivenPasswordIfProvided sets the password and optional authentication method.

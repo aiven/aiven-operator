@@ -1863,6 +1863,51 @@ func TestServiceUserReconciler(t *testing.T) {
 		require.True(t, IsReadyToUse(got))
 	})
 
+	t.Run("Applies the spec access control to an adopted user before publishing", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Spec.AccessControl = &v1alpha1.ServiceUserAccessControl{
+			ValkeyACLKeys:       []string{"cache:*"},
+			ValkeyACLCommands:   []string{"-acl"},
+			ValkeyACLCategories: []string{"+@read"},
+			ValkeyACLChannels:   []string{"read:*"},
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "valkey",
+				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
+			}, nil).Twice()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(nil, newAivenError(404, "not found")).Once()
+		avn.EXPECT().
+			ServiceUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(nil, newAivenError(409, "already exists")).Once()
+		setACL := avn.EXPECT().
+			ServiceUserCredentialsModify(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name, mock.MatchedBy(func(in *service.ServiceUserCredentialsModifyIn) bool {
+				return in.Operation == service.ServiceUserCredentialsModifyOperationTypeSetAccessControl &&
+					matchValkeyAccessControl(user.Spec.AccessControl)(in.AccessControl)
+			})).
+			Return(&service.ServiceUserCredentialsModifyOut{}, nil).Once()
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once().
+			NotBefore(setACL)
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, res := runScenario(t, user, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+	})
+
 	t.Run("Keeps an adopted user pending while its password is unreadable", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
 		user.Generation = 1
