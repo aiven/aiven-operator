@@ -552,10 +552,10 @@ spec:
                       type: string
                     escape_newlines:
                       description:
-                        When true, embedded newlines in a log message are
-                        escaped so a multi-line record (e.g. a stack trace) is delivered
-                        as one complete log entry. Useful for newline-delimited cloud
-                        log intakes that drop continuation lines.
+                        Escape embedded newlines so a multi-line record (e.g.
+                        a stack trace) is delivered as one complete log entry. Enabled
+                        by default. Set to false if the receiving server expects raw
+                        newlines in messages.
                       type: boolean
                     format:
                       description: Message format

@@ -404,7 +404,7 @@ Rsyslog configuration values.
 
 - [`ca`](#spec.rsyslog.ca-property){: name='spec.rsyslog.ca-property'} (string, MaxLength: 16384). PEM encoded CA certificate.
 - [`cert`](#spec.rsyslog.cert-property){: name='spec.rsyslog.cert-property'} (string, MaxLength: 16384). PEM encoded client certificate.
-- [`escape_newlines`](#spec.rsyslog.escape_newlines-property){: name='spec.rsyslog.escape_newlines-property'} (boolean). When true, embedded newlines in a log message are escaped so a multi-line record (e.g. a stack trace) is delivered as one complete log entry. Useful for newline-delimited cloud log intakes that drop continuation lines.
+- [`escape_newlines`](#spec.rsyslog.escape_newlines-property){: name='spec.rsyslog.escape_newlines-property'} (boolean). Escape embedded newlines so a multi-line record (e.g. a stack trace) is delivered as one complete log entry. Enabled by default. Set to false if the receiving server expects raw newlines in messages.
 - [`key`](#spec.rsyslog.key-property){: name='spec.rsyslog.key-property'} (string, MaxLength: 16384). PEM encoded client key.
 - [`logline`](#spec.rsyslog.logline-property){: name='spec.rsyslog.logline-property'} (string, Pattern: `^[ -~\t]+$`, MinLength: 1, MaxLength: 512). Custom syslog message format.
 - [`max_message_size`](#spec.rsyslog.max_message_size-property){: name='spec.rsyslog.max_message_size-property'} (integer, Minimum: 2048, Maximum: 2147483647). Rsyslog max message size.

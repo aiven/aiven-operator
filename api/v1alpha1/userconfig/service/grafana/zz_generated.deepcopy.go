@@ -405,6 +405,11 @@ func (in *GrafanaUserConfig) DeepCopyInto(out *GrafanaUserConfig) {
 			}
 		}
 	}
+	if in.MetricsDisableTotalStats != nil {
+		in, out := &in.MetricsDisableTotalStats, &out.MetricsDisableTotalStats
+		*out = new(bool)
+		**out = **in
+	}
 	if in.MetricsEnabled != nil {
 		in, out := &in.MetricsEnabled, &out.MetricsEnabled
 		*out = new(bool)
