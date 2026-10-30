@@ -16,8 +16,6 @@ import (
 	"github.com/go-logr/logr"
 	"github.com/samber/lo"
 	corev1 "k8s.io/api/core/v1"
-	"k8s.io/apimachinery/pkg/api/meta"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller"
@@ -58,10 +56,34 @@ type ServiceUserController struct {
 const (
 	eventSkippedDeletionAtAiven = "SkippedDeletionAtAiven"
 	eventAuthenticationReset    = "AuthenticationReset"
+	eventAdoptedExistingUser    = "AdoptedExistingUser"
 )
 
+// API lag retry knobs for fetchUser, variables so tests can shorten the delays.
+var (
+	emptyPasswordExtraRetries uint = 2
+	emptyPasswordRetryDelay        = 5 * time.Second
+	notFoundRetryAttempts     uint = 5
+	notFoundRetryDelay             = 1 * time.Second
+)
+
+// passwordWaitEscalation is how long after Aiven last stored a password an unreadable one
+// stops being treated as API lag and becomes a condition polled at the poll interval.
+const passwordWaitEscalation = 5 * time.Minute
+
+const msgPasswordNotReadable = "service user password is not readable from the API; " +
+	"set spec.connInfoSecretSource to assign one if it never becomes readable"
+
+// fetchOptions selects which API lag windows fetchUser waits out.
+type fetchOptions struct {
+	// retryNotFound: the user was just written and may briefly 404.
+	retryNotFound bool
+	// retryEmptyPassword: the password was just set or never published and may briefly be empty.
+	retryEmptyPassword bool
+}
+
 func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.ServiceUser) (Observation, error) {
-	u, details, err := r.fetchUser(ctx, user, false)
+	u, details, err := r.fetchUser(ctx, user, fetchOptions{retryNotFound: hasIsRunningAnnotation(user)})
 	if err != nil {
 		// ServiceUser 404 means "user doesn't exist yet" and should trigger Create.
 		// But service/project 404 is wrapped as errPreconditionNotMet in getServiceIfOperational
@@ -71,6 +93,8 @@ func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.Serv
 		}
 		return Observation{}, err
 	}
+
+	user.Status.Type = u.Type
 
 	// Empty password with a source secret: Update so the declared value gets pushed back to Aiven.
 	// Empty without a source: nothing to enforce, user may change it bypassing the API.
@@ -93,7 +117,7 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 		return CreateResult{}, err
 	}
 
-	u, err := r.avnGen.ServiceUserCreate(
+	_, err = r.avnGen.ServiceUserCreate(
 		ctx,
 		user.Spec.Project,
 		user.Spec.ServiceName,
@@ -103,7 +127,18 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 			Authentication: user.Spec.Authentication,
 		},
 	)
-	if err != nil {
+	switch {
+	case isAlreadyExists(err):
+		// A retried create whose first attempt went through, or a user made outside the operator.
+		logr.FromContextOrDiscard(ctx).Info("adopting existing service user", "username", user.GetUsername())
+		r.rec.Eventf(user, corev1.EventTypeNormal, eventAdoptedExistingUser,
+			"user %q already exists at Aiven, adopting it", user.GetUsername())
+		// The creation was rejected, so the existing user keeps whatever access control it had.
+		// Apply the spec's before its credentials are published, not on the next reconcile.
+		if err := r.setAccessControlIfProvided(ctx, user); err != nil {
+			return CreateResult{}, err
+		}
+	case err != nil:
 		return CreateResult{}, fmt.Errorf("creating service user: %w", err)
 	}
 
@@ -111,18 +146,14 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 		return CreateResult{}, err
 	}
 
-	if u != nil {
-		user.Status.Type = u.Type
-	}
-
-	meta.SetStatusCondition(&user.Status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
-	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
-
 	// Retry to absorb the potential API lag.
-	_, details, err := r.fetchUser(ctx, user, true)
+	u, details, err := r.fetchUser(ctx, user, fetchOptions{retryNotFound: true, retryEmptyPassword: !user.NoSecret()})
 	if err != nil {
 		return CreateResult{}, fmt.Errorf("building connection details: %w", err)
 	}
+
+	user.Status.Type = u.Type
+	markInstanceRunning(user)
 
 	return CreateResult{SecretDetails: details}, nil
 }
@@ -133,21 +164,8 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 		return UpdateResult{}, err
 	}
 
-	if ac := buildServiceUserAccessControlIn(user.Spec.AccessControl); ac != nil {
-		if _, err := r.avnGen.ServiceUserCredentialsModify(
-			ctx,
-			user.Spec.Project,
-			user.Spec.ServiceName,
-			user.GetUsername(),
-			&service.ServiceUserCredentialsModifyIn{
-				AccessControl: ac,
-				Operation:     service.ServiceUserCredentialsModifyOperationTypeSetAccessControl,
-			},
-		); err != nil {
-			return UpdateResult{}, fmt.Errorf("modifying service user access control: %w", err)
-		}
-	} else {
-		logr.FromContextOrDiscard(ctx).V(1).Info("skipping access control update since it isn't provided in the spec")
+	if err := r.setAccessControlIfProvided(ctx, user); err != nil {
+		return UpdateResult{}, err
 	}
 
 	authentication := user.Spec.Authentication
@@ -176,14 +194,28 @@ func (r *ServiceUserController) Update(ctx context.Context, user *v1alpha1.Servi
 		return UpdateResult{}, err
 	}
 
-	meta.SetStatusCondition(&user.Status.Conditions, getRunningCondition(metav1.ConditionTrue, "CheckRunning", "Instance is running on Aiven side"))
-	metav1.SetMetaDataAnnotation(&user.ObjectMeta, instanceIsRunningAnnotation, "true")
-
 	// Retry empty-password only when a password was actually updated during this cycle.
-	_, details, err := r.fetchUser(ctx, user, wrotePassword)
+	u, details, err := r.fetchUser(ctx, user, fetchOptions{retryNotFound: true, retryEmptyPassword: wrotePassword})
 	if err != nil {
 		return UpdateResult{}, fmt.Errorf("building connection details: %w", err)
 	}
+
+	// A never-published user must not become Running with an empty secret. The requeue does the
+	// waiting; past passwordWaitEscalation the wait is assumed to need a human and is polled slowly.
+	if !user.NoSecret() && !hasIsRunningAnnotation(user) && u.Password == "" {
+		// Aiven sets password_updated_time on row insert and on every stored password.
+		since := user.CreationTimestamp.Time
+		if u.PasswordUpdatedTime != nil {
+			since = *u.PasswordUpdatedTime
+		}
+		kind := errPreconditionNotMet
+		if time.Since(since) > passwordWaitEscalation {
+			kind = errPreconditionExternal
+		}
+		return UpdateResult{}, fmt.Errorf("%w: %s", kind, msgPasswordNotReadable)
+	}
+
+	markInstanceRunning(user)
 
 	return UpdateResult{SecretDetails: details}, nil
 }
@@ -246,6 +278,30 @@ func (r *ServiceUserController) findDuplicate(ctx context.Context, user *v1alpha
 	return nil, nil
 }
 
+// setAccessControlIfProvided sets the access control from the spec, if any.
+func (r *ServiceUserController) setAccessControlIfProvided(ctx context.Context, user *v1alpha1.ServiceUser) error {
+	ac := buildServiceUserAccessControlIn(user.Spec.AccessControl)
+	if ac == nil {
+		logr.FromContextOrDiscard(ctx).V(1).Info("skipping access control update since it isn't provided in the spec")
+		return nil
+	}
+
+	if _, err := r.avnGen.ServiceUserCredentialsModify(
+		ctx,
+		user.Spec.Project,
+		user.Spec.ServiceName,
+		user.GetUsername(),
+		&service.ServiceUserCredentialsModifyIn{
+			AccessControl: ac,
+			Operation:     service.ServiceUserCredentialsModifyOperationTypeSetAccessControl,
+		},
+	); err != nil {
+		return fmt.Errorf("modifying service user access control: %w", err)
+	}
+
+	return nil
+}
+
 // setAivenPasswordIfProvided sets the password and optional authentication method.
 // Returns true when the password was actually updated.
 func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, user *v1alpha1.ServiceUser, password string, authentication service.AuthenticationType) (bool, error) {
@@ -271,39 +327,25 @@ func (r *ServiceUserController) setAivenPasswordIfProvided(ctx context.Context, 
 }
 
 // fetchUser gets the ServiceUser from Aiven and builds the secret details.
-//
-// retryEmptyPassword absorbs the eventual-consistency window where
-// ServiceUserGet returns an empty password right after the password change.
 func (r *ServiceUserController) fetchUser(
 	ctx context.Context,
 	user *v1alpha1.ServiceUser,
-	retryEmptyPassword bool,
+	opts fetchOptions,
 ) (*service.ServiceUserGetOut, SecretDetails, error) {
 	svc, err := getServiceIfOperational(ctx, r.avnGen, user.Spec.Project, user.Spec.ServiceName)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	const (
-		emptyPasswordExtraRetries = 2
-		emptyPasswordRetryDelay   = 5 * time.Second
-		notFoundRetryAttempts     = 5
-		notFoundRetryDelay        = 1 * time.Second
-	)
-
-	running := hasIsRunningAnnotation(user)
-
 	getUser := func() (*service.ServiceUserGetOut, error) {
-		attempts := uint(notFoundRetryAttempts)
-		if !running {
+		attempts := notFoundRetryAttempts
+		if !opts.retryNotFound {
 			attempts = 1
 		}
 
 		var u *service.ServiceUserGetOut
-		// ServiceUsers that are already marked running also retry transient 404s
-		// for a short time. Aiven may briefly report the user as missing immediately
-		// after create or update, even though a follow-up get returns it.
-		// Treating that 404 as "absent" too early pushes reconcile down the Create -> 409 path.
+		// Aiven may briefly report a just-written user as missing even though a follow-up get
+		// returns it. Treating that 404 as "absent" pushes reconcile down the Create -> 409 path.
 		if err := retry.Do(
 			func() error {
 				u, err = r.avnGen.ServiceUserGet(ctx, user.Spec.Project, user.Spec.ServiceName, user.GetUsername())
@@ -326,7 +368,7 @@ func (r *ServiceUserController) fetchUser(
 		return nil, nil, err
 	}
 
-	if retryEmptyPassword && u.Password == "" {
+	if opts.retryEmptyPassword && u.Password == "" {
 		errEmptyPassword := errors.New("received empty password from the API")
 		err = retry.Do(
 			func() error {
@@ -347,10 +389,10 @@ func (r *ServiceUserController) fetchUser(
 			retry.Delay(emptyPasswordRetryDelay),
 			retry.LastErrorOnly(true),
 		)
-		// Real API errors propagate. Exhausted empty-password retries returns as precondition.
+		// Real API errors propagate. Exhausted empty-password retries return as a precondition.
 		switch {
 		case errors.Is(err, errEmptyPassword):
-			return nil, nil, fmt.Errorf("%w: ServiceUser password not yet available from API", errPreconditionNotMet)
+			return nil, nil, fmt.Errorf("%w: %s", errPreconditionNotMet, msgPasswordNotReadable)
 		case err != nil:
 			return nil, nil, err
 		}
