@@ -1787,7 +1787,7 @@ func TestServiceUserReconciler(t *testing.T) {
 		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
 	})
 
-	t.Run("Adopts the existing user when create returns 409", func(t *testing.T) {
+	t.Run("Requeues without publishing when create returns 409", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
 		user.Generation = 1
 
@@ -1798,35 +1798,25 @@ func TestServiceUserReconciler(t *testing.T) {
 				State:       service.ServiceStateTypeRunning,
 				ServiceType: "kafka",
 				Components:  []service.ComponentOut{primaryComponent("kafka", "host", 9092)},
-			}, nil).Twice()
+			}, nil).Once()
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
 			Return(nil, newAivenError(404, "not found")).Once()
 		avn.EXPECT().
 			ServiceUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
 			Return(nil, newAivenError(409, "already exists")).Once()
-		avn.EXPECT().
-			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
-			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw", Type: "normal"}, nil).Once()
-		avn.EXPECT().
-			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
 
 		r, res := runScenario(t, user, avn)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
 
 		got := &v1alpha1.ServiceUser{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got))
-		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
-		require.Equal(t, "normal", got.Status.Type)
+		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
 		require.Nil(t, meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError))
 
 		secret := &corev1.Secret{}
-		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
-		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
-
-		require.True(t, slices.ContainsFunc(recorderEvents(r.Recorder.(*record.FakeRecorder)), func(e string) bool {
-			return strings.HasPrefix(e, corev1.EventTypeNormal+" "+eventAdoptedExistingUser)
-		}), "expected %s event", eventAdoptedExistingUser)
+		err := r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret)
+		require.True(t, apierrors.IsNotFound(err))
 	})
 
 	t.Run("Create does not wait for a password when the connection secret is disabled", func(t *testing.T) {
@@ -1847,7 +1837,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(nil, newAivenError(404, "not found")).Once()
 		avn.EXPECT().
 			ServiceUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
-			Return(nil, newAivenError(409, "already exists")).Once()
+			Return(&service.ServiceUserCreateOut{}, nil).Once()
 		// A single fetch: no empty-password retries.
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
@@ -1881,12 +1871,10 @@ func TestServiceUserReconciler(t *testing.T) {
 				ServiceType: "valkey",
 				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
 			}, nil).Twice()
+		// The user left behind by a 409 on create, with broader access than the spec.
 		avn.EXPECT().
 			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
-			Return(nil, newAivenError(404, "not found")).Once()
-		avn.EXPECT().
-			ServiceUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
-			Return(nil, newAivenError(409, "already exists")).Once()
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once()
 		setACL := avn.EXPECT().
 			ServiceUserCredentialsModify(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name, mock.MatchedBy(func(in *service.ServiceUserCredentialsModifyIn) bool {
 				return in.Operation == service.ServiceUserCredentialsModifyOperationTypeSetAccessControl &&
@@ -1898,7 +1886,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "pw"}, nil).Once().
 			NotBefore(setACL)
 		avn.EXPECT().
-			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Twice()
 
 		r, res := runScenario(t, user, avn)
 		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
@@ -1906,43 +1894,6 @@ func TestServiceUserReconciler(t *testing.T) {
 		secret := &corev1.Secret{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
 		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
-	})
-
-	t.Run("Keeps an adopted user pending while its password is unreadable", func(t *testing.T) {
-		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
-		user.Generation = 1
-		user.CreationTimestamp = metav1.Now()
-
-		avn := avngen.NewMockClient(t)
-		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
-			Return(&service.ServiceGetOut{
-				State:       service.ServiceStateTypeRunning,
-				ServiceType: "pg",
-				Components:  []service.ComponentOut{primaryComponent("pg", "host", 5432)},
-			}, nil).Twice()
-		avn.EXPECT().
-			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
-			Return(nil, newAivenError(404, "not found")).Once()
-		avn.EXPECT().
-			ServiceUserCreate(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
-			Return(nil, newAivenError(409, "already exists")).Once()
-		// First fetch plus the empty-password retries, all without a password.
-		avn.EXPECT().
-			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
-			Return(&service.ServiceUserGetOut{Username: user.Name, Password: ""}, nil).Times(int(1 + emptyPasswordExtraRetries))
-
-		r, res := runScenario(t, user, avn)
-		require.Equal(t, ctrlruntime.Result{RequeueAfter: requeueTimeout}, res)
-
-		got := &v1alpha1.ServiceUser{}
-		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, got))
-		require.NotContains(t, got.Annotations, instanceIsRunningAnnotation)
-		require.Nil(t, meta.FindStatusCondition(got.Status.Conditions, ConditionTypeError))
-
-		secret := &corev1.Secret{}
-		err := r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret)
-		require.True(t, apierrors.IsNotFound(err))
 	})
 
 	t.Run("Update waits for a readable password before the first Running", func(t *testing.T) {

@@ -56,7 +56,6 @@ type ServiceUserController struct {
 const (
 	eventSkippedDeletionAtAiven = "SkippedDeletionAtAiven"
 	eventAuthenticationReset    = "AuthenticationReset"
-	eventAdoptedExistingUser    = "AdoptedExistingUser"
 )
 
 // API lag retry knobs for fetchUser, variables so tests can shorten the delays.
@@ -129,15 +128,8 @@ func (r *ServiceUserController) Create(ctx context.Context, user *v1alpha1.Servi
 	)
 	switch {
 	case isAlreadyExists(err):
-		// A retried create whose first attempt went through, or a user made outside the operator.
-		logr.FromContextOrDiscard(ctx).Info("adopting existing service user", "username", user.GetUsername())
-		r.rec.Eventf(user, corev1.EventTypeNormal, eventAdoptedExistingUser,
-			"user %q already exists at Aiven, adopting it", user.GetUsername())
-		// The creation was rejected, so the existing user keeps whatever access control it had.
-		// Apply the spec's before its credentials are published, not on the next reconcile.
-		if err := r.setAccessControlIfProvided(ctx, user); err != nil {
-			return CreateResult{}, err
-		}
+		// The next reconcile adopts the user through Observe and Update, which apply the spec before publishing.
+		return CreateResult{}, fmt.Errorf("%w: service user %q already exists at Aiven, adopting it", errPreconditionNotMet, user.GetUsername())
 	case err != nil:
 		return CreateResult{}, fmt.Errorf("creating service user: %w", err)
 	}
