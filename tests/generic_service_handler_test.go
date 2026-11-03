@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -150,6 +151,45 @@ func TestCreateUpdateService(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, service.ServiceStateTypeRunning, avnPgPoweredOn.State)
 	assert.Equal(t, "true", controllers.GetIsRunningAnnotation(pgPoweredOn))
+
+	// The probes below change the service behind the operator's back; CreateOnly keeps it from correcting that.
+	patch := []byte(`{"metadata":{"annotations":{"controllers.aiven.io/management-policy":"CreateOnly"}}}`)
+	require.NoError(t, k8sClient.Patch(ctx, pgPoweredOn, client.RawPatch(types.MergePatchType, patch)))
+
+	// Drift is compared in RUNNING only, so a plan change must either leave RUNNING or show the new plan as soon as ServiceUpdate returns.
+	t.Run("plan change is visible immediately", func(t *testing.T) {
+		_, err := avnGen.ServiceUpdate(ctx, cfg.Project, pgName, &service.ServiceUpdateIn{Plan: anyPointer("startup-8")})
+		require.NoError(t, err)
+		live, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
+		require.NoError(t, err)
+		if live.State == service.ServiceStateTypeRunning {
+			assert.Equal(t, "startup-8", live.Plan)
+		}
+	})
+
+	// The same for a disk change.
+	t.Run("disk change is visible immediately", func(t *testing.T) {
+		var live *service.ServiceGetOut
+		require.EventuallyWithT(t, func(collect *assert.CollectT) {
+			var err error
+			live, err = avnGen.ServiceGet(ctx, cfg.Project, pgName)
+			require.NoError(collect, err)
+			assert.Equal(collect, service.ServiceStateTypeRunning, live.State)
+		}, 15*time.Minute, 15*time.Second)
+		specs, err := avnGen.ProjectServicePlanSpecsGet(ctx, cfg.Project, "pg", live.Plan)
+		require.NoError(t, err)
+		require.NotNil(t, live.DiskSpaceMb)
+		require.NotNil(t, specs.DiskSpaceStepMb)
+		diskSpaceMb := *live.DiskSpaceMb + *specs.DiskSpaceStepMb
+
+		_, err = avnGen.ServiceUpdate(ctx, cfg.Project, pgName, &service.ServiceUpdateIn{DiskSpaceMb: &diskSpaceMb})
+		require.NoError(t, err)
+		live, err = avnGen.ServiceGet(ctx, cfg.Project, pgName)
+		require.NoError(t, err)
+		if live.State == service.ServiceStateTypeRunning {
+			assert.Equal(t, diskSpaceMb, *live.DiskSpaceMb)
+		}
+	})
 }
 
 // TestTerminationProtectionDeletion verifies that the controller can delete a service
