@@ -1606,30 +1606,45 @@ func TestServiceController_Update(t *testing.T) {
 		require.Equal(t, metav1.ConditionUnknown, running.Status)
 	})
 
-	t.Run("disk space with autoscaler integration is not sent -> Warning", func(t *testing.T) {
+	t.Run("disk space with autoscaler integration is not sent -> Warning on a spec change only", func(t *testing.T) {
 		t.Parallel()
 
-		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
-		gf.Spec.DiskSpace = "10GiB"
+		for name, tc := range map[string]struct {
+			processed bool
+			events    []string
+		}{
+			"spec change":      {events: []string{"Warning DiskSpaceNotApplied diskSpace is not applied: the autoscaler integration manages the disk"}},
+			"drift correction": {processed: true},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
 
-		avn := avngen.NewMockClient(t)
-		avn.EXPECT().
-			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
-			Return(&service.ServiceGetOut{
-				State:               service.ServiceStateTypeRunning,
-				ServiceIntegrations: []service.ServiceIntegrationOut{{IntegrationType: service.IntegrationTypeAutoscaler}},
-			}, nil).Once()
-		var updateReq *service.ServiceUpdateIn
-		avn.EXPECT().
-			ServiceUpdate(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-			Run(func(_ context.Context, _, _ string, in *service.ServiceUpdateIn, _ ...[2]string) { updateReq = in }).
-			Return(&service.ServiceUpdateOut{}, nil).Once()
+				gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+				gf.Spec.DiskSpace = "10GiB"
+				if tc.processed {
+					markGeneration(gf, 1)
+				}
 
-		c, rec := newRecordingTestController(avn, grafanaKind, nil)
-		_, err := c.Update(t.Context(), gf)
-		require.NoError(t, err)
-		require.Nil(t, updateReq.DiskSpaceMb)
-		require.Equal(t, []string{"Warning DiskSpaceNotApplied diskSpace is not applied: the autoscaler integration manages the disk"}, recorderEvents(rec))
+				avn := avngen.NewMockClient(t)
+				avn.EXPECT().
+					ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
+					Return(&service.ServiceGetOut{
+						State:               service.ServiceStateTypeRunning,
+						ServiceIntegrations: []service.ServiceIntegrationOut{{IntegrationType: service.IntegrationTypeAutoscaler}},
+					}, nil).Once()
+				var updateReq *service.ServiceUpdateIn
+				avn.EXPECT().
+					ServiceUpdate(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+					Run(func(_ context.Context, _, _ string, in *service.ServiceUpdateIn, _ ...[2]string) { updateReq = in }).
+					Return(&service.ServiceUpdateOut{}, nil).Once()
+
+				c, rec := newRecordingTestController(avn, grafanaKind, nil)
+				_, err := c.Update(t.Context(), gf)
+				require.NoError(t, err)
+				require.Nil(t, updateReq.DiskSpaceMb)
+				require.Equal(t, tc.events, recorderEvents(rec))
+			})
+		}
 	})
 
 	t.Run("upgrade task runs before ServiceUpdate and blocks on error", func(t *testing.T) {

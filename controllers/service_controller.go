@@ -327,11 +327,13 @@ func (c *serviceController[T]) Update(ctx context.Context, obj T) (UpdateResult,
 		return UpdateResult{}, fmt.Errorf("failed to fetch service: %w", err)
 	}
 
-	// The autoscaler owns the disk: the spec's size is not sent, with a Warning.
+	// The autoscaler owns the disk: the spec's size is not sent, with a Warning on a spec change.
 	diskSpace := v1alpha1.ConvertDiskSpace(spec.DiskSpace)
 	if diskSpace > 0 && hasDiskAutoscaler(oldService) {
 		diskSpace = 0
-		c.rec.Event(obj, corev1.EventTypeWarning, eventDiskSpaceNotApplied, "diskSpace is not applied: the autoscaler integration manages the disk")
+		if !hasLatestGeneration(obj) {
+			c.rec.Event(obj, corev1.EventTypeWarning, eventDiskSpaceNotApplied, "diskSpace is not applied: the autoscaler integration manages the disk")
+		}
 	}
 
 	userConfig, err := UpdateUserConfiguration(userCfg)
