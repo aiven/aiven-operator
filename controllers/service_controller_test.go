@@ -1579,6 +1579,33 @@ func TestServiceController_Update(t *testing.T) {
 		require.Equal(t, metav1.ConditionTrue, running.Status)
 	})
 
+	t.Run("power drift correction resets readiness", func(t *testing.T) {
+		t.Parallel()
+
+		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+		markGeneration(gf, 1)
+		markInstanceRunning(gf)
+		require.True(t, IsReadyToUse(gf))
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
+			Return(&service.ServiceGetOut{State: service.ServiceStateTypePoweroff}, nil).Once()
+		avn.EXPECT().
+			ServiceUpdate(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+			Return(&service.ServiceUpdateOut{}, nil).Once()
+
+		c := newTestController(avn, grafanaKind, nil)
+		_, err := c.Update(t.Context(), gf)
+		require.NoError(t, err)
+
+		require.True(t, hasLatestGeneration(gf))
+		require.False(t, IsReadyToUse(gf))
+		running := meta.FindStatusCondition(gf.Status.Conditions, conditionTypeRunning)
+		require.NotNil(t, running)
+		require.Equal(t, metav1.ConditionUnknown, running.Status)
+	})
+
 	t.Run("disk space with autoscaler integration is not sent -> Warning", func(t *testing.T) {
 		t.Parallel()
 

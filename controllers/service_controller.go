@@ -373,8 +373,8 @@ func (c *serviceController[T]) Update(ctx context.Context, obj T) (UpdateResult,
 		}
 	}
 
-	// A drift correction keeps readiness: only a spec change waits for the service to settle.
-	if !hasLatestGeneration(obj) {
+	// A drift correction keeps readiness: only a spec change or a power transition waits for the service to settle.
+	if !hasLatestGeneration(obj) || isPowered(spec) != (oldService.State != service.ServiceStateTypePoweroff) {
 		markServiceCreatedOrUpdated(obj)
 	}
 	return UpdateResult{}, nil
