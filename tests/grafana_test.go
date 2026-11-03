@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	grafanauserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/grafana"
@@ -138,4 +139,31 @@ func TestGrafana(t *testing.T) {
 	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, name)
 	require.NoError(t, err)
 	assert.Equal(t, service.ServiceStateTypePoweroff, poweredOffAvn.State)
+
+	// The probes below power the service on and off behind the operator's back; CreateOnly keeps it from correcting that.
+	patch := []byte(`{"metadata":{"annotations":{"controllers.aiven.io/management-policy":"CreateOnly"}}}`)
+	require.NoError(t, k8sClient.Patch(ctx, poweredOff, client.RawPatch(types.MergePatchType, patch)))
+
+	// Drift is compared in RUNNING and POWEROFF only, so powering on must leave POWEROFF as soon as ServiceUpdate returns.
+	t.Run("power on leaves POWEROFF immediately", func(t *testing.T) {
+		_, err := avnGen.ServiceUpdate(ctx, cfg.Project, name, &service.ServiceUpdateIn{Powered: anyPointer(true)})
+		require.NoError(t, err)
+		live, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+		require.NoError(t, err)
+		assert.NotEqual(t, service.ServiceStateTypePoweroff, live.State)
+	})
+
+	// The same for powering off: it must leave RUNNING as soon as ServiceUpdate returns.
+	t.Run("power off leaves RUNNING immediately", func(t *testing.T) {
+		require.EventuallyWithT(t, func(collect *assert.CollectT) {
+			live, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+			require.NoError(collect, err)
+			assert.Equal(collect, service.ServiceStateTypeRunning, live.State)
+		}, 15*time.Minute, 15*time.Second)
+		_, err := avnGen.ServiceUpdate(ctx, cfg.Project, name, &service.ServiceUpdateIn{Powered: anyPointer(false)})
+		require.NoError(t, err)
+		live, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+		require.NoError(t, err)
+		assert.NotEqual(t, service.ServiceStateTypeRunning, live.State)
+	})
 }

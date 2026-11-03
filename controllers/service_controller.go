@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"maps"
+	"strings"
 	"time"
 
 	avngen "github.com/aiven/go-client-codegen"
@@ -23,7 +24,6 @@ import (
 
 // errServiceCreatePoweredOff: the service is missing at Aiven and the spec has powered: false.
 // ServiceCreateIn has no powered flag, so the resource cannot be reconciled until powered is true.
-// An existing powered-off service is unaffected: it is adopted through Update.
 var errServiceCreatePoweredOff = errors.New("service does not exist at Aiven and cannot be created powered off: set powered to true, then power it off once it is running")
 
 // serviceController is the AivenController[T] implementation shared by all Aiven service resources.
@@ -54,95 +54,57 @@ func newServiceController[T v1alpha1.ServiceObject](
 func (c *serviceController[T]) managementPolicySupported() {}
 
 func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation, error) {
-	spec := obj.ServiceCommonSpec()
 	skipUpdate := !managementPolicyFrom(ctx).allowsUpdate()
+	newGeneration := !hasLatestGeneration(obj)
 
-	// Fetch secrets only when they can be published this round: Update discards them.
-	publishable := hasLatestGeneration(obj) || skipUpdate
-	var query [][2]string
-	if publishable && (skipUpdate || isPowered(spec)) && !obj.NoSecret() {
-		query = append(query, service.ServiceGetIncludeSecrets(true))
+	// Include secrets only when this reconcile publishes the connection Secret.
+	includeSecrets := !obj.NoSecret() && (skipUpdate || (!newGeneration && isPowered(obj.ServiceCommonSpec())))
+	avnService, err := c.getService(ctx, obj, includeSecrets)
+	if err != nil {
+		return Observation{}, err
 	}
-	avnService, err := c.avnGen.ServiceGet(ctx, spec.Project, obj.GetName(), query...)
-	exists := err == nil
-	if err != nil && !isNotFound(err) {
-		return Observation{}, fmt.Errorf("failed to get service from Aiven: %w", err)
-	}
-
-	// An applied service is gone at Aiven: revoke readiness.
-	if !exists && wasEverApplied(obj) {
-		markInstanceNotReconciled(obj)
-		status := obj.ServiceStatus()
-		status.State = ""
-		status.Version = ""
-		// The migration ran on the deleted service: the recreated one needs the credentials again.
-		meta.RemoveStatusCondition(&status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+	if avnService == nil {
+		return c.observeMissing(ctx, obj)
 	}
 
-	// Refuse to create a powered-off service.
-	if !exists && !isPowered(spec) {
-		return Observation{}, errServiceCreatePoweredOff
-	}
-
-	// Preconditions guard Create and Update; without Update an existing service skips them.
-	if !exists || (!hasLatestGeneration(obj) && !skipUpdate) {
+	// Check preconditions before processing a new generation.
+	if newGeneration && !skipUpdate {
 		if err := c.kind.checkPreconditions(ctx, c.avnGen, obj); err != nil {
 			return Observation{}, err
 		}
-	}
-
-	if !exists {
-		return Observation{ResourceExists: false}, nil
-	}
-
-	// The target power state: the spec's, or the live one when Update is skipped.
-	powered := isPowered(spec)
-	if skipUpdate {
-		powered = avnService.State != service.ServiceStateTypePoweroff
 	}
 
 	status := obj.ServiceStatus()
 	status.State = avnService.State
 	status.Version = serviceVersion(c.kind.serviceType, avnService.Metadata)
 
-	if !hasLatestGeneration(obj) {
-		var details map[string]string
-		if publishable && powered && status.State == service.ServiceStateTypeRunning && !obj.NoSecret() {
-			details, err = c.buildSecretDetails(ctx, obj, avnService)
-			if err != nil {
-				return Observation{}, err
-			}
-		}
-		return Observation{ResourceExists: true, ResourceUpToDate: false, SecretDetails: details, PruneSecretKeys: true}, nil
+	if newGeneration {
+		return c.observeNewGeneration(ctx, obj, avnService, skipUpdate)
 	}
 
-	// Not in its target state yet: keep polling without touching the running marker.
-	if (!powered || status.State != service.ServiceStateTypeRunning) && (powered || status.State != service.ServiceStateTypePoweroff) {
+	// Drift is compared only in a stable service state.
+	if status.State != service.ServiceStateTypeRunning && status.State != service.ServiceStateTypePoweroff {
 		return Observation{ResourceExists: true, ResourceUpToDate: true}, nil
 	}
 
-	// A migration in progress is polled at requeueTimeout instead of PollInterval.
-	var requeueAfter time.Duration
-	if src := c.kind.migrationSource(obj); src != nil {
-		// A completed migration is not polled again: ServiceGetMigrationStatus would 404.
-		migrationDone := meta.IsStatusConditionTrue(status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
-		if !migrationDone {
-			if err := updateMigrationCondition(ctx, c.avnGen, spec.Project, obj.GetName(), obj.GetGeneration(), &status.Conditions); err != nil {
-				return Observation{}, err
-			}
-			if hasPendingMigration(obj) {
-				requeueAfter = requeueTimeout
-			}
-		}
-		if err := c.maybeDeleteMigrationSecret(ctx, obj, src); err != nil {
-			return Observation{}, err
-		}
+	drifted, err := c.observeDrift(ctx, obj, avnService, skipUpdate)
+	if err != nil {
+		return Observation{}, err
+	}
+	// Update corrects the drift; when Update is skipped, the secret is still published below.
+	if drifted && !skipUpdate {
+		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
+	}
+
+	requeueAfter, err := c.observeMigration(ctx, obj)
+	if err != nil {
+		return Observation{}, err
 	}
 
 	// Powered off: no connection secret.
-	if !powered {
+	if status.State == service.ServiceStateTypePoweroff {
 		markInstancePoweredOff(obj)
-		return Observation{ResourceExists: true, ResourceUpToDate: true, RequeueAfter: requeueAfter}, nil
+		return Observation{ResourceExists: true, ResourceUpToDate: !drifted, RequeueAfter: requeueAfter}, nil
 	}
 
 	details, err := c.buildSecretDetails(ctx, obj, avnService)
@@ -153,11 +115,128 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 	markInstanceRunning(obj)
 	return Observation{
 		ResourceExists:   true,
-		ResourceUpToDate: true,
+		ResourceUpToDate: !drifted,
 		SecretDetails:    details,
 		PruneSecretKeys:  true, // The details are the whole secret: drop keys no longer produced.
 		RequeueAfter:     requeueAfter,
 	}, nil
+}
+
+// getService returns the live service, or nil when it does not exist at Aiven.
+func (c *serviceController[T]) getService(ctx context.Context, obj T, includeSecrets bool) (*service.ServiceGetOut, error) {
+	var query [][2]string
+	if includeSecrets {
+		query = append(query, service.ServiceGetIncludeSecrets(true))
+	}
+	avnService, err := c.avnGen.ServiceGet(ctx, obj.ServiceCommonSpec().Project, obj.GetName(), query...)
+	switch {
+	case isNotFound(err):
+		return nil, nil
+	case err != nil:
+		return nil, fmt.Errorf("failed to get service from Aiven: %w", err)
+	}
+	return avnService, nil
+}
+
+// observeMissing reports a service missing at Aiven, so Create runs once the preconditions pass.
+func (c *serviceController[T]) observeMissing(ctx context.Context, obj T) (Observation, error) {
+	// An applied service is gone at Aiven: revoke readiness.
+	if wasEverApplied(obj) {
+		markInstanceNotReconciled(obj)
+		status := obj.ServiceStatus()
+		status.State = ""
+		status.Version = ""
+		// The migration ran on the deleted service: the recreated one needs the credentials again.
+		meta.RemoveStatusCondition(&status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+	}
+
+	// Refuse to create a powered-off service.
+	if !isPowered(obj.ServiceCommonSpec()) {
+		return Observation{}, errServiceCreatePoweredOff
+	}
+
+	if err := c.kind.checkPreconditions(ctx, c.avnGen, obj); err != nil {
+		return Observation{}, err
+	}
+	return Observation{ResourceExists: false}, nil
+}
+
+// observeNewGeneration reports the service as not up to date, with the connection secret when Update is skipped.
+func (c *serviceController[T]) observeNewGeneration(
+	ctx context.Context,
+	obj T,
+	avnService *service.ServiceGetOut,
+	skipUpdate bool,
+) (Observation, error) {
+	var details map[string]string
+	if skipUpdate && avnService.State == service.ServiceStateTypeRunning && !obj.NoSecret() {
+		var err error
+		details, err = c.buildSecretDetails(ctx, obj, avnService)
+		if err != nil {
+			return Observation{}, err
+		}
+	}
+	return Observation{ResourceExists: true, ResourceUpToDate: false, SecretDetails: details, PruneSecretKeys: true}, nil
+}
+
+// observeDrift reports whether the live service differs from the spec and records it as a condition or events.
+func (c *serviceController[T]) observeDrift(
+	ctx context.Context,
+	obj T,
+	avnService *service.ServiceGetOut,
+	skipUpdate bool,
+) (bool, error) {
+	spec := obj.ServiceCommonSpec()
+	vpcID, err := c.resolveProjectVPCID(ctx, obj, spec)
+	if err != nil {
+		return false, err
+	}
+	drifts := detectDrift(c.kind.driftFields, desiredService{spec: spec, vpcID: vpcID}, avnService)
+	conditions := &obj.ServiceStatus().Conditions
+
+	// Drifted is reported only while no Update corrects it.
+	if skipUpdate {
+		setDriftedCondition(conditions, drifts)
+		return len(drifts) > 0, nil
+	}
+	meta.RemoveStatusCondition(conditions, v1alpha1.ConditionTypeDrifted)
+	if len(drifts) == 0 {
+		return false, nil
+	}
+
+	// Check preconditions before correcting drift, as for a new generation.
+	if err := c.kind.checkPreconditions(ctx, c.avnGen, obj); err != nil {
+		return false, err
+	}
+	for _, d := range drifts {
+		c.rec.Event(obj, corev1.EventTypeWarning, eventDriftDetected, d.String())
+	}
+	return true, nil
+}
+
+// observeMigration refreshes the migration condition and returns requeueTimeout while the
+// migration is in progress.
+func (c *serviceController[T]) observeMigration(ctx context.Context, obj T) (time.Duration, error) {
+	src := c.kind.migrationSource(obj)
+	if src == nil {
+		return 0, nil
+	}
+
+	var requeueAfter time.Duration
+	status := obj.ServiceStatus()
+	// A completed migration is not polled again: ServiceGetMigrationStatus would 404.
+	if !meta.IsStatusConditionTrue(status.Conditions, v1alpha1.ConditionTypeMigrationComplete) {
+		if err := updateMigrationCondition(ctx, c.avnGen, obj.ServiceCommonSpec().Project, obj.GetName(), obj.GetGeneration(), &status.Conditions); err != nil {
+			return 0, err
+		}
+		if hasPendingMigration(obj) {
+			requeueAfter = requeueTimeout
+		}
+	}
+	if err := c.maybeDeleteMigrationSecret(ctx, obj, src); err != nil {
+		return 0, err
+	}
+	return requeueAfter, nil
 }
 
 // Create implements AivenController[T]: ServiceCreate from the spec.
@@ -248,13 +327,12 @@ func (c *serviceController[T]) Update(ctx context.Context, obj T) (UpdateResult,
 		return UpdateResult{}, fmt.Errorf("failed to fetch service: %w", err)
 	}
 
-	// Disk space cannot be managed manually when the autoscaler integration owns it.
+	// The autoscaler owns the disk: the spec's size is not sent, with a Warning on a spec change.
 	diskSpace := v1alpha1.ConvertDiskSpace(spec.DiskSpace)
-	if diskSpace > 0 {
-		for _, v := range oldService.ServiceIntegrations {
-			if v.IntegrationType == service.IntegrationTypeAutoscaler {
-				return UpdateResult{}, fmt.Errorf("cannot set disk space for service with autoscaler integration enabled")
-			}
+	if diskSpace > 0 && hasDiskAutoscaler(oldService) {
+		diskSpace = 0
+		if !hasLatestGeneration(obj) {
+			c.rec.Event(obj, corev1.EventTypeWarning, eventDiskSpaceNotApplied, "diskSpace is not applied: the autoscaler integration manages the disk")
 		}
 	}
 
@@ -297,7 +375,10 @@ func (c *serviceController[T]) Update(ctx context.Context, obj T) (UpdateResult,
 		}
 	}
 
-	markServiceCreatedOrUpdated(obj)
+	// A drift correction keeps readiness: only a spec change or a power transition waits for the service to settle.
+	if !hasLatestGeneration(obj) || isPowered(spec) != (oldService.State != service.ServiceStateTypePoweroff) {
+		markServiceCreatedOrUpdated(obj)
+	}
 	return UpdateResult{}, nil
 }
 
@@ -452,24 +533,22 @@ func tagsIn(spec *v1alpha1.ServiceCommonSpec) *map[string]string {
 	return &tags
 }
 
-// techEmailsIn is nil when the spec omits technicalEmails; [] is kept to clear them.
-func techEmailsIn(spec *v1alpha1.ServiceCommonSpec) *[]service.TechEmailIn {
-	if spec.TechnicalEmails == nil {
-		return nil
+// setDriftedCondition sets Drifted to the drifted field names, or removes it when there are none.
+func setDriftedCondition(conditions *[]metav1.Condition, drift []fieldDrift) {
+	if len(drift) == 0 {
+		meta.RemoveStatusCondition(conditions, v1alpha1.ConditionTypeDrifted)
+		return
 	}
-	emails := make([]service.TechEmailIn, 0, len(spec.TechnicalEmails))
-	for _, e := range spec.TechnicalEmails {
-		emails = append(emails, service.TechEmailIn(e))
+	names := make([]string, 0, len(drift))
+	for _, d := range drift {
+		names = append(names, d.name)
 	}
-	return &emails
-}
-
-// replaceTags replaces the service tags at Aiven.
-func (c *serviceController[T]) replaceTags(ctx context.Context, project, serviceName string, tags map[string]string) error {
-	if err := c.avnGen.ProjectServiceTagsReplace(ctx, project, serviceName, &service.ProjectServiceTagsReplaceIn{Tags: tags}); err != nil {
-		return fmt.Errorf("failed to update tags: %w", err)
-	}
-	return nil
+	meta.SetStatusCondition(conditions, metav1.Condition{
+		Type:    v1alpha1.ConditionTypeDrifted,
+		Status:  metav1.ConditionTrue,
+		Reason:  eventDriftDetected,
+		Message: strings.Join(names, ", "),
+	})
 }
 
 // markServiceCreatedOrUpdated records the CreatedOrUpdated conditions and clears the running marker.
@@ -493,4 +572,24 @@ func maintenanceIn(spec *v1alpha1.ServiceCommonSpec) *service.MaintenanceIn {
 		return nil
 	}
 	return &service.MaintenanceIn{Dow: spec.MaintenanceWindowDow, Time: NilIfZero(spec.MaintenanceWindowTime)}
+}
+
+// techEmailsIn is nil when the spec omits technicalEmails; [] is kept to clear them.
+func techEmailsIn(spec *v1alpha1.ServiceCommonSpec) *[]service.TechEmailIn {
+	if spec.TechnicalEmails == nil {
+		return nil
+	}
+	emails := make([]service.TechEmailIn, 0, len(spec.TechnicalEmails))
+	for _, e := range spec.TechnicalEmails {
+		emails = append(emails, service.TechEmailIn(e))
+	}
+	return &emails
+}
+
+// replaceTags replaces the service tags at Aiven.
+func (c *serviceController[T]) replaceTags(ctx context.Context, project, serviceName string, tags map[string]string) error {
+	if err := c.avnGen.ProjectServiceTagsReplace(ctx, project, serviceName, &service.ProjectServiceTagsReplaceIn{Tags: tags}); err != nil {
+		return fmt.Errorf("failed to update tags: %w", err)
+	}
+	return nil
 }

@@ -161,7 +161,7 @@ func checkReadReplicaSource[T v1alpha1.ServiceObject](ctx context.Context, avn a
 // checkPowerOffBackup (default): powered: false requires a backup (External); skip for kinds without backups.
 func checkPowerOffBackup[T v1alpha1.ServiceObject](ctx context.Context, avn avngen.Client, obj T) error {
 	spec := obj.ServiceCommonSpec()
-	if fromAnyPointer(spec.Powered) {
+	if isPowered(spec) {
 		return nil
 	}
 

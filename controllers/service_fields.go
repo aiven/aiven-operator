@@ -3,6 +3,8 @@
 package controllers
 
 import (
+	"slices"
+
 	"github.com/aiven/go-client-codegen/handler/service"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -84,11 +86,22 @@ func (poweredField) compare(d desiredService, l *service.ServiceGetOut) (string,
 	return compareScalar(new(isPowered(d.spec)), l.State != service.ServiceStateTypePoweroff)
 }
 
+// diskSpaceField: an autoscaler integration owns the disk, so the live size never drifts from the spec.
 type diskSpaceField struct{}
 
 func (diskSpaceField) name() string { return "disk_space" }
 func (diskSpaceField) compare(d desiredService, l *service.ServiceGetOut) (string, string, bool) {
+	if hasDiskAutoscaler(l) {
+		return "", "", false
+	}
 	return compareScalar(NilIfZero(v1alpha1.ConvertDiskSpace(d.spec.DiskSpace)), fromAnyPointer(l.DiskSpaceMb))
+}
+
+// hasDiskAutoscaler reports whether an autoscaler integration manages the service disk.
+func hasDiskAutoscaler(l *service.ServiceGetOut) bool {
+	return slices.ContainsFunc(l.ServiceIntegrations, func(i service.ServiceIntegrationOut) bool {
+		return i.IntegrationType == service.IntegrationTypeAutoscaler
+	})
 }
 
 type tagsField struct{}
