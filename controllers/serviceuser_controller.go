@@ -100,17 +100,17 @@ func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.Serv
 		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
 	}
 
-	upToDate := IsReadyToUse(user) &&
+	inSync := IsReadyToUse(user) &&
 		accessControlMatches(user.Spec.AccessControl, u.AccessControl) &&
 		(user.Spec.Authentication == "" || u.Authentication == "" || user.Spec.Authentication == u.Authentication)
 	// An unreadable password is unknown, not live.
-	if !upToDate && u.Password == "" {
+	if !inSync && u.Password == "" {
 		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
 	}
 
 	return Observation{
 		ResourceExists:   true,
-		ResourceUpToDate: upToDate,
+		ResourceUpToDate: inSync,
 		SecretDetails:    details,
 	}, nil
 }
