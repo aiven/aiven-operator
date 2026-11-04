@@ -3405,7 +3405,7 @@ func TestReconciler_updateResource(t *testing.T) {
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().Update(mock.Anything, mock.Anything).Return(UpdateResult{}, errNotFound).Once()
 
-		res, err := r.updateResource(t.Context(), c, obj)
+		res, err := r.updateResource(t.Context(), c, obj, Observation{})
 
 		require.NoError(t, err)
 		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
@@ -3428,7 +3428,7 @@ func TestReconciler_updateResource(t *testing.T) {
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().Update(mock.Anything, mock.Anything).Return(UpdateResult{}, fmt.Errorf("%w: some reason", errPreconditionNotMet)).Once()
 
-		res, err := r.updateResource(t.Context(), c, obj)
+		res, err := r.updateResource(t.Context(), c, obj, Observation{})
 
 		require.NoError(t, err)
 		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
@@ -3452,7 +3452,7 @@ func TestReconciler_updateResource(t *testing.T) {
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().Update(mock.Anything, mock.Anything).Return(UpdateResult{}, assert.AnError).Once()
 
-		res, err := r.updateResource(t.Context(), c, obj)
+		res, err := r.updateResource(t.Context(), c, obj, Observation{})
 
 		require.EqualError(t, err, fmt.Sprintf("unable to wait until instance is running: %s", assert.AnError.Error()))
 		require.Equal(t, ctrl.Result{}, res)
@@ -3488,7 +3488,7 @@ func TestReconciler_updateResource(t *testing.T) {
 		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
 		c.EXPECT().Update(mock.Anything, mock.Anything).Return(UpdateResult{}, conflict).Once()
 
-		res, err := r.updateResource(t.Context(), c, obj)
+		res, err := r.updateResource(t.Context(), c, obj, Observation{})
 
 		require.EqualError(t, err, "unable to wait until instance is running: Operation cannot be fulfilled on clickhouseusers.aiven.io \"test-user\": "+assert.AnError.Error())
 		require.True(t, apierrors.IsConflict(err))
@@ -3532,7 +3532,7 @@ func TestReconciler_updateResource(t *testing.T) {
 			Return(UpdateResult{SecretDetails: map[string]string{"BAR": "bar"}}, nil).
 			Once()
 
-		res, err := r.updateResource(t.Context(), c, obj)
+		res, err := r.updateResource(t.Context(), c, obj, Observation{})
 		require.EqualError(t, err, fmt.Sprintf("unable to sync connection secret: %s", assert.AnError.Error()))
 		require.Equal(t, ctrl.Result{}, res)
 
@@ -3588,7 +3588,7 @@ func TestReconciler_updateResource(t *testing.T) {
 			Return(UpdateResult{SecretDetails: map[string]string{"BAR": "bar"}}, nil).
 			Once()
 
-		res, err := r.updateResource(t.Context(), c, obj)
+		res, err := r.updateResource(t.Context(), c, obj, Observation{})
 		require.NoError(t, err)
 		require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
 
@@ -3602,6 +3602,35 @@ func TestReconciler_updateResource(t *testing.T) {
 		require.Equal(t, []string{
 			"Normal WaitingForInstanceToBeRunning waiting for the instance to be running",
 		}, recorderEvents(recorder))
+	})
+
+	t.Run("Publishes observed secrets before a failing Update", func(t *testing.T) {
+		obj := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+
+		k8sClient := fake.NewClientBuilder().
+			WithScheme(scheme).
+			WithStatusSubresource(&v1alpha1.ClickhouseUser{}).
+			WithObjects(obj).
+			Build()
+
+		r := &Reconciler[*v1alpha1.ClickhouseUser]{
+			Controller: Controller{
+				Client:   k8sClient,
+				Scheme:   scheme,
+				Recorder: record.NewFakeRecorder(10),
+			},
+			newSecret: newSecret,
+		}
+
+		c := NewMockAivenController[*v1alpha1.ClickhouseUser](t)
+		c.EXPECT().Update(mock.Anything, mock.Anything).Return(UpdateResult{}, assert.AnError).Once()
+
+		_, err := r.updateResource(t.Context(), c, obj, Observation{SecretDetails: map[string]string{"BAR": "live"}})
+		require.ErrorIs(t, err, assert.AnError)
+
+		secret := &corev1.Secret{}
+		require.NoError(t, k8sClient.Get(t.Context(), types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}, secret))
+		require.Equal(t, map[string][]byte{"BAR": []byte("live")}, secret.Data)
 	})
 }
 

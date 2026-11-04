@@ -1276,6 +1276,44 @@ func TestServiceUserReconciler(t *testing.T) {
 		require.Equal(t, []byte(""), secret.Data["SERVICEUSER_PASSWORD"])
 	})
 
+	t.Run("Observe with an empty password returns no details unless the user is Running without a source", func(t *testing.T) {
+		for name, setup := range map[string]func(*v1alpha1.ServiceUser){
+			"source secret set": func(user *v1alpha1.ServiceUser) {
+				user.Annotations[instanceIsRunningAnnotation] = "true"
+				user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{Name: "src", PasswordKey: "PASSWORD"}
+			},
+			"never Running": func(*v1alpha1.ServiceUser) {},
+		} {
+			t.Run(name, func(t *testing.T) {
+				user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+				user.Generation = 1
+				user.Annotations = map[string]string{processedGenerationAnnotation: "1"}
+				setup(user)
+
+				avn := avngen.NewMockClient(t)
+				avn.EXPECT().
+					ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+					Return(&service.ServiceGetOut{
+						State:       service.ServiceStateTypeRunning,
+						ServiceType: "kafka",
+						Components:  []service.ComponentOut{primaryComponent("kafka", "host", 9092)},
+					}, nil).Once()
+				avn.EXPECT().
+					ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+					Return(&service.ServiceUserGetOut{Username: user.Name, Password: ""}, nil).Once()
+				avn.EXPECT().
+					ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+				obs, err := (&ServiceUserController{avnGen: avn}).Observe(t.Context(), user)
+				require.NoError(t, err)
+				require.True(t, obs.ResourceExists)
+				require.False(t, obs.ResourceUpToDate)
+				// A placeholder with an empty password never reaches the Secret: Update publishes the real one.
+				require.Nil(t, obs.SecretDetails)
+			})
+		}
+	})
+
 	t.Run("Empty password on Observe with source secret heals via Update", func(t *testing.T) {
 		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
 		user.Generation = 1
@@ -1894,6 +1932,37 @@ func TestServiceUserReconciler(t *testing.T) {
 		secret := &corev1.Secret{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
 		require.Equal(t, []byte("pw"), secret.Data["SERVICEUSER_PASSWORD"])
+	})
+
+	t.Run("Does not publish an adopted user while its access control fails to apply", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 1
+		user.Spec.AccessControl = &v1alpha1.ServiceUserAccessControl{ValkeyACLKeys: []string{"cache:*"}}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "valkey",
+				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
+			}, nil).Once()
+		// The adopted user's password is readable, but its access is broader than the spec.
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "adopted-pw"}, nil).Once()
+		avn.EXPECT().
+			ServiceUserCredentialsModify(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name, mock.Anything).
+			Return(nil, newAivenError(500, "boom")).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, _, err := runScenarioErr(t, user, avn)
+		require.ErrorContains(t, err, "modifying service user access control")
+
+		secret := &corev1.Secret{}
+		err = r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret)
+		require.True(t, apierrors.IsNotFound(err))
 	})
 
 	t.Run("Update waits for a readable password before the first Running", func(t *testing.T) {

@@ -186,7 +186,7 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 		if !policy.allowsUpdate() {
 			return r.ignoreSpecChange(ctx, obj, obs)
 		}
-		return r.updateResource(ctx, controller, obj)
+		return r.updateResource(ctx, controller, obj, obs)
 	}
 
 	if err := r.publishSecretDetails(ctx, obj, obs.SecretDetails, obs.PruneSecretKeys); err != nil {
@@ -451,7 +451,13 @@ func (r *Reconciler[T]) createResource(ctx context.Context, controller AivenCont
 	return r.completeReconcileSuccess(obj, res.RequeueAfter)
 }
 
-func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenController[T], obj T) (ctrl.Result, error) {
+func (r *Reconciler[T]) updateResource(ctx context.Context, controller AivenController[T], obj T, obs Observation) (ctrl.Result, error) {
+	// Publish live details first: credentials can change at Aiven (e.g. a password reset in the
+	// Console) while Update keeps failing, and the Secret must still follow them.
+	if err := r.publishSecretDetails(ctx, obj, obs.SecretDetails, obs.PruneSecretKeys); err != nil {
+		return ctrl.Result{}, err
+	}
+
 	r.Recorder.Event(obj, corev1.EventTypeNormal, eventWaitingForTheInstanceToBeRunning, "waiting for the instance to be running")
 
 	res, err := controller.Update(ctx, obj)

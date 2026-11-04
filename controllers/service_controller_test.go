@@ -109,24 +109,29 @@ func TestServiceController_Observe(t *testing.T) {
 		require.Empty(t, recorderEvents(rec))
 	})
 
-	t.Run("stale generation -> ResourceUpToDate false", func(t *testing.T) {
+	t.Run("stale generation -> ResourceUpToDate false, live secret details published before Update", func(t *testing.T) {
 		t.Parallel()
 
 		gf := newRunningGrafana(t)
 		gf.Generation = 2 // annotation still says "1" -> stale
 
 		avn := avngen.NewMockClient(t)
-		// No include-secrets query: Update discards the details, so the stale-generation path never builds them.
 		avn.EXPECT().
-			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
+			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, [][2]string{service.ServiceGetIncludeSecrets(true)}).
+			Return(&service.ServiceGetOut{
+				State:            service.ServiceStateTypeRunning,
+				ServiceUriParams: map[string]string{"host": "grafana.example.com", "port": "3000", "user": "avnadmin", "password": "secret"},
+				ServiceUri:       "https://grafana.example.com:3000",
+				ConnectionInfo:   &service.ConnectionInfoOut{Grafana: []string{"grafana.example.com"}},
+			}, nil).Once()
 
 		c := newTestController(avn, grafanaKind, nil)
 		obs, err := c.Observe(t.Context(), gf)
 		require.NoError(t, err)
 		require.True(t, obs.ResourceExists)
 		require.False(t, obs.ResourceUpToDate)
-		require.Nil(t, obs.SecretDetails)
+		require.Equal(t, "grafana.example.com", obs.SecretDetails["GRAFANA_HOST"])
+		require.True(t, obs.PruneSecretKeys)
 		// Observed state is recorded even while not up to date.
 		require.Equal(t, service.ServiceStateTypeRunning, gf.Status.State)
 		// No running annotation on the update path.
@@ -326,42 +331,23 @@ func TestServiceController_Observe(t *testing.T) {
 		require.Equal(t, "false", gf.Annotations[instanceIsRunningAnnotation])
 	})
 
-	t.Run("power off without backups -> errPreconditionExternal before Update", func(t *testing.T) {
-		t.Parallel()
-
-		gf := newRunningGrafana(t)
-		gf.Spec.Powered = new(false)
-		gf.Generation = 2 // power-off just requested: the Update must be gated
-
-		avn := avngen.NewMockClient(t)
-		avn.EXPECT().
-			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
-		avn.EXPECT().
-			ServiceBackupsGet(mock.Anything, gf.Spec.Project, gf.Name).
-			Return(&service.ServiceBackupsGetOut{Backups: []service.BackupOut{}}, nil).Once()
-
-		c := newTestController(avn, grafanaKind, nil)
-		_, err := c.Observe(t.Context(), gf)
-		// Only Aiven taking a backup unblocks it: the reconciler polls at PollInterval.
-		require.ErrorIs(t, err, errPreconditionExternal)
-	})
-
 	t.Run("drift", func(t *testing.T) {
 		t.Parallel()
 
-		t.Run("running -> Warning per field, not up to date, no secret details", func(t *testing.T) {
+		t.Run("running -> Warning per field, not up to date, live secret details published before Update", func(t *testing.T) {
 			t.Parallel()
 
 			gf := newRunningGrafana(t)
 			markInstanceRunning(gf)
 			avn := avngen.NewMockClient(t)
 			avn.EXPECT().
-				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, [][2]string{service.ServiceGetIncludeSecrets(true)}).
 				Return(&service.ServiceGetOut{
-					State:     service.ServiceStateTypeRunning,
-					Plan:      "startup-4",
-					CloudName: "aws-eu-west-1",
+					State:            service.ServiceStateTypeRunning,
+					Plan:             "startup-4",
+					CloudName:        "aws-eu-west-1",
+					ServiceUriParams: map[string]string{"host": "grafana.example.com", "password": "rotated"},
+					ConnectionInfo:   &service.ConnectionInfoOut{Grafana: []string{"grafana.example.com"}},
 				}, nil).Once()
 
 			c, rec := newRecordingTestController(avn, grafanaKind, nil)
@@ -369,7 +355,9 @@ func TestServiceController_Observe(t *testing.T) {
 			require.NoError(t, err)
 			require.True(t, obs.ResourceExists)
 			require.False(t, obs.ResourceUpToDate)
-			require.Nil(t, obs.SecretDetails)
+			// A failing correction must not leave the Secret stale: the live credentials go out first.
+			require.True(t, obs.PruneSecretKeys)
+			require.Equal(t, "rotated", obs.SecretDetails["GRAFANA_PASSWORD"])
 			require.Equal(t, []string{
 				"Warning DriftDetected plan: startup-4 (live) -> startup-1 (spec)",
 				"Warning DriftDetected cloudName: aws-eu-west-1 (live) -> google-europe-west1 (spec)",
@@ -434,23 +422,22 @@ func TestServiceController_Observe(t *testing.T) {
 			require.Equal(t, "true", gf.Annotations[instanceIsRunningAnnotation])
 		})
 
-		t.Run("powered: false while running without backups -> errPreconditionExternal, no drift event", func(t *testing.T) {
+		t.Run("powered: false while running -> powered drift, no backup check in Observe", func(t *testing.T) {
 			t.Parallel()
 
 			gf := newRunningGrafana(t)
 			gf.Spec.Powered = new(false)
 			avn := avngen.NewMockClient(t)
+			// Spec powered off: no secrets fetched, no ServiceBackupsGet. The precondition gates Update.
 			avn.EXPECT().
 				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
 				Return(inSync(gf, &service.ServiceGetOut{State: service.ServiceStateTypeRunning}), nil).Once()
-			avn.EXPECT().
-				ServiceBackupsGet(mock.Anything, gf.Spec.Project, gf.Name).
-				Return(&service.ServiceBackupsGetOut{Backups: []service.BackupOut{}}, nil).Once()
 
 			c, rec := newRecordingTestController(avn, grafanaKind, nil)
-			_, err := c.Observe(t.Context(), gf)
-			require.ErrorIs(t, err, errPreconditionExternal)
-			require.Empty(t, recorderEvents(rec))
+			obs, err := c.Observe(t.Context(), gf)
+			require.NoError(t, err)
+			require.False(t, obs.ResourceUpToDate)
+			require.Equal(t, []string{"Warning DriftDetected powered: true (live) -> false (spec)"}, recorderEvents(rec))
 		})
 
 		t.Run("projectVPCRef is resolved and compared", func(t *testing.T) {
@@ -467,7 +454,11 @@ func TestServiceController_Observe(t *testing.T) {
 			avn := avngen.NewMockClient(t)
 			avn.EXPECT().
 				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-				Return(inSync(gf, &service.ServiceGetOut{State: service.ServiceStateTypeRunning, ProjectVpcId: "vpc-1"}), nil).Once()
+				Return(inSync(gf, &service.ServiceGetOut{
+					State:          service.ServiceStateTypeRunning,
+					ProjectVpcId:   "vpc-1",
+					ConnectionInfo: &service.ConnectionInfoOut{Grafana: []string{"grafana.example.com"}},
+				}), nil).Once()
 
 			c, rec := newRecordingTestController(avn, grafanaKind, k8s)
 			obs, err := c.Observe(t.Context(), gf)
@@ -557,7 +548,12 @@ func TestServiceController_Observe(t *testing.T) {
 			avn := avngen.NewMockClient(t)
 			avn.EXPECT().
 				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-				Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning, Plan: "startup-4", CloudName: "google-europe-west1"}, nil).Once()
+				Return(&service.ServiceGetOut{
+					State:          service.ServiceStateTypeRunning,
+					Plan:           "startup-4",
+					CloudName:      "google-europe-west1",
+					ConnectionInfo: &service.ConnectionInfoOut{Grafana: []string{"grafana.example.com"}},
+				}, nil).Once()
 
 			c := newTestController(avn, grafanaKind, nil)
 			obs, err := c.Observe(t.Context(), gf)
@@ -756,29 +752,6 @@ spec:
 			_, err := c.Observe(t.Context(), gf)
 			require.ErrorContains(t, err, "failed to get service from Aiven")
 		})
-
-		t.Run("checkPreconditions API error propagates", func(t *testing.T) {
-			t.Parallel()
-
-			gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
-			gf.Spec.Powered = new(false)
-			markGeneration(gf, 1)
-			gf.Generation = 2 // stale generation: preconditions gate the Update
-
-			avn := avngen.NewMockClient(t)
-			avn.EXPECT().
-				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
-				Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
-			// Power-off precondition backup check fails with a real API error.
-			avn.EXPECT().
-				ServiceBackupsGet(mock.Anything, gf.Spec.Project, gf.Name).
-				Return(nil, newAivenError(500, "backups unavailable")).Once()
-
-			c := newTestController(avn, grafanaKind, nil)
-			_, err := c.Observe(t.Context(), gf)
-			require.Error(t, err)
-			require.NotErrorIs(t, err, errPreconditionNotMet)
-		})
 	})
 
 	t.Run("read replica preconditions", func(t *testing.T) {
@@ -796,7 +769,7 @@ spec:
 
 		expectReplicaMissing := func(avn *avngen.MockClient, gf *v1alpha1.Grafana) {
 			avn.EXPECT().
-				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
+				ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
 				Return(nil, newAivenError(404, "not found")).Once()
 		}
 
@@ -1308,7 +1281,7 @@ func TestServiceController_Create(t *testing.T) {
 
 		// The service is back, still rebuilding: Observe must route to Update, not poll.
 		avn.EXPECT().
-			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
+			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
 			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRebuilding}, nil).Once()
 		obs, err = c.Observe(t.Context(), gf)
 		require.NoError(t, err)
@@ -1515,6 +1488,10 @@ func TestServiceController_Update(t *testing.T) {
 		var tagsReq *service.ProjectServiceTagsReplaceIn
 
 		avn := avngen.NewMockClient(t)
+		// Powering off requires a backup: the precondition runs before ServiceUpdate.
+		avn.EXPECT().
+			ServiceBackupsGet(mock.Anything, gf.Spec.Project, gf.Name).
+			Return(&service.ServiceBackupsGetOut{Backups: []service.BackupOut{{BackupName: "b1"}}}, nil).Once()
 		avn.EXPECT().
 			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name).
 			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
@@ -1916,6 +1893,64 @@ func TestServiceController_Update(t *testing.T) {
 			c := newTestController(avn, postgreSQLKind, k8s)
 			_, err := c.Update(t.Context(), pg)
 			require.NoError(t, err)
+		})
+	})
+
+	t.Run("preconditions gate ServiceUpdate", func(t *testing.T) {
+		t.Parallel()
+
+		t.Run("power off without backups -> errPreconditionExternal", func(t *testing.T) {
+			t.Parallel()
+
+			gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+			gf.Spec.Powered = new(false)
+
+			avn := avngen.NewMockClient(t)
+			// No ServiceGet, no ServiceUpdate: the check runs first.
+			avn.EXPECT().
+				ServiceBackupsGet(mock.Anything, gf.Spec.Project, gf.Name).
+				Return(&service.ServiceBackupsGetOut{Backups: []service.BackupOut{}}, nil).Once()
+
+			c := newTestController(avn, grafanaKind, nil)
+			_, err := c.Update(t.Context(), gf)
+			// Only Aiven taking a backup unblocks it: the reconciler polls at PollInterval.
+			require.ErrorIs(t, err, errPreconditionExternal)
+		})
+
+		t.Run("drift correction without backups -> errPreconditionExternal, readiness kept", func(t *testing.T) {
+			t.Parallel()
+
+			gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+			gf.Spec.Powered = new(false)
+			markGeneration(gf, 1)
+			markInstanceRunning(gf)
+
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceBackupsGet(mock.Anything, gf.Spec.Project, gf.Name).
+				Return(&service.ServiceBackupsGetOut{Backups: []service.BackupOut{}}, nil).Once()
+
+			c := newTestController(avn, grafanaKind, nil)
+			_, err := c.Update(t.Context(), gf)
+			require.ErrorIs(t, err, errPreconditionExternal)
+			require.True(t, IsReadyToUse(gf))
+		})
+
+		t.Run("backup check API error propagates as a plain error", func(t *testing.T) {
+			t.Parallel()
+
+			gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+			gf.Spec.Powered = new(false)
+
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceBackupsGet(mock.Anything, gf.Spec.Project, gf.Name).
+				Return(nil, newAivenError(500, "backups unavailable")).Once()
+
+			c := newTestController(avn, grafanaKind, nil)
+			_, err := c.Update(t.Context(), gf)
+			require.Error(t, err)
+			require.NotErrorIs(t, err, errPreconditionNotMet)
 		})
 	})
 }

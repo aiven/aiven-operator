@@ -195,56 +195,73 @@ func TestClickhouseUserController_Observe(t *testing.T) {
 		require.EqualError(t, err, assert.AnError.Error())
 	})
 
-	t.Run("Populates SecretDetails in external mode using ConnInfoSecretSource", func(t *testing.T) {
-		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
-		user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{
-			Name:        "src",
-			PasswordKey: "PASSWORD",
+	t.Run("External mode publishes the source password only once it is applied", func(t *testing.T) {
+		for name, tc := range map[string]struct {
+			applied   bool
+			sourceSet bool
+			want      string
+		}{
+			// Not valid at Aiven until Update applies it.
+			"not applied":          {applied: false, sourceSet: true},
+			"applied":              {applied: true, sourceSet: true, want: "external-observe-password"},
+			"applied, source gone": {applied: true, sourceSet: false},
+		} {
+			t.Run(name, func(t *testing.T) {
+				user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
+				user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{
+					Name:        "src",
+					PasswordKey: "PASSWORD",
+				}
+				if tc.applied {
+					markGeneration(user, 1)
+					markInstanceRunning(user)
+				}
+
+				scheme := runtime.NewScheme()
+				require.NoError(t, clientgoscheme.AddToScheme(scheme))
+				require.NoError(t, v1alpha1.AddToScheme(scheme))
+
+				builder := fake.NewClientBuilder().WithScheme(scheme).WithObjects(user)
+				if tc.sourceSet {
+					builder = builder.WithObjects(&corev1.Secret{
+						ObjectMeta: metav1.ObjectMeta{Name: "src", Namespace: user.Namespace},
+						Data:       map[string][]byte{"PASSWORD": []byte("external-observe-password")},
+					})
+				}
+
+				avn := avngen.NewMockClient(t)
+				avn.EXPECT().
+					ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+					Return(&service.ServiceGetOut{
+						State:            service.ServiceStateTypeRunning,
+						ServiceUriParams: map[string]string{"host": "host", "port": "8443"},
+					}, nil).
+					Once()
+				avn.EXPECT().
+					ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
+					Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-ext"}}, nil).
+					Once()
+
+				ctrl := &ClickhouseUserController{
+					Client: builder.Build(),
+					avnGen: avn,
+				}
+
+				obs, err := ctrl.Observe(t.Context(), user)
+
+				require.NoError(t, err)
+				require.True(t, obs.ResourceExists)
+				require.Equal(t, "uuid-ext", user.Status.UUID)
+				require.Equal(t, "host", obs.SecretDetails["HOST"])
+				if tc.want == "" {
+					require.NotContains(t, obs.SecretDetails, "PASSWORD")
+					require.NotContains(t, obs.SecretDetails, "CLICKHOUSEUSER_PASSWORD")
+					return
+				}
+				require.Equal(t, tc.want, obs.SecretDetails["PASSWORD"])
+				require.Equal(t, tc.want, obs.SecretDetails["CLICKHOUSEUSER_PASSWORD"])
+			})
 		}
-
-		src := &corev1.Secret{
-			ObjectMeta: metav1.ObjectMeta{
-				Name:      "src",
-				Namespace: user.Namespace,
-			},
-			Data: map[string][]byte{
-				"PASSWORD": []byte("external-observe-password"),
-			},
-		}
-
-		scheme := runtime.NewScheme()
-		require.NoError(t, clientgoscheme.AddToScheme(scheme))
-		require.NoError(t, v1alpha1.AddToScheme(scheme))
-
-		k8sClient := fake.NewClientBuilder().
-			WithScheme(scheme).
-			WithObjects(user, src).
-			Build()
-
-		avn := avngen.NewMockClient(t)
-		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
-			Return(&service.ServiceGetOut{
-				State:            service.ServiceStateTypeRunning,
-				ServiceUriParams: map[string]string{"host": "host", "port": "8443"},
-			}, nil).
-			Once()
-		avn.EXPECT().
-			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
-			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-ext"}}, nil).
-			Once()
-
-		ctrl := &ClickhouseUserController{
-			Client: k8sClient,
-			avnGen: avn,
-		}
-
-		obs, err := ctrl.Observe(t.Context(), user)
-
-		require.NoError(t, err)
-		require.True(t, obs.ResourceExists)
-		require.Equal(t, "uuid-ext", user.Status.UUID)
-		require.Equal(t, "external-observe-password", obs.SecretDetails["PASSWORD"])
 	})
 
 	t.Run("Omits password in operator mode (Aiven API doesn't expose it)", func(t *testing.T) {
@@ -283,42 +300,6 @@ func TestClickhouseUserController_Observe(t *testing.T) {
 		require.True(t, obs.ResourceExists)
 		require.Equal(t, "uuid-nopw", user.Status.UUID)
 		require.NotContains(t, obs.SecretDetails, "PASSWORD")
-	})
-
-	t.Run("Returns error when reading password from source secret fails in external mode", func(t *testing.T) {
-		user := newObjectFromYAML[v1alpha1.ClickhouseUser](t, yamlClickhouseUser)
-		user.Spec.ConnInfoSecretSource = &v1alpha1.ConnInfoSecretSource{
-			Name:        "missing-src",
-			PasswordKey: "PASSWORD",
-		}
-
-		scheme := runtime.NewScheme()
-		require.NoError(t, clientgoscheme.AddToScheme(scheme))
-		require.NoError(t, v1alpha1.AddToScheme(scheme))
-
-		k8sClient := fake.NewClientBuilder().
-			WithScheme(scheme).
-			WithObjects(user).
-			Build()
-
-		avn := avngen.NewMockClient(t)
-		avn.EXPECT().
-			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).
-			Once()
-		avn.EXPECT().
-			ServiceClickHouseUserList(mock.Anything, user.Spec.Project, user.Spec.ServiceName).
-			Return([]clickhouse.UserOut{{Name: user.GetUsername(), Uuid: "uuid-err"}}, nil).
-			Once()
-
-		ctrl := &ClickhouseUserController{
-			Client: k8sClient,
-			avnGen: avn,
-		}
-
-		_, err := ctrl.Observe(t.Context(), user)
-
-		require.EqualError(t, err, `failed to read connInfoSecretSource default/missing-src: secrets "missing-src" not found`)
 	})
 }
 
