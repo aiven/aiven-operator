@@ -58,7 +58,7 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 	newGeneration := !hasLatestGeneration(obj)
 
 	// Include secrets only when this reconcile publishes the connection Secret.
-	includeSecrets := !obj.NoSecret() && (skipUpdate || (!newGeneration && isPowered(obj.ServiceCommonSpec())))
+	includeSecrets := !obj.NoSecret() && (skipUpdate || isPowered(obj.ServiceCommonSpec()))
 	avnService, err := c.getService(ctx, obj, includeSecrets)
 	if err != nil {
 		return Observation{}, err
@@ -67,19 +67,12 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 		return c.observeMissing(ctx, obj)
 	}
 
-	// Check preconditions before processing a new generation.
-	if newGeneration && !skipUpdate {
-		if err := c.kind.checkPreconditions(ctx, c.avnGen, obj); err != nil {
-			return Observation{}, err
-		}
-	}
-
 	status := obj.ServiceStatus()
 	status.State = avnService.State
 	status.Version = serviceVersion(c.kind.serviceType, avnService.Metadata)
 
 	if newGeneration {
-		return c.observeNewGeneration(ctx, obj, avnService, skipUpdate)
+		return c.observeNewGeneration(ctx, obj, avnService, includeSecrets)
 	}
 
 	// Drift is compared only in a stable service state.
@@ -91,9 +84,17 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 	if err != nil {
 		return Observation{}, err
 	}
-	// Update corrects the drift; when Update is skipped, the secret is still published below.
+	// Update corrects the drift; the live details are published either way.
 	if drifted && !skipUpdate {
-		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
+		obs := Observation{ResourceExists: true, ResourceUpToDate: false}
+		if includeSecrets && status.State == service.ServiceStateTypeRunning {
+			details, err := c.buildSecretDetails(ctx, obj, avnService)
+			if err != nil {
+				return Observation{}, err
+			}
+			obs.SecretDetails, obs.PruneSecretKeys = details, true
+		}
+		return obs, nil
 	}
 
 	requeueAfter, err := c.observeMigration(ctx, obj)
@@ -161,15 +162,15 @@ func (c *serviceController[T]) observeMissing(ctx context.Context, obj T) (Obser
 	return Observation{ResourceExists: false}, nil
 }
 
-// observeNewGeneration reports the service as not up to date, with the connection secret when Update is skipped.
+// observeNewGeneration reports the service as not up to date, with the live details while running.
 func (c *serviceController[T]) observeNewGeneration(
 	ctx context.Context,
 	obj T,
 	avnService *service.ServiceGetOut,
-	skipUpdate bool,
+	includeSecrets bool,
 ) (Observation, error) {
 	var details map[string]string
-	if skipUpdate && avnService.State == service.ServiceStateTypeRunning && !obj.NoSecret() {
+	if includeSecrets && avnService.State == service.ServiceStateTypeRunning {
 		var err error
 		details, err = c.buildSecretDetails(ctx, obj, avnService)
 		if err != nil {
@@ -204,10 +205,6 @@ func (c *serviceController[T]) observeDrift(
 		return false, nil
 	}
 
-	// Check preconditions before correcting drift, as for a new generation.
-	if err := c.kind.checkPreconditions(ctx, c.avnGen, obj); err != nil {
-		return false, err
-	}
 	for _, d := range drifts {
 		c.rec.Event(obj, corev1.EventTypeWarning, eventDriftDetected, d.String())
 	}
@@ -311,6 +308,10 @@ func (c *serviceController[T]) Create(ctx context.Context, obj T) (CreateResult,
 func (c *serviceController[T]) Update(ctx context.Context, obj T) (UpdateResult, error) {
 	spec := obj.ServiceCommonSpec()
 	objMeta := obj.GetObjectMeta()
+
+	if err := c.kind.checkPreconditions(ctx, c.avnGen, obj); err != nil {
+		return UpdateResult{}, err
+	}
 
 	userCfg, err := c.resolveUserConfig(ctx, obj)
 	if err != nil {

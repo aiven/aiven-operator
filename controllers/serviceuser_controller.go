@@ -95,18 +95,23 @@ func (r *ServiceUserController) Observe(ctx context.Context, user *v1alpha1.Serv
 
 	user.Status.Type = u.Type
 
-	// Empty password with a source secret: Update so the declared value gets pushed back to Aiven.
-	// Empty without a source: nothing to enforce, user may change it bypassing the API.
-	if u.Password == "" && user.Spec.ConnInfoSecretSource != nil {
-		return Observation{ResourceExists: true, ResourceUpToDate: false, SecretDetails: details}, nil
+	// Not applied yet, or a source password to push back: nothing live to publish.
+	if !hasIsRunningAnnotation(user) || (u.Password == "" && user.Spec.ConnInfoSecretSource != nil) {
+		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
+	}
+
+	inSync := IsReadyToUse(user) &&
+		accessControlMatches(user.Spec.AccessControl, u.AccessControl) &&
+		(user.Spec.Authentication == "" || u.Authentication == "" || user.Spec.Authentication == u.Authentication)
+	// An unreadable password is unknown, not live.
+	if !inSync && u.Password == "" {
+		return Observation{ResourceExists: true, ResourceUpToDate: false}, nil
 	}
 
 	return Observation{
-		ResourceExists: true,
-		ResourceUpToDate: IsReadyToUse(user) &&
-			accessControlMatches(user.Spec.AccessControl, u.AccessControl) &&
-			(user.Spec.Authentication == "" || u.Authentication == "" || user.Spec.Authentication == u.Authentication),
-		SecretDetails: details,
+		ResourceExists:   true,
+		ResourceUpToDate: inSync,
+		SecretDetails:    details,
 	}, nil
 }
 

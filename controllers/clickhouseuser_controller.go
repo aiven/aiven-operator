@@ -10,6 +10,7 @@ import (
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/clickhouse"
 	"github.com/aiven/go-client-codegen/handler/service"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -61,18 +62,14 @@ func (r *ClickhouseUserController) Observe(ctx context.Context, user *v1alpha1.C
 	u := list[idx]
 	user.Status.UUID = u.Uuid
 
+	// The API never returns the password; the source password is published only once applied at Aiven.
 	var password string
-	if user.Spec.ConnInfoSecretSource != nil {
-		// External mode: the password from ConnInfoSecretSource fully defines the desired password and should be reflected in the connection secret
-		var err error
+	if IsReadyToUse(user) && user.Spec.ConnInfoSecretSource != nil {
 		password, err = GetPasswordFromSecret(ctx, r.Client, user)
-		if err != nil {
+		if err != nil && !apierrors.IsNotFound(err) {
 			return Observation{}, err
 		}
 	}
-	// Operator-managed mode: Aiven returns the password only in Create/PasswordReset responses.
-	// ServiceClickHouseUserList doesn't include it, so Observe omits password keys and preserves the existing Secret value.
-
 	secretDetails := buildConnectionDetailsFromService(svc, user, password)
 
 	return Observation{
