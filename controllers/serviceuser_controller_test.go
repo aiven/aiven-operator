@@ -1965,6 +1965,46 @@ func TestServiceUserReconciler(t *testing.T) {
 		require.True(t, apierrors.IsNotFound(err))
 	})
 
+	t.Run("Publishes a password changed at Aiven while a spec change fails to apply", func(t *testing.T) {
+		user := newObjectFromYAML[v1alpha1.ServiceUser](t, yamlServiceUser)
+		user.Generation = 2
+		user.Annotations = map[string]string{
+			processedGenerationAnnotation: "1",
+			instanceIsRunningAnnotation:   "true",
+		}
+		user.Spec.AccessControl = &v1alpha1.ServiceUserAccessControl{ValkeyACLKeys: []string{"cache:*"}}
+
+		stale := &corev1.Secret{
+			ObjectMeta: metav1.ObjectMeta{Name: user.Name, Namespace: user.Namespace},
+			Data:       map[string][]byte{"SERVICEUSER_PASSWORD": []byte("old-pw")},
+		}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, mock.Anything).
+			Return(&service.ServiceGetOut{
+				State:       service.ServiceStateTypeRunning,
+				ServiceType: "valkey",
+				Components:  []service.ComponentOut{primaryComponent("valkey", "host", 6379)},
+			}, nil).Once()
+		// The password was reset at Aiven, e.g. in the Console.
+		avn.EXPECT().
+			ServiceUserGet(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name).
+			Return(&service.ServiceUserGetOut{Username: user.Name, Password: "console-pw"}, nil).Once()
+		avn.EXPECT().
+			ServiceUserCredentialsModify(mock.Anything, user.Spec.Project, user.Spec.ServiceName, user.Name, mock.Anything).
+			Return(nil, newAivenError(500, "boom")).Once()
+		avn.EXPECT().
+			ProjectKmsGetCA(mock.Anything, user.Spec.Project).Return("ca", nil).Once()
+
+		r, _, err := runScenarioErr(t, user, avn, stale)
+		require.ErrorContains(t, err, "modifying service user access control")
+
+		secret := &corev1.Secret{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: user.Name, Namespace: user.Namespace}, secret))
+		require.Equal(t, []byte("console-pw"), secret.Data["SERVICEUSER_PASSWORD"])
+	})
+
 	t.Run("Update waits for a readable password before the first Running", func(t *testing.T) {
 		expectUnreadablePassword := func(t *testing.T, user *v1alpha1.ServiceUser, passwordUpdated *time.Time) *avngen.MockClient {
 			t.Helper()
