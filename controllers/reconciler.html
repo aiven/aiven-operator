@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.73">
+      <meta name="generator" content="zensical-0.0.74">
     
     
       
@@ -901,6 +901,23 @@
       </span>
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Create and Update">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#management-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Management policy
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -3480,6 +3497,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Create and Update">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#management-policy" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        Management policy
+      </span>
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -3566,11 +3600,13 @@
   J1 --&gt; J2[Requeue after pollInterval]
 
   I --&gt;|yes| K{Up to date}
-  K --&gt;|no| L[Update]
+  K --&gt;|no| K1{management-policy CreateOnly}
+  K1 --&gt;|no| L[Update]
   L --&gt; L1[Publish secrets]
   L1 --&gt; L2[Requeue after pollInterval]
 
   K --&gt;|yes| M[Publish secrets]
+  K1 --&gt;|yes| M
   M --&gt; M1[Requeue after pollInterval]</code></pre>
 <h2 id="observe">Observe<a class="headerlink" href="#observe" title="Permanent link">&para;</a></h2>
 <p><code>Observe</code> is the first controller callback in the loop. It:
@@ -3592,6 +3628,8 @@
 <p><code>Update</code> reconciles differences between spec and remote state on Aiven, keeps status conditions up to date (for example, marks the resource as running), and returns an <code>UpdateResult</code> with <code>SecretDetails</code> to publish.</p>
 <p>On success the reconciler publishes the returned <code>SecretDetails</code>, marks the current generation as processed, and schedules the next reconcile after a fixed poll interval.</p>
 <p>On failure it sets an <code>Error</code> condition with the appropriate reason and emits events such as <code>UnableToCreateOrUpdateAtAiven</code> or <code>UnableToWaitForInstanceToBeRunning</code>.</p>
+<h3 id="management-policy">Management policy<a class="headerlink" href="#management-policy" title="Permanent link">&para;</a></h3>
+<p>The <code>controllers.aiven.io/management-policy: CreateOnly</code> annotation turns <code>Update</code> off for a resource. When <code>ResourceUpToDate</code> is <code>false</code>, the reconciler skips <code>Update</code> and publishes the <code>SecretDetails</code> returned by <code>Observe</code>. A new generation is stamped as processed, the stamp it replaces is kept in <code>controllers.aiven.io/generation-was-applied</code>, and a <code>SpecChangeIgnored</code> warning is emitted once per change, whether a spec edit or a source Secret rotation; an adopted resource that was never applied gets no warning. Drift on an already processed generation is requeued at the poll interval. <code>Create</code> still runs for a missing resource and deletion is unaffected. Any value other than <code>Full</code> or <code>CreateOnly</code> is rejected before <code>Observe</code> runs, on every reconcile, and surfaces via an <code>Error</code> condition with reason <code>CreateOrUpdate</code>. Only a controller that implements <code>managementPolicySupported</code> accepts the policy, currently the service controller; on any other kind the annotation, whatever its value, runs as <code>Full</code> and a <code>ManagementPolicyNotSupported</code> warning is emitted once per change. Removing the annotation or setting it to <code>Full</code> restores the kept stamp, so the next reconcile applies the skipped generations.</p>
 <h2 id="secret-publishing">Secret publishing<a class="headerlink" href="#secret-publishing" title="Permanent link">&para;</a></h2>
 <p>Connection details are published via <code>publishSecretDetails</code>:
 - If <code>SecretDetails</code> is empty, no action is taken.
@@ -3716,10 +3754,10 @@
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.77dd0ce9.min.js"></script>
+      <script src="../assets/javascripts/bundle.d31f0ffa.min.js"></script>
       
     
   </body>

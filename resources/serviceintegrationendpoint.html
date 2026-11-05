@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.0.73">
+      <meta name="generator" content="zensical-0.0.74">
     
     
       
@@ -4331,7 +4331,7 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <ul>
 <li><a href="#spec.rsyslog.ca-property" name="spec.rsyslog.ca-property"><code>ca</code></a> (string, MaxLength: 16384). PEM encoded CA certificate.</li>
 <li><a href="#spec.rsyslog.cert-property" name="spec.rsyslog.cert-property"><code>cert</code></a> (string, MaxLength: 16384). PEM encoded client certificate.</li>
-<li><a href="#spec.rsyslog.escape_newlines-property" name="spec.rsyslog.escape_newlines-property"><code>escape_newlines</code></a> (boolean). When true, embedded newlines in a log message are escaped so a multi-line record (e.g. a stack trace) is delivered as one complete log entry. Useful for newline-delimited cloud log intakes that drop continuation lines.</li>
+<li><a href="#spec.rsyslog.escape_newlines-property" name="spec.rsyslog.escape_newlines-property"><code>escape_newlines</code></a> (boolean). Escape embedded newlines so a multi-line record (e.g. a stack trace) is delivered as one complete log entry. Enabled by default. Set to false if the receiving server expects raw newlines in messages.</li>
 <li><a href="#spec.rsyslog.key-property" name="spec.rsyslog.key-property"><code>key</code></a> (string, MaxLength: 16384). PEM encoded client key.</li>
 <li><a href="#spec.rsyslog.logline-property" name="spec.rsyslog.logline-property"><code>logline</code></a> (string, Pattern: <code>^[ -~\t]+$</code>, MinLength: 1, MaxLength: 512). Custom syslog message format.</li>
 <li><a href="#spec.rsyslog.max_message_size-property" name="spec.rsyslog.max_message_size-property"><code>max_message_size</code></a> (integer, Minimum: 2048, Maximum: 2147483647). Rsyslog max message size.</li>
@@ -4447,10 +4447,10 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
       
         
         
-      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.c47bb847.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
+      <script id="__config" type="application/json">{"annotate":null,"base":"..","features":["navigation.top","navigation.footer","navigation.tabs","navigation.tracking","navigation.sections","content.code.copy","content.code.annotate","content.action.view","content.tabs.link"],"redirect":null,"search":"../assets/javascripts/workers/search.719e0d91.min.js","tags":null,"translations":{"clipboard.copied":"Copied to clipboard","clipboard.copy":"Copy to clipboard","clipboard.error":"Could not copy to clipboard","search.result.more.one":"1 more on this page","search.result.more.other":"# more on this page","search.result.none":"No matching documents","search.result.one":"1 matching document","search.result.other":"# matching documents","search.result.placeholder":"Type to start searching","search.result.term.missing":"Missing","select.version":"Select version"},"version":null}</script>
     
     
-      <script src="../assets/javascripts/bundle.77dd0ce9.min.js"></script>
+      <script src="../assets/javascripts/bundle.d31f0ffa.min.js"></script>
       
     
   </body>
