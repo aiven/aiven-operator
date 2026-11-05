@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.50.0 - 2026-11-05
+
 - `ClickhouseUser` with `connInfoSecretSource` no longer fails every reconcile while the source Secret
   is missing: the source password is read only when it is applied at Aiven
 - Add `Grafana` field `userConfig.metrics_disable_total_stats`, type `boolean`: Do not collect the grafana_stat_total_*
