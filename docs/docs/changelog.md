@@ -1,6 +1,16 @@
 # Changelog
 
 
+## v0.50.0 - 2026-11-05
+
+- `ClickhouseUser` with `connInfoSecretSource` no longer fails every reconcile while the source Secret
+  is missing: the source password is read only when it is applied at Aiven
+- Add `Grafana` field `userConfig.metrics_disable_total_stats`, type `boolean`: Do not collect the grafana_stat_total_*
+  and grafana_stat_totals_* metrics, which require periodic database queries
+- `ServiceUser` no longer becomes `Running` with an empty password: it stays pending until Aiven returns
+  the password or `connInfoSecretSource` assigns one, and reports an `Error` condition if that takes
+  too long. A user that already exists at Aiven is adopted instead of failing with `409`
+
 ## v0.49.0 - 2026-10-26
 
 - Setting both `projectVpcId` and `projectVPCRef` is now rejected when the resource is applied, also
