@@ -1200,7 +1200,7 @@ func TestServiceController_Create(t *testing.T) {
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
 			ServiceCreate(mock.Anything, gf.Spec.Project, mock.Anything).
-			Return(nil, newAivenError(409, "Service 'my-grafana' already exists")).Once()
+			Return(nil, newAivenError(409, "Service name is already in use in this project")).Once()
 
 		c, rec := newRecordingTestController(avn, grafanaKind, nil)
 		_, err := c.Create(t.Context(), gf)
@@ -1211,6 +1211,21 @@ func TestServiceController_Create(t *testing.T) {
 		require.Empty(t, recorderEvents(rec))
 		require.Equal(t, before.Annotations, gf.Annotations)
 		require.Equal(t, before.Status, gf.Status)
+	})
+
+	t.Run("ServiceCreate 409 other than a taken name is a hard error", func(t *testing.T) {
+		t.Parallel()
+
+		gf := newObjectFromYAML[v1alpha1.Grafana](t, yamlGrafanaSvc)
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceCreate(mock.Anything, gf.Spec.Project, mock.Anything).
+			Return(nil, newAivenError(409, "Project has reached its service limit")).Once()
+
+		c := newTestController(avn, grafanaKind, nil)
+		_, err := c.Create(t.Context(), gf)
+		require.ErrorContains(t, err, "failed to create service")
+		require.NotErrorIs(t, err, errPreconditionNotMet)
 	})
 
 	t.Run("recreate Warning only when an applied service was actually created", func(t *testing.T) {

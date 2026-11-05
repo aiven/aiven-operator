@@ -517,9 +517,11 @@ func isNotFound(err error) bool {
 	return avngen.IsNotFound(err)
 }
 
-// isAlreadyExists works both for old and new client errors
+// isAlreadyExists reports a 409 for a taken name; ServiceCreate says "already in use", not "already exists".
 func isAlreadyExists(err error) bool {
-	return avngen.IsAlreadyExists(err)
+	var e avngen.Error
+	return avngen.IsAlreadyExists(err) ||
+		errors.As(err, &e) && e.Status == http.StatusConflict && strings.Contains(e.Message, "already in use")
 }
 
 func NewNotFound(msg string) error {
