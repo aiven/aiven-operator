@@ -2,22 +2,22 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
-- **BREAKING**: `Grafana` and `Valkey` now revert changes made outside Kubernetes. On every poll they restore
+- **BREAKING**: `Grafana`, `Valkey` and `Flink` now revert changes made outside Kubernetes. On every poll they restore
   `plan`, `cloudName`, `projectVpcId` or `projectVPCRef`, `maintenanceWindowDow`,
   `maintenanceWindowTime`, `terminationProtection`, `powered`, `disk_space`, `tags` and
   `technicalEmails` from the spec, and recreates a service that was deleted at Aiven. A field left out of the spec is not compared. To
   keep settings managed in the Aiven Console, add the `controllers.aiven.io/management-policy: CreateOnly`
   annotation before upgrading
-- **BREAKING**: `Grafana` and `Valkey` no longer clear the service's tags or technical emails when `tags` or
+- **BREAKING**: `Grafana`, `Valkey` and `Flink` no longer clear the service's tags or technical emails when `tags` or
   `technicalEmails` is left out of the spec. Set `tags: {}` or `technicalEmails: []` to clear them,
   also in the first manifest of a new resource
-- Add `controllers.aiven.io/management-policy: CreateOnly` annotation, supported on `Grafana` and `Valkey`. The
+- Add `controllers.aiven.io/management-policy: CreateOnly` annotation, supported on `Grafana`, `Valkey` and `Flink`. The
   operator still creates a missing service and keeps its connection Secret in sync, but no longer
   applies spec changes or reverts changes made outside Kubernetes. Other kinds ignore it and emit a
   `ManagementPolicyNotSupported` warning event
-- `Grafana`, `Valkey`: `disk_space` on a service with an autoscaler integration is no longer an error. It is not
+- `Grafana`, `Valkey`, `Flink`: `disk_space` on a service with an autoscaler integration is no longer an error. It is not
   applied and a `DiskSpaceNotApplied` warning event is emitted
-- `Grafana`, `Valkey`: a resource that sets both `projectVpcId` and `projectVPCRef` now reports an `Error`
+- `Grafana`, `Valkey`, `Flink`: a resource that sets both `projectVpcId` and `projectVPCRef` now reports an `Error`
   condition on every poll, not only on its next update. Drop one of the two fields to clear it
 
 ## v0.50.0 - 2026-11-05
