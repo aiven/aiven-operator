@@ -3,81 +3,28 @@
 package controllers
 
 import (
-	"context"
-	"fmt"
-
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
-
-// ValkeyReconciler reconciles a Valkey object
-type ValkeyReconciler struct {
-	Controller
-}
-
-func newValkeyReconciler(c Controller) reconcilerType {
-	return &ValkeyReconciler{Controller: c}
-}
-
-type ValkeyHandler struct{}
 
 //+kubebuilder:rbac:groups=aiven.io,resources=valkeys,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=valkeys/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=valkeys/finalizers,verbs=get;create;update
 
-func (r *ValkeyReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newValkeyAdapter, r.Log), &v1alpha1.Valkey{})
+func newValkeyReconciler(c Controller) reconcilerType {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.Valkey] {
+			return newServiceController(c, avnGen, valkeyKind)
+		},
+		nil,
+	)
 }
 
-// SetupWithManager sets up the controller with the Manager.
-func (r *ValkeyReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.Valkey{}).
-		Owns(&corev1.Secret{}).
-		Complete(r)
-}
-
-// valkeyKind is the serviceController definition. Not wired yet.
+// valkeyKind is the serviceController definition for Valkey.
 var valkeyKind = newServiceKind(serviceTypeValkey, valkeySecretData)
-
-func newValkeyAdapter(object client.Object) (serviceAdapter, error) {
-	valkey, ok := object.(*v1alpha1.Valkey)
-	if !ok {
-		return nil, fmt.Errorf("object is not of type v1alpha1.Valkey")
-	}
-	return &valkeyAdapter{valkey}, nil
-}
-
-// valkeyAdapter handles an Aiven Valkey service
-type valkeyAdapter struct {
-	*v1alpha1.Valkey
-}
-
-func (a *valkeyAdapter) getObjectMeta() *metav1.ObjectMeta {
-	return &a.ObjectMeta
-}
-
-func (a *valkeyAdapter) getServiceStatus() *v1alpha1.ServiceStatus {
-	return &a.Status
-}
-
-func (a *valkeyAdapter) getServiceCommonSpec() *v1alpha1.ServiceCommonSpec {
-	return &a.Spec.ServiceCommonSpec
-}
-
-func (a *valkeyAdapter) getUserConfig() any {
-	return a.Spec.UserConfig
-}
-
-func (a *valkeyAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
-	return newSecret(a, valkeySecretData(a.Valkey, s), false)
-}
 
 // valkeySecretData returns the prefixed connection secret keys.
 func valkeySecretData(obj *v1alpha1.Valkey, s *service.ServiceGetOut) map[string]string {
@@ -91,20 +38,4 @@ func valkeySecretData(obj *v1alpha1.Valkey, s *service.ServiceGetOut) map[string
 	}
 
 	return stringData
-}
-
-func (a *valkeyAdapter) getServiceType() serviceType {
-	return serviceTypeValkey
-}
-
-func (a *valkeyAdapter) getDiskSpace() string {
-	return a.Spec.DiskSpace
-}
-
-func (a *valkeyAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
-	return nil
-}
-
-func (a *valkeyAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
-	return nil
 }
