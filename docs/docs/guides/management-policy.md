@@ -4,7 +4,7 @@ By default the operator applies every spec change to Aiven and reverts changes m
 
 ## Supported resources
 
-The annotation is supported on `Grafana`, `Valkey`, `Flink` and `OpenSearch`. Other kinds ignore it: they apply spec changes as usual and emit a `ManagementPolicyNotSupported` warning event once per change while the annotation is set.
+The annotation is supported on `Grafana`, `Valkey`, `Flink`, `OpenSearch` and `Clickhouse`. Other kinds ignore it: they apply spec changes as usual and emit a `ManagementPolicyNotSupported` warning event once per change while the annotation is set.
 
 ## What the operator corrects by default
 
@@ -16,7 +16,7 @@ On every poll the operator compares these fields with the live service and resto
 - `terminationProtection`, `powered`, `disk_space`
 - `tags`, `technicalEmails`
 
-A field left out of the spec is not compared, so the value set at Aiven stays. Set `tags: {}` or `technicalEmails: []` to clear them. A service deleted at Aiven is recreated from the spec.
+A field left out of the spec is not compared, so the value set at Aiven stays. The exception is `powered`, which defaults to `true`: a service powered off outside Kubernetes is powered on again. Set `tags: {}` or `technicalEmails: []` to clear them. A service deleted at Aiven is recreated from the spec, unless `powered` is `false`: the resource then reports an error until `powered` is set to `true`.
 
 ## Using the Management Policy
 

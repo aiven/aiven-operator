@@ -3,79 +3,28 @@
 package controllers
 
 import (
-	"context"
-	"fmt"
-
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
-
-// ClickhouseReconciler reconciles a Clickhouse object
-type ClickhouseReconciler struct {
-	Controller
-}
-
-func newClickhouseReconciler(c Controller) reconcilerType {
-	return &ClickhouseReconciler{Controller: c}
-}
 
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouses,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouses/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=clickhouses/finalizers,verbs=get;create;update
 
-func (r *ClickhouseReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newClickhouseAdapter, r.Log), &v1alpha1.Clickhouse{})
+func newClickhouseReconciler(c Controller) reconcilerType {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.Clickhouse] {
+			return newServiceController(c, avnGen, clickhouseKind)
+		},
+		nil,
+	)
 }
 
-// SetupWithManager sets up the controller with the Manager.
-func (r *ClickhouseReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.Clickhouse{}).
-		Owns(&corev1.Secret{}).
-		Complete(r)
-}
-
-// clickhouseKind is the serviceController definition. Not wired yet.
+// clickhouseKind is the serviceController definition for Clickhouse.
 var clickhouseKind = newServiceKind(serviceTypeClickhouse, clickhouseSecretData)
-
-func newClickhouseAdapter(object client.Object) (serviceAdapter, error) {
-	clickhouse, ok := object.(*v1alpha1.Clickhouse)
-	if !ok {
-		return nil, fmt.Errorf("object is not of type v1alpha1.Clickhouse")
-	}
-	return &clickhouseAdapter{clickhouse}, nil
-}
-
-// clickhouseAdapter handles an Aiven Clickhouse service
-type clickhouseAdapter struct {
-	*v1alpha1.Clickhouse
-}
-
-func (a *clickhouseAdapter) getObjectMeta() *metav1.ObjectMeta {
-	return &a.ObjectMeta
-}
-
-func (a *clickhouseAdapter) getServiceStatus() *v1alpha1.ServiceStatus {
-	return &a.Status
-}
-
-func (a *clickhouseAdapter) getServiceCommonSpec() *v1alpha1.ServiceCommonSpec {
-	return &a.Spec.ServiceCommonSpec
-}
-
-func (a *clickhouseAdapter) getUserConfig() any {
-	return a.Spec.UserConfig
-}
-
-func (a *clickhouseAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
-	return newSecret(a, clickhouseSecretData(a.Clickhouse, s), false)
-}
 
 // clickhouseSecretData returns the prefixed connection secret keys.
 func clickhouseSecretData(obj *v1alpha1.Clickhouse, s *service.ServiceGetOut) map[string]string {
@@ -93,20 +42,4 @@ func clickhouseSecretData(obj *v1alpha1.Clickhouse, s *service.ServiceGetOut) ma
 	}
 
 	return stringData
-}
-
-func (a *clickhouseAdapter) getServiceType() serviceType {
-	return serviceTypeClickhouse
-}
-
-func (a *clickhouseAdapter) getDiskSpace() string {
-	return a.Spec.DiskSpace
-}
-
-func (a *clickhouseAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
-	return nil
-}
-
-func (a *clickhouseAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
-	return nil
 }
