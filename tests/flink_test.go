@@ -4,10 +4,12 @@ package tests
 
 import (
 	"testing"
+	"time"
 
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	flinkuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/flink"
@@ -80,10 +82,24 @@ func TestFlink(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["FLINK_URI"])
 	assert.NotEmpty(t, secret.Data["FLINK_HOSTS"])
 
+	t.Run("maintenance window changed at Aiven is reverted", func(t *testing.T) {
+		_, err := avnGen.ServiceUpdate(ctx, cfg.Project, name, &service.ServiceUpdateIn{
+			Maintenance: &service.MaintenanceIn{Dow: service.DowTypeMonday},
+		})
+		require.NoError(t, err)
+		require.EventuallyWithT(t, func(collect *assert.CollectT) {
+			live, err := avnGen.ServiceGet(ctx, cfg.Project, name)
+			require.NoError(collect, err)
+			require.NotNil(collect, live.Maintenance)
+			assert.Equal(collect, service.MaintenanceDowTypeSunday, live.Maintenance.Dow)
+		}, 5*time.Minute, 15*time.Second)
+	})
+
 	// Tests service power off functionality
 	// Note: Power on testing is handled generically in generic_service_handler_test.go
 	// since it's consistent across services. Power off testing is done here since
 	// the flow can vary by service type and may require service-specific steps.
+	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: name, Namespace: defaultNamespace}, flink))
 	poweredOff := flink.DeepCopy()
 	poweredOff.Spec.Powered = anyPointer(false)
 	require.NoError(t, k8sClient.Update(ctx, poweredOff))

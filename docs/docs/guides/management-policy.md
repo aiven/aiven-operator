@@ -4,7 +4,7 @@ By default the operator applies every spec change to Aiven and reverts changes m
 
 ## Supported resources
 
-The annotation is supported on `Grafana` and `Valkey`. Other kinds ignore it: they apply spec changes as usual and emit a `ManagementPolicyNotSupported` warning event once per change while the annotation is set.
+The annotation is supported on `Grafana`, `Valkey` and `Flink`. Other kinds ignore it: they apply spec changes as usual and emit a `ManagementPolicyNotSupported` warning event once per change while the annotation is set.
 
 ## What the operator corrects by default
 
