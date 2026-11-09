@@ -33,6 +33,10 @@ spec:
   technicalEmails:
     - email: "test@example.com"
 `
+	} else {
+		baseYaml += `
+  technicalEmails: []
+`
 	}
 
 	return fmt.Sprintf(baseYaml, project, name, cloudName)
