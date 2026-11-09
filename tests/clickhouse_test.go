@@ -5,10 +5,12 @@ package tests
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	clickhouseuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/clickhouse"
@@ -214,10 +216,23 @@ func TestClickhouse(t *testing.T) {
 	assert.Equal(t, dbName3, db3.Spec.DatabaseName)
 	assert.Equal(t, dbAvn3.Name, db3.Spec.DatabaseName)
 
+	t.Run("tags changed at Aiven are reverted", func(t *testing.T) {
+		err := avnGen.ProjectServiceTagsReplace(ctx, cfg.Project, chName, &service.ProjectServiceTagsReplaceIn{
+			Tags: map[string]string{"env": "drifted"},
+		})
+		require.NoError(t, err)
+		require.EventuallyWithT(t, func(collect *assert.CollectT) {
+			tags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, chName)
+			require.NoError(collect, err)
+			assert.Equal(collect, map[string]string{"env": "test", "instance": "foo"}, tags)
+		}, 5*time.Minute, 15*time.Second)
+	})
+
 	// Tests service power off functionality
 	// Note: Power on testing is handled generically in generic_service_handler_test.go
 	// since it's consistent across services. Power off testing is done here since
 	// the flow can vary by service type and may require service-specific steps.
+	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: chName, Namespace: defaultNamespace}, ch))
 	poweredOff := ch.DeepCopy()
 	poweredOff.Spec.Powered = anyPointer(false)
 	require.NoError(t, k8sClient.Update(ctx, poweredOff))
