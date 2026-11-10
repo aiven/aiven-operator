@@ -335,6 +335,7 @@ type ClickhouseGrant struct {
 	UserName        *string `ch:"user_name"`
 	RoleName        *string `ch:"role_name"`
 	AccessType      string  `ch:"access_type"`
+	AccessObject    string  `ch:"access_object"`
 	Database        *string `ch:"database"`
 	Table           *string `ch:"table"`
 	Column          *string `ch:"column"`

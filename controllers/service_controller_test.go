@@ -403,6 +403,32 @@ func TestServiceController_Observe(t *testing.T) {
 			require.Empty(t, recorderEvents(rec))
 		})
 
+		t.Run("Clickhouse plan reported under another name -> up to date, running", func(t *testing.T) {
+			t.Parallel()
+
+			ch := &v1alpha1.Clickhouse{ObjectMeta: metav1.ObjectMeta{Name: "my-clickhouse", Namespace: "default"}}
+			ch.Spec.Project = "test-project"
+			ch.Spec.Plan = "startup-v2-16"
+			ch.Spec.CloudName = "google-europe-west1"
+			markGeneration(ch, 1)
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, ch.Spec.Project, ch.Name, mock.Anything).
+				Return(&service.ServiceGetOut{
+					State:            service.ServiceStateTypeRunning,
+					Plan:             "startup-16",
+					CloudName:        ch.Spec.CloudName,
+					ServiceUriParams: map[string]string{"host": "ch.example.com", "port": "1", "user": "u", "password": "p"},
+				}, nil).Once()
+
+			c, rec := newRecordingTestController(avn, clickhouseKind, nil)
+			obs, err := c.Observe(t.Context(), ch)
+			require.NoError(t, err)
+			require.True(t, obs.ResourceUpToDate)
+			require.Empty(t, recorderEvents(rec))
+			require.True(t, hasIsRunningAnnotation(ch))
+		})
+
 		t.Run("powered off in the Console -> powered drift, not marked powered off", func(t *testing.T) {
 			t.Parallel()
 

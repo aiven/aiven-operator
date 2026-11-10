@@ -3,6 +3,7 @@
 package tests
 
 import (
+	"strings"
 	"testing"
 	"time"
 
@@ -52,6 +53,11 @@ var serviceRunningStatesAiven = []service.ServiceStateType{service.ServiceStateT
 func assertServiceVersion(t *testing.T, avnVersion any, statusVersion string) {
 	assert.NotEmpty(t, statusVersion)
 	assert.Contains(t, avnVersion, statusVersion)
+}
+
+// assertClickhousePlan accepts the spec plan or, in projects that show v2 plans under the legacy name, the name without "-v2-".
+func assertClickhousePlan(t *testing.T, avnPlan, specPlan string) {
+	assert.Contains(t, []string{specPlan, strings.Replace(specPlan, "-v2-", "-", 1)}, avnPlan)
 }
 
 func ptr(s string) *string { return &s }

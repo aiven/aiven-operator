@@ -58,7 +58,7 @@ func TestClickhouseUser(t *testing.T) {
 	assert.Equal(t, chAvn.ServiceName, ch.GetName())
 	assert.Equal(t, serviceRunningState, ch.Status.State)
 	assert.Contains(t, serviceRunningStatesAiven, chAvn.State)
-	assert.Equal(t, chAvn.Plan, ch.Spec.Plan)
+	assertClickhousePlan(t, chAvn.Plan, ch.Spec.Plan)
 	assert.Equal(t, chAvn.CloudName, ch.Spec.CloudName)
 
 	user := new(v1alpha1.ClickhouseUser)
@@ -109,7 +109,7 @@ func TestClickhouseUser(t *testing.T) {
 	}))
 
 	// User has been deleted, no access
-	require.ErrorContains(t, pinger(), "Authentication failed: password is incorrect, or there is no user with such name.")
+	require.ErrorContains(t, pinger(), "Authentication failed: password is incorrect, or there is no user with such name")
 
 	// GIVEN
 	// New manifest with 'username' field set
@@ -559,7 +559,7 @@ spec:
   plan: startup-v2-16
 
   userConfig:
-    clickhouse_version: "25.3"
+    clickhouse_version: "26.3"
 `, chName, chName, cfg.Project, cfg.PrimaryCloudName)
 
 	s := NewSession(ctx, k8sClient)

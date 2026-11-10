@@ -3,6 +3,8 @@
 package controllers
 
 import (
+	"slices"
+
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 
@@ -24,7 +26,15 @@ func newClickhouseReconciler(c Controller) reconcilerType {
 }
 
 // clickhouseKind is the serviceController definition for Clickhouse.
-var clickhouseKind = newServiceKind(serviceTypeClickhouse, clickhouseSecretData)
+var clickhouseKind = newServiceKind(serviceTypeClickhouse, clickhouseSecretData,
+	withDriftFields[*v1alpha1.Clickhouse](clickhouseDriftFields()...),
+)
+
+// clickhouseDriftFields is the default table without plan. Depending on a project ACL, Aiven reports a v2 plan
+// under its legacy name (startup-v2-16 as startup-16), so plan cannot be compared until Aiven reports one name.
+func clickhouseDriftFields() []driftField {
+	return slices.DeleteFunc(defaultDriftFields(), func(f driftField) bool { return f.name() == "plan" })
+}
 
 // clickhouseSecretData returns the prefixed connection secret keys.
 func clickhouseSecretData(obj *v1alpha1.Clickhouse, s *service.ServiceGetOut) map[string]string {
