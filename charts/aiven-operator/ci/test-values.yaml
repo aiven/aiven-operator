@@ -13,4 +13,6 @@ logging:
 
 pollInterval: 15m
 
+databaseMaxConcurrentReconciles: 3
+
 controllers: "*,-Flink"

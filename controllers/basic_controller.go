@@ -54,6 +54,8 @@ type (
 
 		// EnabledKinds are the kinds selected by --controllers.
 		EnabledKinds kindSet
+
+		DatabaseMaxConcurrentReconciles int
 	}
 
 	// Handlers represents Aiven API handlers

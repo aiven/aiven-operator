@@ -42,6 +42,18 @@ func ValidatePollInterval(d time.Duration) error {
 	return nil
 }
 
+// DefaultDatabaseMaxConcurrentReconciles is how many Database reconciles run at once when none is configured.
+const DefaultDatabaseMaxConcurrentReconciles = 1
+
+// ValidateDatabaseMaxConcurrentReconciles reports whether n is an acceptable flag value.
+func ValidateDatabaseMaxConcurrentReconciles(n int) error {
+	if n < 1 {
+		return fmt.Errorf("database max concurrent reconciles %d must be at least 1", n)
+	}
+
+	return nil
+}
+
 type SetupConfig struct {
 	DefaultToken    string
 	KubeVersion     string
@@ -49,6 +61,9 @@ type SetupConfig struct {
 
 	// PollInterval is how often a Ready resource is re-reconciled against the Aiven API.
 	PollInterval time.Duration
+
+	// DatabaseMaxConcurrentReconciles is how many Database resources are reconciled at once.
+	DatabaseMaxConcurrentReconciles int
 
 	// Controllers selects the kinds that get a reconciler: empty or "*" for all, "Kafka,KafkaTopic"
 	// for an allow list, "*,-Flink" to exclude kinds. Kinds left out get no controller and no watch,
@@ -60,6 +75,10 @@ type SetupConfig struct {
 func (c *SetupConfig) normalize() {
 	if c.PollInterval <= 0 {
 		c.PollInterval = DefaultPollInterval
+	}
+
+	if c.DatabaseMaxConcurrentReconciles <= 0 {
+		c.DatabaseMaxConcurrentReconciles = DefaultDatabaseMaxConcurrentReconciles
 	}
 }
 
@@ -148,5 +167,7 @@ func newController(mgr ctrl.Manager, name string, cfg SetupConfig, kinds kindSet
 		OperatorVersion: cfg.OperatorVersion,
 		PollInterval:    cfg.PollInterval,
 		EnabledKinds:    kinds,
+
+		DatabaseMaxConcurrentReconciles: cfg.DatabaseMaxConcurrentReconciles,
 	}
 }

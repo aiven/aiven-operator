@@ -21,6 +21,35 @@ import (
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
 
+func Test_newDatabaseReconciler(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name string
+		give int
+		want int
+	}{
+		{name: "unset keeps a single worker", give: 0},
+		{name: "one keeps a single worker", give: 1},
+		{name: "more than one", give: 5, want: 5},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			r := newDatabaseReconciler(Controller{DatabaseMaxConcurrentReconciles: tc.give}).(*Reconciler[*v1alpha1.Database])
+			if tc.want == 0 {
+				require.Nil(t, r.options)
+				return
+			}
+
+			require.NotNil(t, r.options)
+			require.Equal(t, tc.want, r.options.MaxConcurrentReconciles)
+		})
+	}
+}
+
 func TestDatabaseReconciler(t *testing.T) {
 	t.Parallel()
 

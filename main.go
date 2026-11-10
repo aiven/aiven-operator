@@ -56,6 +56,7 @@ func main() {
 	var development bool
 	var webhookPort int
 	var pollInterval time.Duration
+	var databaseMaxConcurrentReconciles int
 	var controllersSpec string
 	flag.IntVar(&webhookPort, "webhook-port", webhookDefaultPort, "Webhook server port (default: 9443)")
 	flag.StringVar(&controllersSpec, "controllers", "*",
@@ -64,6 +65,9 @@ func main() {
 	flag.DurationVar(&pollInterval, "poll-interval", controllers.DefaultPollInterval,
 		"How often resources in a steady state are re-reconciled against the Aiven API. "+
 			"Accepted range is 10m-60m.")
+	flag.IntVar(&databaseMaxConcurrentReconciles, "database-max-concurrent-reconciles",
+		controllers.DefaultDatabaseMaxConcurrentReconciles,
+		"How many Database resources are reconciled at once. Raise it when one worker cannot keep up.")
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
 	flag.BoolVar(&enableLeaderElection, "leader-elect", false,
@@ -91,6 +95,10 @@ func main() {
 	// Validated before the manager is built, so a bad value costs nothing.
 	if err := controllers.ValidatePollInterval(pollInterval); err != nil {
 		setupLog.Error(err, "invalid --poll-interval")
+		os.Exit(1)
+	}
+	if err := controllers.ValidateDatabaseMaxConcurrentReconciles(databaseMaxConcurrentReconciles); err != nil {
+		setupLog.Error(err, "invalid --database-max-concurrent-reconciles")
 		os.Exit(1)
 	}
 	if err := controllers.ValidateControllers(controllersSpec); err != nil {
@@ -165,6 +173,8 @@ func main() {
 		OperatorVersion: operatorVersion,
 		PollInterval:    pollInterval,
 		Controllers:     controllersSpec,
+
+		DatabaseMaxConcurrentReconciles: databaseMaxConcurrentReconciles,
 	})
 	if err != nil {
 		setupLog.Error(err, "controllers setup error")

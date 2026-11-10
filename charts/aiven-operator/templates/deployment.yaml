@@ -83,6 +83,12 @@ spec:
             {{- end }}
             - --poll-interval={{ $pollInterval }}
             {{- end }}
+            {{- if .Values.databaseMaxConcurrentReconciles }}
+            {{- if not (regexMatch "^[1-9][0-9]*$" (.Values.databaseMaxConcurrentReconciles | toString)) }}
+            {{- fail (printf "databaseMaxConcurrentReconciles '%v' must be a positive integer, or leave it empty for the default" .Values.databaseMaxConcurrentReconciles) }}
+            {{- end }}
+            - --database-max-concurrent-reconciles={{ .Values.databaseMaxConcurrentReconciles }}
+            {{- end }}
             {{- if .Values.controllers }}
             - --controllers={{ .Values.controllers }}
             {{- end }}

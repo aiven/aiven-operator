@@ -147,3 +147,36 @@ func TestSetupControllers(t *testing.T) {
 		require.Equal(t, 2+len(builders), mgr.added)
 	})
 }
+
+func TestValidateDatabaseMaxConcurrentReconciles(t *testing.T) {
+	t.Parallel()
+
+	require.NoError(t, ValidateDatabaseMaxConcurrentReconciles(1))
+	require.NoError(t, ValidateDatabaseMaxConcurrentReconciles(5))
+	require.Error(t, ValidateDatabaseMaxConcurrentReconciles(0))
+	require.Error(t, ValidateDatabaseMaxConcurrentReconciles(-1))
+}
+
+func TestSetupConfigNormalizeDatabaseMaxConcurrentReconciles(t *testing.T) {
+	t.Parallel()
+
+	cases := []struct {
+		name string
+		give int
+		want int
+	}{
+		{name: "unset falls back to the default", give: 0, want: DefaultDatabaseMaxConcurrentReconciles},
+		{name: "negative falls back to the default", give: -1, want: DefaultDatabaseMaxConcurrentReconciles},
+		{name: "configured value is kept", give: 5, want: 5},
+	}
+
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			t.Parallel()
+
+			cfg := SetupConfig{DatabaseMaxConcurrentReconciles: tc.give}
+			cfg.normalize()
+			require.Equal(t, tc.want, cfg.DatabaseMaxConcurrentReconciles)
+		})
+	}
+}

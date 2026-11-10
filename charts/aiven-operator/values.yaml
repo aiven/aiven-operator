@@ -121,6 +121,11 @@ logging:
 # OpenSearch, PostgreSQL, Valkey), which do not re-reconcile on a fixed interval.
 pollInterval: ""
 
+# How many Database resources are reconciled at once.
+# Raise it when a single worker cannot keep up with the number of Database resources.
+# If not set, the operator reconciles one Database at a time.
+databaseMaxConcurrentReconciles: ""
+
 # Which kinds the operator reconciles. Kinds left out get no controller and no watch, so their
 # CRDs need not be installed. Empty or "*" means all kinds.
 #   controllers: "Kafka,KafkaTopic,ServiceUser"   # only these

@@ -108,6 +108,18 @@ It does **not** apply to the service kinds — `Clickhouse`, `Flink`, `Grafana`,
 `KafkaConnect`, `MySQL`, `OpenSearch`, `PostgreSQL` and `Valkey`. Those do not re-reconcile on a
 fixed interval at all at the moment.
 
+### Tune Database reconcile concurrency
+
+The operator reconciles one `Database` at a time by default. With a few hundred `Database`
+resources on one service a single worker can fall behind, and new resources wait in the queue before
+their first reconcile.
+
+Set the `databaseMaxConcurrentReconciles` value to a positive integer to reconcile several at once:
+
+```yaml
+databaseMaxConcurrentReconciles: 5
+```
+
 ### Choose which controllers run
 
 By default the operator runs a controller for every kind it supports, which requires every CRD to

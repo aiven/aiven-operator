@@ -11,6 +11,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -26,12 +27,18 @@ type DatabaseController struct {
 }
 
 func newDatabaseReconciler(c Controller) reconcilerType {
+	// Nil leaves controller-runtime's default of one worker.
+	var options *controller.Options
+	if c.DatabaseMaxConcurrentReconciles > DefaultDatabaseMaxConcurrentReconciles {
+		options = &controller.Options{MaxConcurrentReconciles: c.DatabaseMaxConcurrentReconciles}
+	}
+
 	return newManagedReconciler(
 		c,
 		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.Database] {
 			return &DatabaseController{Client: c.Client, avnGen: avnGen}
 		},
-		nil,
+		options,
 	)
 }
 

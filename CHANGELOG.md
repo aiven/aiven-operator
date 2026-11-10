@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- Add `--database-max-concurrent-reconciles` flag and matching `databaseMaxConcurrentReconciles` Helm value,
+  to configure how many `Database` resources are reconciled at once. The default is unchanged at 1
 - **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch` and `Clickhouse` now revert changes made outside Kubernetes. On every poll they restore
   `plan`, `cloudName`, `projectVpcId` or `projectVPCRef`, `maintenanceWindowDow`,
   `maintenanceWindowTime`, `terminationProtection`, `powered`, `disk_space`, `tags` and
