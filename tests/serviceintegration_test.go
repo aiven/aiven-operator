@@ -70,7 +70,7 @@ func TestServiceIntegrationClickhousePostgreSQL(t *testing.T) {
 	require.NoError(t, err)
 	assert.Equal(t, chAvn.ServiceName, ch.GetName())
 	assert.Contains(t, serviceRunningStatesAiven, chAvn.State)
-	assert.Equal(t, chAvn.Plan, ch.Spec.Plan)
+	assertClickhousePlan(t, chAvn.Plan, ch.Spec.Plan)
 	assert.Equal(t, chAvn.CloudName, ch.Spec.CloudName)
 	assert.EqualValues(t, chAvn.Maintenance.Dow, ch.Spec.MaintenanceWindowDow)
 	assert.Equal(t, chAvn.Maintenance.Time, ch.Spec.MaintenanceWindowTime)

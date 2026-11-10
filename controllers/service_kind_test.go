@@ -85,6 +85,7 @@ func TestServiceKinds(t *testing.T) {
 			serviceType:         serviceTypeClickhouse,
 			secretKeys:          []string{"P_HOST", "P_PASSWORD", "P_PORT", "P_USER", "HOST", "PASSWORD", "PORT", "USER"},
 			powerOffBackupCheck: true,
+			driftFields:         slices.DeleteFunc(slices.Clone(defaultDriftFieldNames), func(n string) bool { return n == "plan" }),
 		})
 	})
 

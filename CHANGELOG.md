@@ -5,7 +5,7 @@
 - **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch` and `Clickhouse` now revert changes made outside Kubernetes. On every poll they restore
   `plan`, `cloudName`, `projectVpcId` or `projectVPCRef`, `maintenanceWindowDow`,
   `maintenanceWindowTime`, `terminationProtection`, `powered`, `disk_space`, `tags` and
-  `technicalEmails` from the spec, and recreates a service that was deleted at Aiven unless `powered` is `false`. A field left
+  `technicalEmails` from the spec (`Clickhouse` does not restore `plan`), and recreates a service that was deleted at Aiven unless `powered` is `false`. A field left
   out of the spec is not compared, except `powered`, which defaults to `true`: a service powered off outside Kubernetes is
   powered on again. To
   keep settings managed in the Aiven Console, add the `controllers.aiven.io/management-policy: CreateOnly`
