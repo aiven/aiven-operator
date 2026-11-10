@@ -90,7 +90,7 @@ func TestClickhouse(t *testing.T) {
 	assert.Equal(t, serviceRunningState, ch.Status.State)
 	assertServiceVersion(t, chAvn.Metadata["clickhouse_version"], ch.Status.Version)
 	assert.Contains(t, serviceRunningStatesAiven, chAvn.State)
-	assert.Equal(t, chAvn.Plan, ch.Spec.Plan)
+	assertClickhousePlan(t, chAvn.Plan, ch.Spec.Plan)
 	assert.Equal(t, chAvn.CloudName, ch.Spec.CloudName)
 	assert.Equal(t, map[string]string{"env": "test", "instance": "foo"}, ch.Spec.Tags)
 	chTags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, chName)

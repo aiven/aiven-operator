@@ -109,7 +109,7 @@ This resource uses the following API operations, and for each operation, _any_ o
     
       project: aiven-project-name
       cloudName: google-europe-west1
-      plan: startup-16
+      plan: startup-v2-16
     
       userConfig:
         clickhouse_version: "25.3"

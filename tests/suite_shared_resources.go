@@ -76,11 +76,11 @@ func (s *sharedResourcesImpl) AcquireClickhouse(t testing.TB, mode access) *v1al
 			Kind:       "Clickhouse",
 		},
 	}
-	obj.Spec.Plan = "startup-16"
+	obj.Spec.Plan = "startup-v2-16"
 	obj.Spec.Project = cfg.Project
 	obj.Spec.CloudName = cfg.PrimaryCloudName
 	obj.Spec.UserConfig = &clickhouseuserconfig.ClickhouseUserConfig{
-		ClickhouseVersion: anyPointer("25.3"),
+		ClickhouseVersion: anyPointer("26.3"),
 	}
 	return acquire(t, s, "Clickhouse", obj, mode)
 }

@@ -56,7 +56,7 @@ spec:
 
   project: my-aiven-project
   cloudName: google-europe-west1
-  plan: startup-16
+  plan: startup-v2-16
 
   maintenanceWindowDow: friday
   maintenanceWindowTime: 23:00:00
@@ -76,8 +76,8 @@ kubectl get clickhouses my-clickhouse
 
 The output is similar to the following:
 ```shell
-Name             Project             Region                 Plan          State      Version      
-my-clickhouse    my-aiven-project    google-europe-west1    startup-16    RUNNING    <version>    
+Name             Project             Region                 Plan             State      Version      
+my-clickhouse    my-aiven-project    google-europe-west1    startup-v2-16    RUNNING    <version>    
 ```
 
 To view the details of the `Secret`, use the following command:
