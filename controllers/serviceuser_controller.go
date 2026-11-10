@@ -478,6 +478,7 @@ func buildServiceUserAccessControlIn(ac *v1alpha1.ServiceUserAccessControl) *ser
 		ValkeyAclCommands:   ptr(ac.ValkeyACLCommands),
 		ValkeyAclCategories: ptr(ac.ValkeyACLCategories),
 		ValkeyAclChannels:   ptr(ac.ValkeyACLChannels),
+		ValkeyAclDatabases:  ptr(ac.ValkeyACLDatabases),
 	}
 }
 
@@ -490,13 +491,15 @@ func accessControlMatches(desired *v1alpha1.ServiceUserAccessControl, actual *se
 		return len(desired.ValkeyACLKeys) == 0 &&
 			len(desired.ValkeyACLCommands) == 0 &&
 			len(desired.ValkeyACLCategories) == 0 &&
-			len(desired.ValkeyACLChannels) == 0
+			len(desired.ValkeyACLChannels) == 0 &&
+			len(desired.ValkeyACLDatabases) == 0
 	}
 
 	return lo.ElementsMatch(desired.ValkeyACLKeys, actual.ValkeyAclKeys) &&
 		slices.Equal(desired.ValkeyACLCommands, actual.ValkeyAclCommands) &&
 		slices.Equal(desired.ValkeyACLCategories, actual.ValkeyAclCategories) &&
-		lo.ElementsMatch(desired.ValkeyACLChannels, actual.ValkeyAclChannels)
+		lo.ElementsMatch(desired.ValkeyACLChannels, actual.ValkeyAclChannels) &&
+		lo.ElementsMatch(desired.ValkeyACLDatabases, actual.ValkeyAclDatabases)
 }
 
 // TODO: Consider whether github.com/go-viper/mapstructure is a better fit if map-to-struct decoding grows.

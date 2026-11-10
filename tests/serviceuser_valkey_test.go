@@ -40,6 +40,7 @@ func TestServiceUserValkeyAccessControl(t *testing.T) {
 		ValkeyACLCommands:   []string{"-acl"},
 		ValkeyACLCategories: []string{"+@all"},
 		ValkeyACLChannels:   []string{"initial*"},
+		ValkeyACLDatabases:  []string{"0", "3"},
 	}
 
 	updatedAccessControl := &v1alpha1.ServiceUserAccessControl{
@@ -47,6 +48,7 @@ func TestServiceUserValkeyAccessControl(t *testing.T) {
 		ValkeyACLCommands:   []string{"-slowlog"},
 		ValkeyACLCategories: []string{"+@read"},
 		ValkeyACLChannels:   []string{"updated*"},
+		ValkeyACLDatabases:  []string{"resetdbs"},
 	}
 
 	yml, err := getServiceUserValkeyCreateYAML(
@@ -225,7 +227,8 @@ func serviceUserValkeyAccessControlBlock(accessControl *v1alpha1.ServiceUserAcce
     valkeyAclCommands:%s
     valkeyAclCategories:%s
     valkeyAclChannels:%s
-`, yamlStringList(accessControl.ValkeyACLKeys), yamlStringList(accessControl.ValkeyACLCommands), yamlStringList(accessControl.ValkeyACLCategories), yamlStringList(accessControl.ValkeyACLChannels))
+    valkeyAclDatabases:%s
+`, yamlStringList(accessControl.ValkeyACLKeys), yamlStringList(accessControl.ValkeyACLCommands), yamlStringList(accessControl.ValkeyACLCategories), yamlStringList(accessControl.ValkeyACLChannels), yamlStringList(accessControl.ValkeyACLDatabases))
 }
 
 func yamlStringList(items []string) string {
@@ -256,5 +259,6 @@ func serviceUserValkeyAccessControlEquals(
 	return slices.Equal(actual.ValkeyAclKeys, expected.ValkeyACLKeys) &&
 		slices.Equal(actual.ValkeyAclCommands, expected.ValkeyACLCommands) &&
 		slices.Equal(actual.ValkeyAclCategories, expected.ValkeyACLCategories) &&
-		slices.Equal(actual.ValkeyAclChannels, expected.ValkeyACLChannels)
+		slices.Equal(actual.ValkeyAclChannels, expected.ValkeyACLChannels) &&
+		slices.Equal(actual.ValkeyAclDatabases, expected.ValkeyACLDatabases)
 }

@@ -277,6 +277,8 @@ When this block is present, the operator manages the full access-control scope i
 - [`valkeyAclCategories`](#spec.accessControl.valkeyAclCategories-property){: name='spec.accessControl.valkeyAclCategories-property'} (array of strings). Command category rules. Order matters.
 - [`valkeyAclChannels`](#spec.accessControl.valkeyAclChannels-property){: name='spec.accessControl.valkeyAclChannels-property'} (array of strings). Glob-style patterns defining which pub/sub channels can be accessed.
 - [`valkeyAclCommands`](#spec.accessControl.valkeyAclCommands-property){: name='spec.accessControl.valkeyAclCommands-property'} (array of strings). Rules for individual commands. Order matters.
+- [`valkeyAclDatabases`](#spec.accessControl.valkeyAclDatabases-property){: name='spec.accessControl.valkeyAclDatabases-property'} (array of strings). Database ids the user can access. Requires Valkey 9.1 or later.
+    Leave empty to grant all databases, or set the only item to `alldbs` to grant all databases or `resetdbs` to grant none.
 - [`valkeyAclKeys`](#spec.accessControl.valkeyAclKeys-property){: name='spec.accessControl.valkeyAclKeys-property'} (array of strings). Key access rules.
 
 ## authSecretRef {: #spec.authSecretRef }

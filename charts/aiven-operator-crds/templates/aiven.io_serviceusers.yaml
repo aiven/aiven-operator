@@ -75,6 +75,13 @@ spec:
                       items:
                         type: string
                       type: array
+                    valkeyAclDatabases:
+                      description: |-
+                        Database ids the user can access. Requires Valkey 9.1 or later.
+                        Leave empty to grant all databases, or set the only item to `alldbs` to grant all databases or `resetdbs` to grant none.
+                      items:
+                        type: string
+                      type: array
                     valkeyAclKeys:
                       description: Key access rules.
                       items:
