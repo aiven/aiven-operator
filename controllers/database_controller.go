@@ -5,14 +5,12 @@ package controllers
 import (
 	"context"
 	"fmt"
-	"slices"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
-	"sigs.k8s.io/controller-runtime/pkg/controller"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -20,9 +18,6 @@ import (
 //+kubebuilder:rbac:groups=aiven.io,resources=databases,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=databases/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=databases/finalizers,verbs=get;create;update
-
-// databaseMaxConcurrentReconciles lets services with hundreds of databases drain the queue within the poll interval.
-const databaseMaxConcurrentReconciles = 3
 
 // DatabaseController reconciles a Database object.
 type DatabaseController struct {
@@ -36,26 +31,21 @@ func newDatabaseReconciler(c Controller) reconcilerType {
 		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.Database] {
 			return &DatabaseController{Client: c.Client, avnGen: avnGen}
 		},
-		&controller.Options{MaxConcurrentReconciles: databaseMaxConcurrentReconciles},
+		nil,
 	)
 }
 
 func (r *DatabaseController) Observe(ctx context.Context, db *v1alpha1.Database) (Observation, error) {
-	svc, err := getServiceIfOperational(ctx, r.avnGen, db.Spec.Project, db.Spec.ServiceName)
-	if err != nil {
+	if _, err := getServiceIfOperational(ctx, r.avnGen, db.Spec.Project, db.Spec.ServiceName); err != nil {
 		return Observation{}, err
 	}
 
-	// The service's database list can be incomplete on large PostgreSQL services,
-	// so a miss is confirmed against the paginated list.
-	if !slices.Contains(svc.Databases, db.GetDatabaseName()) {
-		_, err := GetDatabaseByName(ctx, r.avnGen, db.Spec.Project, db.Spec.ServiceName, db.GetDatabaseName())
-		switch {
-		case isNotFound(err):
-			return Observation{ResourceExists: false}, nil
-		case err != nil:
-			return Observation{}, fmt.Errorf("describing database: %w", err)
-		}
+	_, err := GetDatabaseByName(ctx, r.avnGen, db.Spec.Project, db.Spec.ServiceName, db.GetDatabaseName())
+	switch {
+	case isNotFound(err):
+		return Observation{ResourceExists: false}, nil
+	case err != nil:
+		return Observation{}, fmt.Errorf("describing database: %w", err)
 	}
 
 	markInstanceRunning(db)
