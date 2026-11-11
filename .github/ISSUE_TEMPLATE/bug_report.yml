@@ -1,0 +1,26 @@
+name: Bug report
+description: The operator does something it should not, or fails to do something it should.
+labels: [bug]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened
+      description: What you observed and what you expected. Include errors, status conditions, or operator logs. Do not paste secrets.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: How to reproduce
+      description: A minimal manifest and steps.
+      render: yaml
+    validations:
+      required: true
+  - type: input
+    id: operator-version
+    attributes:
+      label: Operator version
+      placeholder: v0.x.y
+    validations:
+      required: true
