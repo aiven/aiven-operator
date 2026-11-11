@@ -114,6 +114,22 @@ func TestAccessControlMatches(t *testing.T) {
 					ValkeyAclChannels: []string{"updates*", "events*"},
 				},
 			},
+			{
+				name: "databases ignore order",
+				desired: &v1alpha1.ServiceUserAccessControl{
+					ValkeyACLDatabases: []string{"0", "3"},
+				},
+				actual: &service.AccessControlOut{
+					ValkeyAclDatabases: []string{"3", "0"},
+				},
+			},
+			{
+				name:    "unset databases match the empty list the API returns",
+				desired: &v1alpha1.ServiceUserAccessControl{},
+				actual: &service.AccessControlOut{
+					ValkeyAclDatabases: []string{},
+				},
+			},
 		}
 
 		for _, tc := range testCases {
@@ -184,6 +200,24 @@ func TestAccessControlMatches(t *testing.T) {
 				},
 				actual: &service.AccessControlOut{
 					ValkeyAclChannels: []string{"events*"},
+				},
+			},
+			{
+				name: "database differences are detected",
+				desired: &v1alpha1.ServiceUserAccessControl{
+					ValkeyACLDatabases: []string{"resetdbs"},
+				},
+				actual: &service.AccessControlOut{
+					ValkeyAclDatabases: []string{},
+				},
+			},
+			{
+				name: "alldbs is not normalised to the empty list",
+				desired: &v1alpha1.ServiceUserAccessControl{
+					ValkeyACLDatabases: []string{"alldbs"},
+				},
+				actual: &service.AccessControlOut{
+					ValkeyAclDatabases: []string{},
 				},
 			},
 		}
@@ -258,7 +292,8 @@ func TestServiceUserReconciler(t *testing.T) {
 			return equalManagedSlice(in.ValkeyAclKeys, expected.ValkeyACLKeys) &&
 				equalManagedSlice(in.ValkeyAclCommands, expected.ValkeyACLCommands) &&
 				equalManagedSlice(in.ValkeyAclCategories, expected.ValkeyACLCategories) &&
-				equalManagedSlice(in.ValkeyAclChannels, expected.ValkeyACLChannels)
+				equalManagedSlice(in.ValkeyAclChannels, expected.ValkeyACLChannels) &&
+				equalManagedSlice(in.ValkeyAclDatabases, expected.ValkeyACLDatabases)
 		}
 	}
 
@@ -272,6 +307,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			ValkeyAclCommands:   slices.Clone(in.ValkeyACLCommands),
 			ValkeyAclCategories: slices.Clone(in.ValkeyACLCategories),
 			ValkeyAclChannels:   slices.Clone(in.ValkeyACLChannels),
+			ValkeyAclDatabases:  slices.Clone(in.ValkeyACLDatabases),
 		}
 	}
 
@@ -428,6 +464,7 @@ func TestServiceUserReconciler(t *testing.T) {
 			ValkeyACLCommands:   []string{"-acl"},
 			ValkeyACLCategories: []string{"+@all"},
 			ValkeyACLChannels:   []string{"some*chan"},
+			ValkeyACLDatabases:  []string{"0", "3"},
 		}
 
 		avn := avngen.NewMockClient(t)

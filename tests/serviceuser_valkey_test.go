@@ -19,6 +19,52 @@ import (
 
 func TestServiceUserValkeyAccessControl(t *testing.T) {
 	t.Parallel()
+
+	t.Run("9.1 with databases", func(t *testing.T) {
+		t.Parallel()
+		testServiceUserValkeyAccessControl(t, "9.1",
+			&v1alpha1.ServiceUserAccessControl{
+				ValkeyACLKeys:       []string{"cache:*"},
+				ValkeyACLCommands:   []string{"-acl"},
+				ValkeyACLCategories: []string{"+@all"},
+				ValkeyACLChannels:   []string{"initial*"},
+				ValkeyACLDatabases:  []string{"0", "3"},
+			},
+			&v1alpha1.ServiceUserAccessControl{
+				ValkeyACLKeys:       []string{"cache:updated:*"},
+				ValkeyACLCommands:   []string{"-slowlog"},
+				ValkeyACLCategories: []string{"+@read"},
+				ValkeyACLChannels:   []string{"updated*"},
+				ValkeyACLDatabases:  []string{"resetdbs"},
+			},
+		)
+	})
+
+	// Databases can't be set before 9.1: the rest of the ACL must still work.
+	t.Run("8.1 without databases", func(t *testing.T) {
+		t.Parallel()
+		testServiceUserValkeyAccessControl(t, "8.1",
+			&v1alpha1.ServiceUserAccessControl{
+				ValkeyACLKeys:       []string{"cache:*"},
+				ValkeyACLCommands:   []string{"-acl"},
+				ValkeyACLCategories: []string{"+@all"},
+				ValkeyACLChannels:   []string{"initial*"},
+			},
+			&v1alpha1.ServiceUserAccessControl{
+				ValkeyACLKeys:       []string{"cache:updated:*"},
+				ValkeyACLCommands:   []string{"-slowlog"},
+				ValkeyACLCategories: []string{"+@read"},
+				ValkeyACLChannels:   []string{"updated*"},
+			},
+		)
+	})
+}
+
+func testServiceUserValkeyAccessControl(
+	t *testing.T,
+	valkeyVersion string,
+	initialAccessControl, updatedAccessControl *v1alpha1.ServiceUserAccessControl,
+) {
 	defer recoverPanic(t)
 
 	// GIVEN
@@ -35,31 +81,17 @@ func TestServiceUserValkeyAccessControl(t *testing.T) {
 		updatedPassword = "UpdatedValkeyPassword67890!"
 	)
 
-	initialAccessControl := &v1alpha1.ServiceUserAccessControl{
-		ValkeyACLKeys:       []string{"cache:*"},
-		ValkeyACLCommands:   []string{"-acl"},
-		ValkeyACLCategories: []string{"+@all"},
-		ValkeyACLChannels:   []string{"initial*"},
-	}
-
-	updatedAccessControl := &v1alpha1.ServiceUserAccessControl{
-		ValkeyACLKeys:       []string{"cache:updated:*"},
-		ValkeyACLCommands:   []string{"-slowlog"},
-		ValkeyACLCategories: []string{"+@read"},
-		ValkeyACLChannels:   []string{"updated*"},
-	}
-
-	yml, err := getServiceUserValkeyCreateYAML(
+	yml := getServiceUserValkeyCreateYAML(
 		cfg.Project,
 		cfg.PrimaryCloudName,
 		serviceName,
+		valkeyVersion,
 		userName,
 		sourceSecretName,
 		targetSecretName,
 		initialPassword,
 		initialAccessControl,
 	)
-	require.NoError(t, err)
 
 	s := NewSession(ctx, k8sClient)
 
@@ -71,6 +103,12 @@ func TestServiceUserValkeyAccessControl(t *testing.T) {
 
 	valkey := new(v1alpha1.Valkey)
 	require.NoError(t, s.GetRunning(valkey, serviceName))
+
+	valkeyAvn, err := avnGen.ServiceGet(ctx, cfg.Project, serviceName)
+	require.NoError(t, err)
+	assertServiceVersion(t, valkeyAvn.Metadata["valkey_version"], valkey.Status.Version)
+	assert.Truef(t, strings.HasPrefix(valkey.Status.Version, valkeyVersion),
+		"Valkey %s expected, got %s", valkeyVersion, valkey.Status.Version)
 
 	user := new(v1alpha1.ServiceUser)
 	require.NoError(t, s.GetRunning(user, userName))
@@ -157,18 +195,29 @@ func TestServiceUserValkeyAccessControl(t *testing.T) {
 }
 
 func getServiceUserValkeyCreateYAML(
-	project, cloudName, serviceName, userName, sourceSecretName, targetSecretName, password string,
+	project, cloudName, serviceName, valkeyVersion, userName, sourceSecretName, targetSecretName, password string,
 	accessControl *v1alpha1.ServiceUserAccessControl,
-) (string, error) {
-	valkeyYml, err := loadExampleYaml("valkey.yaml", map[string]string{
-		"metadata.name":                  serviceName,
-		"spec.project":                   project,
-		"spec.cloudName":                 cloudName,
-		"spec.connInfoSecretTarget.name": serviceName,
-	})
-	if err != nil {
-		return "", err
-	}
+) string {
+	valkeyYml := fmt.Sprintf(`
+apiVersion: aiven.io/v1alpha1
+kind: Valkey
+metadata:
+  name: %[3]s
+spec:
+  authSecretRef:
+    name: aiven-token
+    key: token
+
+  connInfoSecretTarget:
+    name: %[3]s
+
+  project: %[1]s
+  cloudName: %[2]s
+  plan: startup-4
+
+  userConfig:
+    valkey_version: %[4]q
+`, project, cloudName, serviceName, valkeyVersion)
 
 	return fmt.Sprintf("%s\n---\n%s", valkeyYml, getServiceUserValkeyUpdateYAML(
 		project,
@@ -178,7 +227,7 @@ func getServiceUserValkeyCreateYAML(
 		targetSecretName,
 		password,
 		accessControl,
-	)), nil
+	))
 }
 
 func getServiceUserValkeyUpdateYAML(
@@ -225,7 +274,8 @@ func serviceUserValkeyAccessControlBlock(accessControl *v1alpha1.ServiceUserAcce
     valkeyAclCommands:%s
     valkeyAclCategories:%s
     valkeyAclChannels:%s
-`, yamlStringList(accessControl.ValkeyACLKeys), yamlStringList(accessControl.ValkeyACLCommands), yamlStringList(accessControl.ValkeyACLCategories), yamlStringList(accessControl.ValkeyACLChannels))
+    valkeyAclDatabases:%s
+`, yamlStringList(accessControl.ValkeyACLKeys), yamlStringList(accessControl.ValkeyACLCommands), yamlStringList(accessControl.ValkeyACLCategories), yamlStringList(accessControl.ValkeyACLChannels), yamlStringList(accessControl.ValkeyACLDatabases))
 }
 
 func yamlStringList(items []string) string {
@@ -256,5 +306,6 @@ func serviceUserValkeyAccessControlEquals(
 	return slices.Equal(actual.ValkeyAclKeys, expected.ValkeyACLKeys) &&
 		slices.Equal(actual.ValkeyAclCommands, expected.ValkeyACLCommands) &&
 		slices.Equal(actual.ValkeyAclCategories, expected.ValkeyACLCategories) &&
-		slices.Equal(actual.ValkeyAclChannels, expected.ValkeyACLChannels)
+		slices.Equal(actual.ValkeyAclChannels, expected.ValkeyACLChannels) &&
+		slices.Equal(actual.ValkeyAclDatabases, expected.ValkeyACLDatabases)
 }

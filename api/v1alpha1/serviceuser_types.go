@@ -65,7 +65,7 @@ type ServiceUserSpec struct {
 // applies rules from left to right:
 // https://valkey.io/commands/acl-setuser/
 //
-// Key and channel rules are treated as unordered collections for drift detection.
+// Key, channel and database rules are treated as unordered collections for drift detection.
 // The operator intentionally ignores their remote ordering to avoid false drift
 // if the backend returns an equivalent canonicalized ACL via ACL GETUSER:
 // https://valkey.io/commands/acl-getuser/
@@ -81,6 +81,10 @@ type ServiceUserAccessControl struct {
 
 	// Glob-style patterns defining which pub/sub channels can be accessed.
 	ValkeyACLChannels []string `json:"valkeyAclChannels,omitempty"`
+
+	// Database ids the user can access. Requires Valkey 9.1 or later.
+	// Leave empty to grant all databases, or set the only item to `alldbs` to grant all databases or `resetdbs` to grant none.
+	ValkeyACLDatabases []string `json:"valkeyAclDatabases,omitempty"`
 }
 
 // ServiceUserStatus defines the observed state of ServiceUser

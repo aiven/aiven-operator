@@ -21,6 +21,7 @@
   applied and a `DiskSpaceNotApplied` warning event is emitted
 - `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`: a resource that sets both `projectVpcId` and `projectVPCRef` now reports an `Error`
   condition on every poll, not only on its next update. Drop one of the two fields to clear it
+- Add `ServiceUser` field `accessControl.valkeyAclDatabases`, type `array`: Database ids the user can access
 
 ## v0.50.0 - 2026-11-05
 
