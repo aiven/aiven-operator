@@ -61,6 +61,20 @@ func TestDatabase(t *testing.T) {
 	assert.Equal(t, "en_US.UTF-8", db.Spec.LcCollate) // the default value
 	assert.Equal(t, fromPtr(dbAvn.LcCollate), db.Spec.LcCollate)
 
+	t.Run("a database deleted at Aiven is recreated", func(t *testing.T) {
+		require.NoError(t, avnGen.ServiceDatabaseDelete(ctx, cfg.Project, pgName, dbName))
+		require.Eventually(t, func() bool {
+			_, err := controllers.GetDatabaseByName(ctx, avnGen, cfg.Project, pgName, dbName)
+			return avngen.IsNotFound(err)
+		}, time.Minute, 2*time.Second)
+
+		require.EventuallyWithT(t, func(collect *assert.CollectT) {
+			_, err := controllers.GetDatabaseByName(ctx, avnGen, cfg.Project, pgName, dbName)
+			assert.NoError(collect, err)
+		}, 5*time.Minute, 15*time.Second)
+		require.NoError(t, s.GetRunning(db, dbName))
+	})
+
 	// We need to validate deletion,
 	// because we can get false positive here:
 	// if service is deleted, db is destroyed in Aiven. No service — no db. No db — no db.
