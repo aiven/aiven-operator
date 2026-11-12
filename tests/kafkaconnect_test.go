@@ -4,10 +4,12 @@ package tests
 
 import (
 	"testing"
+	"time"
 
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	"k8s.io/apimachinery/pkg/types"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	kafkaconnectuserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/kafka_connect"
@@ -74,7 +76,20 @@ func TestKafkaConnect(t *testing.T) {
 	require.NoError(t, castInterface(kcAvn.UserConfig["ip_filter"], &ipFilterAvn))
 	assert.Equal(t, ipFilterAvn, kc.Spec.UserConfig.IpFilter)
 
+	t.Run("tags changed at Aiven are reverted", func(t *testing.T) {
+		err := avnGen.ProjectServiceTagsReplace(ctx, cfg.Project, name, &service.ProjectServiceTagsReplaceIn{
+			Tags: map[string]string{"env": "drifted"},
+		})
+		require.NoError(t, err)
+		require.EventuallyWithT(t, func(collect *assert.CollectT) {
+			tags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, name)
+			require.NoError(collect, err)
+			assert.Equal(collect, map[string]string{"env": "test", "instance": "foo"}, tags)
+		}, 5*time.Minute, 15*time.Second)
+	})
+
 	// Powers off
+	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: name, Namespace: defaultNamespace}, kc))
 	powered := false
 	kcPoweredOff := kc.DeepCopy()
 	kcPoweredOff.Spec.Powered = &powered

@@ -3,93 +3,27 @@
 package controllers
 
 import (
-	"context"
-	"fmt"
-
 	avngen "github.com/aiven/go-client-codegen"
-	"github.com/aiven/go-client-codegen/handler/service"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
-
-// KafkaConnectReconciler reconciles a KafkaConnect object
-type KafkaConnectReconciler struct {
-	Controller
-}
-
-func newKafkaConnectReconciler(c Controller) reconcilerType {
-	return &KafkaConnectReconciler{Controller: c}
-}
 
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkaconnects/finalizers,verbs=get;create;update
 
-func (r *KafkaConnectReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newKafkaConnectAdapter, r.Log), &v1alpha1.KafkaConnect{})
+func newKafkaConnectReconciler(c Controller) reconcilerType {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.KafkaConnect] {
+			return newServiceController(c, avnGen, kafkaConnectKind)
+		},
+		nil,
+	)
 }
 
-func (r *KafkaConnectReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.KafkaConnect{}).
-		Complete(r)
-}
-
-// kafkaConnectKind is the serviceController definition. Not wired yet.
+// kafkaConnectKind is the serviceController definition for KafkaConnect.
 var kafkaConnectKind = newServiceKind[*v1alpha1.KafkaConnect](serviceTypeKafkaConnect, nil,
 	// No power-off backup check.
 	withPreconditions(checkReadReplicaSource[*v1alpha1.KafkaConnect]),
 )
-
-func newKafkaConnectAdapter(object client.Object) (serviceAdapter, error) {
-	kafkaConnect, ok := object.(*v1alpha1.KafkaConnect)
-	if !ok {
-		return nil, fmt.Errorf("object is not of type v1alpha1.KafkaConnect")
-	}
-	return &kafkaConnectAdapter{kafkaConnect}, nil
-}
-
-// kafkaConnectAdapter handles an Aiven KafkaConnect service
-type kafkaConnectAdapter struct {
-	*v1alpha1.KafkaConnect
-}
-
-func (a *kafkaConnectAdapter) getObjectMeta() *metav1.ObjectMeta {
-	return &a.ObjectMeta
-}
-
-func (a *kafkaConnectAdapter) getServiceStatus() *v1alpha1.ServiceStatus {
-	return &a.Status
-}
-
-func (a *kafkaConnectAdapter) getServiceCommonSpec() *v1alpha1.ServiceCommonSpec {
-	return &v1alpha1.ServiceCommonSpec{BaseServiceFields: a.Spec.BaseServiceFields}
-}
-
-func (a *kafkaConnectAdapter) getUserConfig() any {
-	return a.Spec.UserConfig
-}
-
-func (a *kafkaConnectAdapter) newSecret(_ *service.ServiceGetOut) *corev1.Secret {
-	return nil
-}
-
-func (a *kafkaConnectAdapter) getServiceType() serviceType {
-	return serviceTypeKafkaConnect
-}
-
-func (a *kafkaConnectAdapter) getDiskSpace() string {
-	return ""
-}
-
-func (a *kafkaConnectAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
-	return nil
-}
-
-func (a *kafkaConnectAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
-	return nil
-}
