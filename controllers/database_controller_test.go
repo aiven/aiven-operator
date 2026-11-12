@@ -68,12 +68,18 @@ func TestDatabaseReconciler(t *testing.T) {
 		return r, res
 	}
 
-	expectServiceRunning := func(avn *avngen.MockClient, db *v1alpha1.Database, times int) {
+	expectServiceRunning := func(avn *avngen.MockClient, db *v1alpha1.Database, times int, databases ...string) {
 		avn.EXPECT().
 			ServiceGet(mock.Anything, db.Spec.Project, db.Spec.ServiceName, mock.Anything).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).
+			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning, Databases: databases}, nil).
 			Times(times)
 	}
+
+	t.Run("Runs several reconciles at once", func(t *testing.T) {
+		r := newDatabaseReconciler(Controller{}).(*Reconciler[*v1alpha1.Database])
+		require.NotNil(t, r.options)
+		require.Equal(t, databaseMaxConcurrentReconciles, r.options.MaxConcurrentReconciles)
+	})
 
 	t.Run("Requeues when service preconditions aren't met", func(t *testing.T) {
 		db := newDatabase(t)
@@ -97,7 +103,7 @@ func TestDatabaseReconciler(t *testing.T) {
 		db.Generation = 1
 
 		avn := avngen.NewMockClient(t)
-		expectServiceRunning(avn, db, 1)
+		expectServiceRunning(avn, db, 1, "other-db")
 		avn.EXPECT().
 			ServiceDatabaseList(mock.Anything, db.Spec.Project, db.Spec.ServiceName).
 			Return(&service.ServiceDatabaseListOut{}, nil).Once()
@@ -144,7 +150,23 @@ func TestDatabaseReconciler(t *testing.T) {
 		db.Generation = 1
 
 		avn := avngen.NewMockClient(t)
-		expectServiceRunning(avn, db, 1)
+		expectServiceRunning(avn, db, 1, "other-db", db.GetDatabaseName())
+
+		r, res := runScenario(t, db, avn)
+		require.Equal(t, ctrlruntime.Result{RequeueAfter: testPollInterval}, res)
+
+		got := &v1alpha1.Database{}
+		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: db.Name, Namespace: db.Namespace}, got))
+		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
+		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
+	})
+
+	t.Run("Finds database missing from the service's list in the paginated list", func(t *testing.T) {
+		db := newDatabase(t)
+		db.Generation = 1
+
+		avn := avngen.NewMockClient(t)
+		expectServiceRunning(avn, db, 1, "other-db")
 		avn.EXPECT().
 			ServiceDatabaseList(mock.Anything, db.Spec.Project, db.Spec.ServiceName).
 			Return(&service.ServiceDatabaseListOut{Databases: []service.DatabaseOut{{DatabaseName: db.GetDatabaseName()}}}, nil).Once()
@@ -155,7 +177,6 @@ func TestDatabaseReconciler(t *testing.T) {
 		got := &v1alpha1.Database{}
 		require.NoError(t, r.Get(t.Context(), types.NamespacedName{Name: db.Name, Namespace: db.Namespace}, got))
 		require.Equal(t, "true", got.Annotations[instanceIsRunningAnnotation])
-		require.Equal(t, "1", got.Annotations[processedGenerationAnnotation])
 	})
 
 	t.Run("Deletes database and removes finalizer on deletion", func(t *testing.T) {

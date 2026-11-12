@@ -2,6 +2,9 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+- `Database` resources reconcile faster on services with many databases: up to 3 are reconciled at once, and
+  checking an existing database usually takes one Aiven API call instead of paging through the service's databases
+
 ## v0.50.0 - 2026-11-05
 
 - `ClickhouseUser` with `connInfoSecretSource` no longer fails every reconcile while the source Secret
