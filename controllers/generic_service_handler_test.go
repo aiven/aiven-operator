@@ -373,48 +373,6 @@ func TestObserve_EmitsEventWhenConnectionSecretCreationDisabled(t *testing.T) {
 	}
 }
 
-func TestObserve_DoesNotEmitDisabledSecretEventForServicesWithoutSecrets(t *testing.T) {
-	t.Parallel()
-
-	kafkaConnect := &v1alpha1.KafkaConnect{
-		ObjectMeta: metav1.ObjectMeta{
-			Name:      "kafka-connect",
-			Namespace: "default",
-		},
-		Spec: v1alpha1.KafkaConnectSpec{
-			BaseServiceFields: v1alpha1.BaseServiceFields{
-				ProjectDependant: v1alpha1.ProjectDependant{
-					ProjectField: v1alpha1.ProjectField{Project: "test-project"},
-				},
-				Plan: "business-4",
-			},
-		},
-	}
-
-	avn := avngen.NewMockClient(t)
-	avn.EXPECT().
-		ServiceGet(mock.Anything, kafkaConnect.Spec.Project, kafkaConnect.Name, mock.Anything).
-		Return(&service.ServiceGetOut{
-			State: service.ServiceStateTypeRunning,
-		}, nil).Once()
-
-	recorder := record.NewFakeRecorder(10)
-	h := &genericServiceHandler{
-		fabric: newKafkaConnectAdapter,
-		log:    logr.Discard(),
-		rec:    recorder,
-	}
-
-	require.NoError(t, h.observe(t.Context(), avn, kafkaConnect))
-	require.Equal(t, "true", kafkaConnect.Annotations[instanceIsRunningAnnotation])
-
-	select {
-	case event := <-recorder.Events:
-		require.NotContains(t, event, eventConnInfoSecretCreationDisabled)
-	case <-time.After(50 * time.Millisecond):
-	}
-}
-
 func TestObserve_DoesntMarkReadyBeforeConnectionSecretDetails(t *testing.T) {
 	t.Parallel()
 

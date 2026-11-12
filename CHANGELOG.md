@@ -2,7 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
-- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch` and `Clickhouse` now revert changes made outside Kubernetes. On every poll they restore
+- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse` and `KafkaConnect` now revert changes made outside Kubernetes. On every poll they restore
   `plan`, `cloudName`, `projectVpcId` or `projectVPCRef`, `maintenanceWindowDow`,
   `maintenanceWindowTime`, `terminationProtection`, `powered`, `disk_space`, `tags` and
   `technicalEmails` from the spec (`Clickhouse` does not restore `plan`), and recreates a service that was deleted at Aiven unless `powered` is `false`. A field left
@@ -10,16 +10,16 @@
   powered on again. To
   keep settings managed in the Aiven Console, add the `controllers.aiven.io/management-policy: CreateOnly`
   annotation before upgrading
-- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch` and `Clickhouse` no longer clear the service's tags or technical emails when `tags` or
+- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse` and `KafkaConnect` no longer clear the service's tags or technical emails when `tags` or
   `technicalEmails` is left out of the spec. Set `tags: {}` or `technicalEmails: []` to clear them,
   also in the first manifest of a new resource
-- Add `controllers.aiven.io/management-policy: CreateOnly` annotation, supported on `Grafana`, `Valkey`, `Flink`, `OpenSearch` and `Clickhouse`. The
+- Add `controllers.aiven.io/management-policy: CreateOnly` annotation, supported on `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse` and `KafkaConnect`. The
   operator still creates a missing service and keeps its connection Secret in sync, but no longer
   applies spec changes or reverts changes made outside Kubernetes. Other kinds ignore it and emit a
   `ManagementPolicyNotSupported` warning event
 - `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`: `disk_space` on a service with an autoscaler integration is no longer an error. It is not
   applied and a `DiskSpaceNotApplied` warning event is emitted
-- `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`: a resource that sets both `projectVpcId` and `projectVPCRef` now reports an `Error`
+- `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`: a resource that sets both `projectVpcId` and `projectVPCRef` now reports an `Error`
   condition on every poll, not only on its next update. Drop one of the two fields to clear it
 - Add `ServiceUser` field `accessControl.valkeyAclDatabases`, type `array`: Database ids the user can access
 
