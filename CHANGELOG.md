@@ -2,8 +2,6 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
-- `Database` resources reconcile faster on services with many databases: up to 3 are reconciled at once, and
-  checking an existing database usually takes one Aiven API call instead of paging through the service's databases
 - **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch` and `Clickhouse` now revert changes made outside Kubernetes. On every poll they restore
   `plan`, `cloudName`, `projectVpcId` or `projectVPCRef`, `maintenanceWindowDow`,
   `maintenanceWindowTime`, `terminationProtection`, `powered`, `disk_space`, `tags` and
@@ -24,6 +22,11 @@
 - `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`: a resource that sets both `projectVpcId` and `projectVPCRef` now reports an `Error`
   condition on every poll, not only on its next update. Drop one of the two fields to clear it
 - Add `ServiceUser` field `accessControl.valkeyAclDatabases`, type `array`: Database ids the user can access
+
+## v0.50.1 - 2026-11-12
+
+- `Database` resources reconcile faster on services with many databases: up to 3 are reconciled at once, and
+  checking an existing database usually takes one Aiven API call instead of paging through the service's databases
 
 ## v0.50.0 - 2026-11-05
 

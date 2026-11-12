@@ -19,11 +19,17 @@ method for tracking anything to do with the Aiven Operator for Kubernetes projec
 
 ## Pull Request Process
 
-1. Ensure any install or build dependencies are removed before the end of the layer when doing a build.
-2. Increase the version numbers in any examples files and the README.md and in corresponding file in he /docs folder to
-   the new version that this Pull Request would represent. The versioning scheme we use is [SemVer](http://semver.org/).
-3. You may merge the Pull Request in once you have the sign-off of two other developers, or if you do not have
-   permission to do that, you may request the second reviewer to merge it for you.
+**Open an issue before opening a pull request.** Describe the problem you are hitting, not only the fix you have in
+mind. This lets maintainers confirm the change is wanted and agree on an approach before anyone spends time on code
+and review.
+
+1. [Open an issue](https://github.com/aiven/aiven-operator/issues/new/choose) using the bug report or feature request
+   form.
+2. Wait for a maintainer to label it `accepted`. We may suggest a different approach, or explain why the change does
+   not fit the project.
+3. Open a pull request that links the issue (`Resolves: #123`) and keep it focused on that issue.
+
+You can skip the issue for typo fixes, documentation corrections, and small, obvious bug fixes.
 
 ## Code of Conduct
 
