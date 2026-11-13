@@ -33,7 +33,7 @@ type Migration struct {
 	IgnoreRoles *string `groups:"create,update" json:"ignore_roles,omitempty"`
 
 	// +kubebuilder:validation:Enum="dump";"replication"
-	// The migration method to be used (currently supported only by Redis, Dragonfly, MySQL and PostgreSQL service types)
+	// The migration method to be used (currently supported only by Redis, MySQL and PostgreSQL service types)
 	Method *string `groups:"create,update" json:"method,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=256
@@ -173,7 +173,7 @@ type ValkeyUserConfig struct {
 
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=256
-	// Set Valkey IO thread count. Changing this will cause a restart of the Valkey service.
+	// Set Valkey IO thread count. On Valkey 9.0 and later, changes are applied without a restart. On Valkey 8.1, changing this replaces the service nodes.
 	ValkeyIoThreads *int `groups:"create,update" json:"valkey_io_threads,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
@@ -191,7 +191,7 @@ type ValkeyUserConfig struct {
 	ValkeyMaxmemoryPolicy *string `groups:"create,update" json:"valkey_maxmemory_policy,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=32
-	// +kubebuilder:validation:Pattern=`^[KEg\$lshzxentdmA]*$`
+	// +kubebuilder:validation:Pattern=`^[KEg\$lshzxentdmpA]*$`
 	// Set notify-keyspace-events option
 	ValkeyNotifyKeyspaceEvents *string `groups:"create,update" json:"valkey_notify_keyspace_events,omitempty"`
 
@@ -218,6 +218,6 @@ type ValkeyUserConfig struct {
 	ValkeyTimeout *int `groups:"create,update" json:"valkey_timeout,omitempty"`
 
 	// Available versions: `8.1`, `9.0`, `9.1`. Newer versions may also be available.
-	// Valkey major version
+	// Valkey major version. Deprecated values: `9.0`
 	ValkeyVersion *string `groups:"create,update" json:"valkey_version,omitempty"`
 }

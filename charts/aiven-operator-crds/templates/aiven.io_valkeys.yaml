@@ -331,7 +331,7 @@ spec:
                         method:
                           description:
                             The migration method to be used (currently supported
-                            only by Redis, Dragonfly, MySQL and PostgreSQL service types)
+                            only by Redis, MySQL and PostgreSQL service types)
                           enum:
                             - dump
                             - replication
@@ -505,8 +505,9 @@ spec:
                       type: boolean
                     valkey_io_threads:
                       description:
-                        Set Valkey IO thread count. Changing this will cause
-                        a restart of the Valkey service.
+                        Set Valkey IO thread count. On Valkey 9.0 and later,
+                        changes are applied without a restart. On Valkey 8.1, changing
+                        this replaces the service nodes.
                       maximum: 256
                       minimum: 1
                       type: integer
@@ -537,7 +538,7 @@ spec:
                     valkey_notify_keyspace_events:
                       description: Set notify-keyspace-events option
                       maxLength: 32
-                      pattern: ^[KEg\$lshzxentdmA]*$
+                      pattern: ^[KEg\$lshzxentdmpA]*$
                       type: string
                     valkey_number_of_databases:
                       description:
@@ -580,7 +581,7 @@ spec:
                     valkey_version:
                       description: |-
                         Available versions: `8.1`, `9.0`, `9.1`. Newer versions may also be available.
-                        Valkey major version
+                        Valkey major version. Deprecated values: `9.0`
                       type: string
                   type: object
               required:

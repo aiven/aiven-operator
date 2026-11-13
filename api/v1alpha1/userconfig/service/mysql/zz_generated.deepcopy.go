@@ -94,6 +94,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.CollationServer != nil {
+		in, out := &in.CollationServer, &out.CollationServer
+		*out = new(string)
+		**out = **in
+	}
 	if in.ConnectTimeout != nil {
 		in, out := &in.ConnectTimeout, &out.ConnectTimeout
 		*out = new(int)
@@ -119,6 +124,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.EventScheduler != nil {
+		in, out := &in.EventScheduler, &out.EventScheduler
+		*out = new(string)
+		**out = **in
+	}
 	if in.GroupConcatMaxLen != nil {
 		in, out := &in.GroupConcatMaxLen, &out.GroupConcatMaxLen
 		*out = new(int)
@@ -141,6 +151,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 	}
 	if in.InnodbFlushNeighbors != nil {
 		in, out := &in.InnodbFlushNeighbors, &out.InnodbFlushNeighbors
+		*out = new(int)
+		**out = **in
+	}
+	if in.InnodbFtCacheSize != nil {
+		in, out := &in.InnodbFtCacheSize, &out.InnodbFtCacheSize
 		*out = new(int)
 		**out = **in
 	}
@@ -172,6 +187,16 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 	if in.InnodbFtServerStopwordTable != nil {
 		in, out := &in.InnodbFtServerStopwordTable, &out.InnodbFtServerStopwordTable
 		*out = new(string)
+		**out = **in
+	}
+	if in.InnodbFtSortPllDegree != nil {
+		in, out := &in.InnodbFtSortPllDegree, &out.InnodbFtSortPllDegree
+		*out = new(int)
+		**out = **in
+	}
+	if in.InnodbFtTotalCacheSize != nil {
+		in, out := &in.InnodbFtTotalCacheSize, &out.InnodbFtTotalCacheSize
+		*out = new(int)
 		**out = **in
 	}
 	if in.InnodbFtUserStopwordTable != nil {
@@ -242,6 +267,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 	if in.InnodbRollbackOnTimeout != nil {
 		in, out := &in.InnodbRollbackOnTimeout, &out.InnodbRollbackOnTimeout
 		*out = new(bool)
+		**out = **in
+	}
+	if in.InnodbSortBufferSize != nil {
+		in, out := &in.InnodbSortBufferSize, &out.InnodbSortBufferSize
+		*out = new(int)
 		**out = **in
 	}
 	if in.InnodbThreadConcurrency != nil {
@@ -349,6 +379,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.SchemaDefinitionCache != nil {
+		in, out := &in.SchemaDefinitionCache, &out.SchemaDefinitionCache
+		*out = new(int)
+		**out = **in
+	}
 	if in.SlowQueryLog != nil {
 		in, out := &in.SlowQueryLog, &out.SlowQueryLog
 		*out = new(bool)
@@ -367,6 +402,11 @@ func (in *Mysql) DeepCopyInto(out *Mysql) {
 	if in.SqlRequirePrimaryKey != nil {
 		in, out := &in.SqlRequirePrimaryKey, &out.SqlRequirePrimaryKey
 		*out = new(bool)
+		**out = **in
+	}
+	if in.TablespaceDefinitionCache != nil {
+		in, out := &in.TablespaceDefinitionCache, &out.TablespaceDefinitionCache
+		*out = new(int)
 		**out = **in
 	}
 	if in.TmpTableSize != nil {

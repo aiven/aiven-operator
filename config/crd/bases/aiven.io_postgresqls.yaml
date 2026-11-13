@@ -398,7 +398,7 @@ spec:
                         method:
                           description:
                             The migration method to be used (currently supported
-                            only by Redis, Dragonfly, MySQL and PostgreSQL service types)
+                            only by Redis, MySQL and PostgreSQL service types)
                           enum:
                             - dump
                             - replication
