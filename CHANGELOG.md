@@ -40,7 +40,8 @@
   definition objects the data dictionary object cache can hold
 - Add `MySQL` field `userConfig.mysql.tablespace_definition_cache`, type `integer`: The number of tablespace
   definition objects the data dictionary object cache can hold
-- Change `MySQL` field `userConfig.binlog_retention_period`: maximum ~~`9007199254740991`~~ → `1814400`
+- **BREAKING**: Change `MySQL` field `userConfig.binlog_retention_period`: maximum ~~`9007199254740991`~~ → `1814400`.
+  A `MySQL` resource with a higher value is rejected on create or spec update; lower it to `1814400` or less before upgrading
 - Add `OpenSearch` field `userConfig.opensearch.search_cancel_after_time_interval`, type `string`: Hard
   limit for search requests
 - Add `OpenSearch` field `userConfig.opensearch.search_default_search_timeout`, type `string`: Soft timeout
