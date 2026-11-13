@@ -14,8 +14,10 @@ import (
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/go-logr/logr"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"k8s.io/client-go/tools/record"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
@@ -147,8 +149,15 @@ func (c *serviceController[T]) observeMissing(ctx context.Context, obj T) (Obser
 		status := obj.ServiceStatus()
 		status.State = ""
 		status.Version = ""
-		// The migration ran on the deleted service: the recreated one needs the credentials again.
-		meta.RemoveStatusCondition(&status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+		// The migration ran on the deleted service: the recreated one needs the credentials again,
+		// unless deleteAfterMigration has removed them.
+		deleted, err := c.migrationSecretDeleted(ctx, obj)
+		if err != nil {
+			return Observation{}, err
+		}
+		if !deleted {
+			meta.RemoveStatusCondition(&status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+		}
 	}
 
 	// Refuse to create a powered-off service.
@@ -289,16 +298,16 @@ func (c *serviceController[T]) Create(ctx context.Context, obj T) (CreateResult,
 	case err != nil:
 		return CreateResult{}, fmt.Errorf("failed to create service: %w", err)
 	case wasEverApplied(obj):
-		c.rec.Event(
-			obj,
-			corev1.EventTypeWarning,
-			eventInstanceMissingAtAiven,
-			"service was not found at Aiven and has been recreated from the spec",
-		)
+		msg := "service was not found at Aiven and has been recreated from the spec"
+		if c.kind.migrationSource(obj) != nil && meta.IsStatusConditionTrue(obj.ServiceStatus().Conditions, v1alpha1.ConditionTypeMigrationComplete) {
+			msg += ", without the migration: deleteAfterMigration removed its credentials"
+		}
+		c.rec.Event(obj, corev1.EventTypeWarning, eventInstanceMissingAtAiven, msg)
 		// Un-stamp the generation so a failure before the reconciler stamps it is retried through Update.
 		delete(obj.GetAnnotations(), processedGenerationAnnotation)
 	}
 
+	c.markMigrationApplied(obj)
 	markServiceCreatedOrUpdated(obj)
 	return CreateResult{}, nil
 }
@@ -368,6 +377,7 @@ func (c *serviceController[T]) Update(ctx context.Context, obj T) (UpdateResult,
 	if _, err := c.avnGen.ServiceUpdate(ctx, spec.Project, objMeta.Name, &req); err != nil {
 		return UpdateResult{}, fmt.Errorf("failed to update service: %w", err)
 	}
+	c.markMigrationApplied(obj)
 
 	// Tags have their own endpoint; {} clears them.
 	if spec.Tags != nil {
@@ -476,6 +486,31 @@ func (c *serviceController[T]) resolveUserConfig(ctx context.Context, obj T) (an
 		return nil, fmt.Errorf("failed to build migration user config: %w", err)
 	}
 	return resolved, nil
+}
+
+// markMigrationApplied records a sent migration config for kinds with a migration source.
+func (c *serviceController[T]) markMigrationApplied(obj T) {
+	if c.kind.migrationSource(obj) == nil {
+		return
+	}
+	markMigrationApplied(&obj.ServiceStatus().Conditions, obj.GetGeneration())
+}
+
+// migrationSecretDeleted reports whether deleteAfterMigration removed the Secret of a completed migration.
+func (c *serviceController[T]) migrationSecretDeleted(ctx context.Context, obj T) (bool, error) {
+	src := c.kind.migrationSource(obj)
+	if src == nil || !src.DeleteAfterMigration ||
+		!meta.IsStatusConditionTrue(obj.ServiceStatus().Conditions, v1alpha1.ConditionTypeMigrationComplete) {
+		return false, nil
+	}
+	err := c.k8s.Get(ctx, types.NamespacedName{Name: src.Name, Namespace: obj.GetNamespace()}, &corev1.Secret{})
+	switch {
+	case apierrors.IsNotFound(err):
+		return true, nil
+	case err != nil:
+		return false, fmt.Errorf("cannot get migration secret %q: %w", src.Name, err)
+	}
+	return false, nil
 }
 
 // maybeDeleteMigrationSecret deletes the migration Secret once the migration is complete, when

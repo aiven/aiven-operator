@@ -124,6 +124,18 @@ func TestMySQL(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["MYSQL_REPLICA_URI"]) // business-4 has replica
 	assert.NotEmpty(t, secret.Data["MYSQL_CA_CERT"])
 
+	t.Run("tags changed at Aiven are reverted", func(t *testing.T) {
+		err := avnGen.ProjectServiceTagsReplace(ctx, cfg.Project, name, &service.ProjectServiceTagsReplaceIn{
+			Tags: map[string]string{"env": "drifted"},
+		})
+		require.NoError(t, err)
+		require.EventuallyWithT(t, func(collect *assert.CollectT) {
+			tags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, name)
+			require.NoError(collect, err)
+			assert.Equal(collect, map[string]string{"env": "test", "instance": "foo"}, tags)
+		}, 5*time.Minute, 15*time.Second)
+	})
+
 	newServiceUser := func(t *testing.T) *v1alpha1.ServiceUser {
 		t.Helper()
 		userName := randName("mysql-user")
