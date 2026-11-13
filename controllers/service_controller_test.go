@@ -969,10 +969,11 @@ spec:
 			require.Error(t, err, "migration secret should have been deleted")
 		})
 
-		t.Run("migration status 404 -> True condition (already cleaned up)", func(t *testing.T) {
+		t.Run("migration status 404 after the config was applied -> True condition (already cleaned up)", func(t *testing.T) {
 			t.Parallel()
 
 			pg := newMigratingPG(t)
+			markMigrationApplied(&pg.Status.Conditions, pg.Generation)
 			avn := avngen.NewMockClient(t)
 			avn.EXPECT().
 				ServiceGet(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
@@ -991,6 +992,36 @@ spec:
 			cond := meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
 			require.NotNil(t, cond)
 			require.Equal(t, metav1.ConditionTrue, cond.Status)
+		})
+
+		t.Run("migration status 404 under management-policy CreateOnly -> not complete, secret kept", func(t *testing.T) {
+			t.Parallel()
+
+			pg := newMigratingPG(t)
+			pg.Spec.MigrationSecretSource = &v1alpha1.MigrationSecretSource{Name: "creds", DeleteAfterMigration: true}
+			ctx := withManagementPolicy(t.Context(), managementPolicyCreateOnly)
+
+			secret := &corev1.Secret{ObjectMeta: metav1.ObjectMeta{Name: "creds", Namespace: "default"}}
+			k8s := fake.NewClientBuilder().WithScheme(scheme).WithObjects(secret).Build()
+
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
+				Return(runningPGOut, nil).Once()
+			avn.EXPECT().
+				ServiceGetMigrationStatus(mock.Anything, pg.Spec.Project, pg.Name).
+				Return(nil, newAivenError(404, "no active migration")).Maybe()
+			avn.EXPECT().
+				ProjectKmsGetCA(mock.Anything, pg.Spec.Project).Return("ca-cert", nil).Maybe()
+
+			c := newTestController(avn, postgreSQLKind, k8s)
+			_, err := c.Observe(ctx, pg)
+			require.NoError(t, err)
+
+			require.False(t, meta.IsStatusConditionTrue(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete),
+				"a migration CreateOnly never applied must not be reported complete")
+			require.NoError(t, k8s.Get(t.Context(), types.NamespacedName{Name: "creds", Namespace: "default"}, &corev1.Secret{}),
+				"the unused migration secret must be kept")
 		})
 	})
 
@@ -1458,6 +1489,11 @@ func TestServiceController_Create(t *testing.T) {
 		require.True(t, ok, "migration block should be a map")
 		require.Equal(t, "source.example.com", mig["host"])
 		require.EqualValues(t, 5432, mig["port"])
+
+		// The sent config is recorded, so a later status 404 reads as done.
+		cond := meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+		require.NotNil(t, cond)
+		require.Equal(t, v1alpha1.MigrationReasonInProgress, cond.Reason)
 	})
 
 	t.Run("recreate resets MigrationComplete so the migration block is sent again", func(t *testing.T) {
@@ -1511,6 +1547,85 @@ func TestServiceController_Create(t *testing.T) {
 		mig, ok := (*createReq.UserConfig)["migration"].(map[string]any)
 		require.True(t, ok, "expected migration block in submitted user config")
 		require.Equal(t, "source.example.com", mig["host"])
+	})
+
+	t.Run("recreate with deleteAfterMigration", func(t *testing.T) {
+		t.Parallel()
+
+		cases := []struct {
+			name          string
+			secretExists  bool
+			wantMigration bool
+		}{
+			{name: "Secret deleted: recreates without the migration and keeps MigrationComplete", secretExists: false, wantMigration: false},
+			{name: "Secret still present: resets MigrationComplete and sends the migration again", secretExists: true, wantMigration: true},
+		}
+		for _, tc := range cases {
+			t.Run(tc.name, func(t *testing.T) {
+				t.Parallel()
+
+				// Applied PostgreSQL whose migration finished, then deleted at Aiven.
+				pg := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgres)
+				pg.Namespace = "default"
+				pg.Spec.MigrationSecretSource = &v1alpha1.MigrationSecretSource{Name: "creds", DeleteAfterMigration: true}
+				pg.Spec.UserConfig = &pguserconfig.PgUserConfig{}
+				pg.Spec.Powered = new(true)
+				markGeneration(pg, 1)
+				markInstanceRunning(pg)
+				meta.SetStatusCondition(&pg.Status.Conditions, metav1.Condition{
+					Type:   v1alpha1.ConditionTypeMigrationComplete,
+					Status: metav1.ConditionTrue,
+					Reason: v1alpha1.MigrationReasonDone,
+				})
+
+				builder := fake.NewClientBuilder().WithScheme(newLifecycleScheme(t))
+				if tc.secretExists {
+					builder = builder.WithObjects(&corev1.Secret{
+						ObjectMeta: metav1.ObjectMeta{Name: "creds", Namespace: "default"},
+						Data: map[string][]byte{
+							"host": []byte("source.example.com"),
+							"port": []byte("5432"),
+						},
+					})
+				}
+
+				var createReq *service.ServiceCreateIn
+				avn := avngen.NewMockClient(t)
+				avn.EXPECT().
+					ServiceGet(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
+					Return(nil, newAivenError(404, "service not found")).Once()
+				avn.EXPECT().
+					ServiceCreate(mock.Anything, pg.Spec.Project, mock.Anything).
+					Run(func(_ context.Context, _ string, in *service.ServiceCreateIn) { createReq = in }).
+					Return(&service.ServiceCreateOut{}, nil).Once()
+
+				c, rec := newRecordingTestController(avn, postgreSQLKind, builder.Build())
+				obs, err := c.Observe(t.Context(), pg)
+				require.NoError(t, err)
+				require.False(t, obs.ResourceExists)
+				require.Equal(t, !tc.wantMigration, meta.IsStatusConditionTrue(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete))
+
+				_, err = c.Create(t.Context(), pg)
+				require.NoError(t, err)
+
+				require.NotNil(t, createReq)
+				var userCfg map[string]any
+				if createReq.UserConfig != nil {
+					userCfg = *createReq.UserConfig
+				}
+				_, hasMigration := userCfg["migration"]
+				require.Equal(t, tc.wantMigration, hasMigration)
+
+				require.Len(t, rec.Events, 1)
+				event := <-rec.Events
+				require.Contains(t, event, eventInstanceMissingAtAiven)
+				if tc.wantMigration {
+					require.NotContains(t, event, "without the migration")
+				} else {
+					require.Contains(t, event, "without the migration")
+				}
+			})
+		}
 	})
 }
 
@@ -1909,6 +2024,12 @@ func TestServiceController_Update(t *testing.T) {
 			require.True(t, ok, "migration block should be a map")
 			require.Equal(t, "source.example.com", mig["host"])
 			require.EqualValues(t, 5432, mig["port"])
+
+			// The sent config is recorded, so a later status 404 reads as done.
+			cond := meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+			require.NotNil(t, cond)
+			require.Equal(t, metav1.ConditionFalse, cond.Status)
+			require.Equal(t, v1alpha1.MigrationReasonInProgress, cond.Reason)
 		})
 
 		t.Run("skips migration secret once complete", func(t *testing.T) {

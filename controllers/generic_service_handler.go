@@ -37,6 +37,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 	}
 
 	userCfg := o.getUserConfig()
+	migrationSent := false
 	if mp, ok := o.(migrationSecretProvider); ok && mp.getMigrationSecretSource() != nil {
 		// Once migration has completed, skip re-resolving credentials from the Secret.
 		// Aiven persists the submitted userConfig.migration block and returns it on subsequent ServiceGet calls.
@@ -54,6 +55,7 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 				return fmt.Errorf("failed to build migration user config: %w", err)
 			}
 			userCfg = resolved
+			migrationSent = true
 		}
 	}
 
@@ -157,6 +159,9 @@ func (h *genericServiceHandler) createOrUpdate(ctx context.Context, avnGen avnge
 		if err != nil {
 			return fmt.Errorf("failed to update service: %w", err)
 		}
+	}
+	if migrationSent {
+		markMigrationApplied(&o.getServiceStatus().Conditions, ometa.Generation)
 	}
 
 	// Updates tags.
@@ -348,13 +353,29 @@ func (h *genericServiceHandler) updateMigrationStatus(ctx context.Context, avnGe
 	return updateMigrationCondition(ctx, avnGen, spec.Project, o.getObjectMeta().Name, o.getObjectMeta().Generation, &o.getServiceStatus().Conditions)
 }
 
+// markMigrationApplied records that the migration config was sent to Aiven, unless a migration condition exists.
+func markMigrationApplied(conditions *[]metav1.Condition, generation int64) {
+	if meta.FindStatusCondition(*conditions, v1alpha1.ConditionTypeMigrationComplete) != nil {
+		return
+	}
+	meta.SetStatusCondition(conditions, metav1.Condition{
+		Type:               v1alpha1.ConditionTypeMigrationComplete,
+		Status:             metav1.ConditionFalse,
+		ObservedGeneration: generation,
+		Reason:             v1alpha1.MigrationReasonInProgress,
+		Message:            "Migration config applied",
+	})
+}
+
 // updateMigrationCondition sets MigrationComplete from the migration status at Aiven.
 func updateMigrationCondition(ctx context.Context, avnGen avngen.Client, project, name string, generation int64, conditions *[]metav1.Condition) error {
 	migrationStatus, err := avnGen.ServiceGetMigrationStatus(ctx, project, name)
 	if err != nil {
 		if isNotFound(err) {
-			// 404 means no migration is active. Since migrationSecretSource was configured, most likely
-			// the migration has already completed and been cleaned up
+			// 404 means no active migration: done once the migration config was applied, not started otherwise.
+			if meta.FindStatusCondition(*conditions, v1alpha1.ConditionTypeMigrationComplete) == nil {
+				return nil
+			}
 			meta.SetStatusCondition(conditions, metav1.Condition{
 				Type:               v1alpha1.ConditionTypeMigrationComplete,
 				Status:             metav1.ConditionTrue,

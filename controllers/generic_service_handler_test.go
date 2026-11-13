@@ -199,6 +199,7 @@ func TestUpdateMigrationStatus(t *testing.T) {
 		t.Parallel()
 
 		pg, adapter := newPGWithMigration()
+		markMigrationApplied(&pg.Status.Conditions, pg.Generation)
 		avn := avngen.NewMockClient(t)
 		avn.EXPECT().
 			ServiceGetMigrationStatus(mock.Anything, pg.Spec.Project, pg.Name).
@@ -210,6 +211,19 @@ func TestUpdateMigrationStatus(t *testing.T) {
 		require.NotNil(t, cond)
 		assert.Equal(t, metav1.ConditionTrue, cond.Status)
 		assert.Equal(t, v1alpha1.MigrationReasonDone, cond.Reason)
+	})
+
+	t.Run("Leaves the condition unset on 404 when the migration config was never applied", func(t *testing.T) {
+		t.Parallel()
+
+		pg, adapter := newPGWithMigration()
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGetMigrationStatus(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(nil, avngen.Error{Status: http.StatusNotFound, Message: "not found"}).Once()
+
+		require.NoError(t, h.updateMigrationStatus(t.Context(), avn, adapter, &pg.Spec.ServiceCommonSpec))
+		assert.Nil(t, meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete))
 	})
 
 	t.Run("Sets MigrationDone when status is done", func(t *testing.T) {

@@ -21,11 +21,11 @@ import (
 )
 
 var adapters = []adapterFactory{
-	{"pg", func(ns, secret string, k8s *fake.ClientBuilder) migrationAdapter {
-		return newPgAdapter(ns, secret, k8s)
+	{"pg", func(ctx context.Context, ns, secret string, k8s *fake.ClientBuilder) (any, error) {
+		return resolveForTest(ctx, newPgAdapter(ns, secret, k8s))
 	}},
-	{"mysql", func(ns, secret string, k8s *fake.ClientBuilder) migrationAdapter {
-		return newTestMySQLAdapter(ns, secret, k8s)
+	{"mysql", func(ctx context.Context, ns, secret string, k8s *fake.ClientBuilder) (any, error) {
+		return resolveMySQLForTest(ctx, newTestMySQL(ns, secret), k8s.Build())
 	}},
 }
 
@@ -80,8 +80,8 @@ func TestMySQLAdapter_FullFields(t *testing.T) {
 		"dump_tool":               []byte("mydumper"),
 		"reestablish_replication": []byte("true"),
 	})
-	adapter := newTestMySQLAdapter("default", "creds", newFakeClient(s))
-	result, err := resolveForTest(context.Background(), adapter)
+	mysql := newTestMySQL("default", "creds")
+	result, err := resolveMySQLForTest(context.Background(), mysql, newFakeClient(s).Build())
 	require.NoError(t, err)
 
 	cfg := result.(*mysqluserconfig.MysqlUserConfig)
@@ -100,7 +100,7 @@ func TestMySQLAdapter_FullFields(t *testing.T) {
 	assert.True(t, *m.ReestablishReplication)
 
 	// Original spec must not be mutated
-	assert.Nil(t, adapter.Spec.UserConfig)
+	assert.Nil(t, mysql.Spec.UserConfig)
 }
 
 func TestAdapters_StringFieldsPreservedAsStrings(t *testing.T) {
@@ -162,7 +162,7 @@ func TestAdapters_Errors(t *testing.T) {
 				} else {
 					k = newFakeClient()
 				}
-				_, err := resolveForTest(context.Background(), af.newFunc(tt.ns, tt.secret, k))
+				_, err := af.resolve(context.Background(), tt.ns, tt.secret, k)
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tt.errSubstr)
 			})
@@ -178,9 +178,7 @@ func TestMySQLAdapter_InvalidReestablishReplication(t *testing.T) {
 		"port":                    []byte("3306"),
 		"reestablish_replication": []byte("nope"),
 	})
-	adapter := newTestMySQLAdapter("default", "creds", newFakeClient(s))
-
-	_, err := resolveForTest(context.Background(), adapter)
+	_, err := resolveMySQLForTest(context.Background(), newTestMySQL("default", "creds"), newFakeClient(s).Build())
 	require.Error(t, err)
 	assert.Contains(t, err.Error(), "reestablish_replication")
 }
@@ -256,14 +254,19 @@ func newPgAdapter(ns string, secretName string, k8s *fake.ClientBuilder) *postgr
 	return &postgreSQLAdapter{PostgreSQL: pg, k8s: k8s.Build()}
 }
 
-func newTestMySQLAdapter(ns string, secretName string, k8s *fake.ClientBuilder) *mySQLAdapter {
+func newTestMySQL(ns string, secretName string) *v1alpha1.MySQL {
 	mysql := &v1alpha1.MySQL{}
 	mysql.Namespace = ns
 	mysql.Spec.MigrationSecretSource = &v1alpha1.MigrationSecretSource{Name: secretName}
-	return &mySQLAdapter{MySQL: mysql, k8s: k8s.Build()}
+	return mysql
 }
 
-// migrationAdapter abstracts over PG and MySQL adapters for shared tests.
+// resolveMySQLForTest resolves the MySQL user config through the service controller.
+func resolveMySQLForTest(ctx context.Context, mysql *v1alpha1.MySQL, k8s client.Client) (any, error) {
+	return newTestController(nil, mySQLKind, k8s).resolveUserConfig(ctx, mysql)
+}
+
+// migrationAdapter abstracts over legacy PG adapters for shared tests.
 type migrationAdapter interface {
 	migrationSecretProvider
 	k8sClient() client.Client
@@ -272,8 +275,6 @@ type migrationAdapter interface {
 
 func (a *postgreSQLAdapter) k8sClient() client.Client { return a.k8s }
 func (a *postgreSQLAdapter) namespace() string        { return a.GetNamespace() }
-func (a *mySQLAdapter) k8sClient() client.Client      { return a.k8s }
-func (a *mySQLAdapter) namespace() string             { return a.GetNamespace() }
 
 func resolveForTest(ctx context.Context, a migrationAdapter) (any, error) {
 	ref := a.getMigrationSecretSource()
@@ -289,7 +290,7 @@ func resolveForTest(ctx context.Context, a migrationAdapter) (any, error) {
 
 type adapterFactory struct {
 	name    string
-	newFunc func(ns, secretName string, k8s *fake.ClientBuilder) migrationAdapter
+	resolve func(ctx context.Context, ns, secretName string, k8s *fake.ClientBuilder) (any, error)
 }
 
 func markMigrationDone(pg *v1alpha1.PostgreSQL) {
