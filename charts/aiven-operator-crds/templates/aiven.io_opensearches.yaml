@@ -1560,6 +1560,22 @@ spec:
                                   type: number
                               type: object
                           type: object
+                        search_cancel_after_time_interval:
+                          description:
+                            Hard limit for search requests. When it is reached,
+                            the search task is cancelled and the request fails. OpenSearch
+                            default value is used when this is not defined.
+                          pattern: ^\d+\s*(?:[dhms]|ms|micros|nanos)$
+                          type: string
+                        search_default_search_timeout:
+                          description:
+                            "Soft timeout for search requests that don't
+                            set their own timeout. When it is reached, the search returns
+                            partial results with `timed_out: true`, and the search task
+                            keeps running unless it is cancelled. OpenSearch default
+                            value is used when this is not defined."
+                          pattern: ^\d+\s*(?:[dhms]|ms|micros|nanos)$
+                          type: string
                         search_max_buckets:
                           description:
                             Maximum number of aggregation buckets allowed

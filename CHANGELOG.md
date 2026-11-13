@@ -22,6 +22,32 @@
 - `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`: a resource that sets both `projectVpcId` and `projectVPCRef` now reports an `Error`
   condition on every poll, not only on its next update. Drop one of the two fields to clear it
 - Add `ServiceUser` field `accessControl.valkeyAclDatabases`, type `array`: Database ids the user can access
+- Change `Grafana` field `userConfig.dashboard_previews_enabled`: deprecated
+- Change `Grafana` field `userConfig.dashboard_scenes_enabled`: deprecated
+- Add `MySQL` field `userConfig.mysql.collation_server`, type `string`: The default collation for databases
+  created without one, which their new tables then inherit
+- Add `MySQL` field `userConfig.mysql.event_scheduler`, type `string`: Whether the event scheduler runs
+  the events created with CREATE EVENT
+- Add `MySQL` field `userConfig.mysql.innodb_ft_cache_size`, type `integer`: The size in bytes of the
+  InnoDB FULLTEXT index cache for each table
+- Add `MySQL` field `userConfig.mysql.innodb_ft_sort_pll_degree`, type `integer`: The number of parallel
+  threads used to tokenize and index text when building an InnoDB FULLTEXT index
+- Add `MySQL` field `userConfig.mysql.innodb_ft_total_cache_size`, type `integer`: The combined memory
+  limit in bytes for InnoDB FULLTEXT index caches across all tables
+- Add `MySQL` field `userConfig.mysql.innodb_sort_buffer_size`, type `integer`: The size in bytes of
+  the sort buffer used when creating InnoDB indexes
+- Add `MySQL` field `userConfig.mysql.schema_definition_cache`, type `integer`: The number of schema
+  definition objects the data dictionary object cache can hold
+- Add `MySQL` field `userConfig.mysql.tablespace_definition_cache`, type `integer`: The number of tablespace
+  definition objects the data dictionary object cache can hold
+- **BREAKING**: Change `MySQL` field `userConfig.binlog_retention_period`: maximum ~~`9007199254740991`~~ → `1814400`.
+  A `MySQL` resource with a higher value is rejected on create or spec update; lower it to `1814400` or less before upgrading
+- Add `OpenSearch` field `userConfig.opensearch.search_cancel_after_time_interval`, type `string`: Hard
+  limit for search requests
+- Add `OpenSearch` field `userConfig.opensearch.search_default_search_timeout`, type `string`: Soft timeout
+  for search requests that don't set their own timeout
+- Change `Valkey` field `userConfig.valkey_notify_keyspace_events`: pattern ~~`^[KEg\$lshzxentdmA]*$`~~
+  → `^[KEg\$lshzxentdmpA]*$`
 
 ## v0.50.1 - 2026-11-12
 

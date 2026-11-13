@@ -895,6 +895,14 @@ type Opensearch struct {
 	// Search Backpressure Settings
 	SearchBackpressure *SearchBackpressure `groups:"create,update" json:"search_backpressure,omitempty"`
 
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+	// Hard limit for search requests. When it is reached, the search task is cancelled and the request fails. OpenSearch default value is used when this is not defined.
+	SearchCancelAfterTimeInterval *string `groups:"create,update" json:"search_cancel_after_time_interval,omitempty"`
+
+	// +kubebuilder:validation:Pattern=`^\d+\s*(?:[dhms]|ms|micros|nanos)$`
+	// Soft timeout for search requests that don't set their own timeout. When it is reached, the search returns partial results with `timed_out: true`, and the search task keeps running unless it is cancelled. OpenSearch default value is used when this is not defined.
+	SearchDefaultSearchTimeout *string `groups:"create,update" json:"search_default_search_timeout,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=1000000
 	// Maximum number of aggregation buckets allowed in a single response. OpenSearch default value is used when this is not defined.

@@ -37,7 +37,7 @@ type Migration struct {
 	IgnoreRoles *string `groups:"create,update" json:"ignore_roles,omitempty"`
 
 	// +kubebuilder:validation:Enum="dump";"replication"
-	// The migration method to be used (currently supported only by Redis, Dragonfly, MySQL and PostgreSQL service types)
+	// The migration method to be used (currently supported only by Redis, MySQL and PostgreSQL service types)
 	Method *string `groups:"create,update" json:"method,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=256
@@ -65,6 +65,10 @@ type Mysql struct {
 	// When enabled, the server automatically grants the EXECUTE and ALTER ROUTINE privileges to the creator of a stored routine and drops them when the routine is dropped.
 	AutomaticSpPrivileges *bool `groups:"create,update" json:"automatic_sp_privileges,omitempty"`
 
+	// +kubebuilder:validation:Enum="utf8mb4_0900_ai_ci";"utf8mb4_0900_as_ci";"utf8mb4_0900_as_cs";"utf8mb4_0900_bin";"utf8mb4_bg_0900_ai_ci";"utf8mb4_bg_0900_as_cs";"utf8mb4_bin";"utf8mb4_bs_0900_ai_ci";"utf8mb4_bs_0900_as_cs";"utf8mb4_croatian_ci";"utf8mb4_cs_0900_ai_ci";"utf8mb4_cs_0900_as_cs";"utf8mb4_czech_ci";"utf8mb4_da_0900_ai_ci";"utf8mb4_da_0900_as_cs";"utf8mb4_danish_ci";"utf8mb4_de_pb_0900_ai_ci";"utf8mb4_de_pb_0900_as_cs";"utf8mb4_eo_0900_ai_ci";"utf8mb4_eo_0900_as_cs";"utf8mb4_es_0900_ai_ci";"utf8mb4_es_0900_as_cs";"utf8mb4_es_trad_0900_ai_ci";"utf8mb4_es_trad_0900_as_cs";"utf8mb4_esperanto_ci";"utf8mb4_estonian_ci";"utf8mb4_et_0900_ai_ci";"utf8mb4_et_0900_as_cs";"utf8mb4_general_ci";"utf8mb4_german2_ci";"utf8mb4_gl_0900_ai_ci";"utf8mb4_gl_0900_as_cs";"utf8mb4_hr_0900_ai_ci";"utf8mb4_hr_0900_as_cs";"utf8mb4_hu_0900_ai_ci";"utf8mb4_hu_0900_as_cs";"utf8mb4_hungarian_ci";"utf8mb4_icelandic_ci";"utf8mb4_is_0900_ai_ci";"utf8mb4_is_0900_as_cs";"utf8mb4_ja_0900_as_cs";"utf8mb4_ja_0900_as_cs_ks";"utf8mb4_la_0900_ai_ci";"utf8mb4_la_0900_as_cs";"utf8mb4_latvian_ci";"utf8mb4_lithuanian_ci";"utf8mb4_lt_0900_ai_ci";"utf8mb4_lt_0900_as_cs";"utf8mb4_lv_0900_ai_ci";"utf8mb4_lv_0900_as_cs";"utf8mb4_mn_cyrl_0900_ai_ci";"utf8mb4_mn_cyrl_0900_as_cs";"utf8mb4_nb_0900_ai_ci";"utf8mb4_nb_0900_as_cs";"utf8mb4_nn_0900_ai_ci";"utf8mb4_nn_0900_as_cs";"utf8mb4_persian_ci";"utf8mb4_pl_0900_ai_ci";"utf8mb4_pl_0900_as_cs";"utf8mb4_polish_ci";"utf8mb4_ro_0900_ai_ci";"utf8mb4_ro_0900_as_cs";"utf8mb4_roman_ci";"utf8mb4_romanian_ci";"utf8mb4_ru_0900_ai_ci";"utf8mb4_ru_0900_as_cs";"utf8mb4_sinhala_ci";"utf8mb4_sk_0900_ai_ci";"utf8mb4_sk_0900_as_cs";"utf8mb4_sl_0900_ai_ci";"utf8mb4_sl_0900_as_cs";"utf8mb4_slovak_ci";"utf8mb4_slovenian_ci";"utf8mb4_spanish2_ci";"utf8mb4_spanish_ci";"utf8mb4_sr_latn_0900_ai_ci";"utf8mb4_sr_latn_0900_as_cs";"utf8mb4_sv_0900_ai_ci";"utf8mb4_sv_0900_as_cs";"utf8mb4_swedish_ci";"utf8mb4_tr_0900_ai_ci";"utf8mb4_tr_0900_as_cs";"utf8mb4_turkish_ci";"utf8mb4_unicode_520_ci";"utf8mb4_unicode_ci";"utf8mb4_vi_0900_ai_ci";"utf8mb4_vi_0900_as_cs";"utf8mb4_vietnamese_ci";"utf8mb4_zh_0900_as_cs"
+	// The default collation for databases created without one, which their new tables then inherit. Only collations of the utf8mb4 character set are accepted. Databases Aiven creates, defaultdb and those added through the API or Console, keep utf8mb4_0900_ai_ci. Changing it leaves existing databases as they are. A change applies to new connections at once. After the next server restart, for example at maintenance, an upgrade, a plan change or a node replacement, sessions reset with COM_RESET_CONNECTION also compare strings with this collation, which a change without a restart does not do. Every 0900 collation except utf8mb4_0900_ai_ci has an id above 255, so after that restart MySQL announces a wrong character set to connecting clients. Clients that take their character set from the server, such as PHP mysqli and PDO without a charset option and MySQL Connector/NET (MySql.Data) without CharSet, must then set utf8mb4 themselves. Default is utf8mb4_0900_ai_ci.
+	CollationServer *string `groups:"create,update" json:"collation_server,omitempty"`
+
 	// +kubebuilder:validation:Minimum=2
 	// +kubebuilder:validation:Maximum=3600
 	// The number of seconds that the mysqld server waits for a connect packet before responding with Bad handshake
@@ -89,6 +93,10 @@ type Mysql struct {
 	// The number of equality ranges in a query at or above which the optimizer switches from index dives to index statistics when estimating the number of qualifying rows. 0 means always use index dives. Default is 200.
 	EqRangeIndexDiveLimit *int `groups:"create,update" json:"eq_range_index_dive_limit,omitempty"`
 
+	// +kubebuilder:validation:Enum="OFF";"ON"
+	// Whether the event scheduler runs the events created with CREATE EVENT. Set OFF to stop every event on the service without dropping it, and ON to start them again. A change applies at once, without a restart. Events take effect only on the primary node. After a failover, they are re-enabled on the new primary. Default is ON.
+	EventScheduler *string `groups:"create,update" json:"event_scheduler,omitempty"`
+
 	// +kubebuilder:validation:Minimum=4
 	// The maximum permitted result length in bytes for the GROUP_CONCAT() function.
 	GroupConcatMaxLen *int `groups:"create,update" json:"group_concat_max_len,omitempty"`
@@ -110,6 +118,11 @@ type Mysql struct {
 	// +kubebuilder:validation:Maximum=2
 	// Specifies whether flushing a page from the InnoDB buffer pool also flushes other dirty pages in the same extent (default is 1): 0 - dirty pages in the same extent are not flushed, 1 - flush contiguous dirty pages in the same extent, 2 - flush dirty pages in the same extent
 	InnodbFlushNeighbors *int `groups:"create,update" json:"innodb_flush_neighbors,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1600000
+	// +kubebuilder:validation:Maximum=80000000
+	// The size in bytes of the InnoDB FULLTEXT index cache for each table. Pending index updates are flushed to disk when the cache reaches this limit. innodb_ft_total_cache_size controls the combined cache limit for all tables. Default is 8000000. Changing this parameter will lead to a restart of the MySQL service.
+	InnodbFtCacheSize *int `groups:"create,update" json:"innodb_ft_cache_size,omitempty"`
 
 	// Whether stopword processing is applied when creating or rebuilding an InnoDB FULLTEXT index. Enabled by default.
 	InnodbFtEnableStopword *bool `groups:"create,update" json:"innodb_ft_enable_stopword,omitempty"`
@@ -138,6 +151,16 @@ type Mysql struct {
 	// +kubebuilder:validation:Pattern=`^.+/.+$`
 	// This option is used to specify your own InnoDB FULLTEXT index stopword list for all InnoDB tables.
 	InnodbFtServerStopwordTable *string `groups:"create,update" json:"innodb_ft_server_stopword_table,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=32
+	// The number of parallel threads used to tokenize and index text when building an InnoDB FULLTEXT index. Default is 2. Changing this parameter will lead to a restart of the MySQL service.
+	InnodbFtSortPllDegree *int `groups:"create,update" json:"innodb_ft_sort_pll_degree,omitempty"`
+
+	// +kubebuilder:validation:Minimum=32000000
+	// +kubebuilder:validation:Maximum=1600000000
+	// The combined memory limit in bytes for InnoDB FULLTEXT index caches across all tables. When an index operation reaches this limit, InnoDB forces cached index updates to disk to reduce memory usage. Values above 5% of plan RAM are rejected. Changing this parameter will lead to a restart of the MySQL service.
+	InnodbFtTotalCacheSize *int `groups:"create,update" json:"innodb_ft_total_cache_size,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=1024
 	// +kubebuilder:validation:Pattern=`^.+/.+$`
@@ -203,6 +226,11 @@ type Mysql struct {
 	// When enabled a transaction timeout causes InnoDB to abort and roll back the entire transaction. Changing this parameter will lead to a restart of the MySQL service.
 	InnodbRollbackOnTimeout *bool `groups:"create,update" json:"innodb_rollback_on_timeout,omitempty"`
 
+	// +kubebuilder:validation:Minimum=65536
+	// +kubebuilder:validation:Maximum=67108864
+	// The size in bytes of the sort buffer used when creating InnoDB indexes. Also controls the read and write buffer sizes for the temporary log used during online DDL operations. Default is 1048576 (1 MiB). Changing this parameter will lead to a restart of the MySQL service.
+	InnodbSortBufferSize *int `groups:"create,update" json:"innodb_sort_buffer_size,omitempty"`
+
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=1000
 	// Defines the maximum number of threads permitted inside of InnoDB. Default is 0 (infinite concurrency - no limit)
@@ -228,7 +256,7 @@ type Mysql struct {
 
 	// +kubebuilder:validation:Minimum=0
 	// +kubebuilder:validation:Maximum=3600
-	// The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute.
+	// The slow_query_logs work as SQL statements that take more than long_query_time seconds to execute. Requests to set this below 0.05 seconds are rejected. Lower values log almost every statement, which can fill the disk, and AI Insights ignores queries under 50 ms.
 	LongQueryTime *float64 `groups:"create,update" json:"long_query_time,omitempty"`
 
 	// +kubebuilder:validation:Enum=0;1
@@ -303,6 +331,11 @@ type Mysql struct {
 	// The maximum amount of space in bytes to use for all relay logs while replicating from an external migration source. When the limit is reached, the replication I/O thread stops fetching relay log events until the SQL thread has caught up. Raise this to give a large migration a bigger relay-log budget; ensure the service disk is sized accordingly. The setting applies only on the node replicating from the external source; standby nodes always use the Aiven-managed default (the smaller of 5 GiB and 30% of the service disk), which is also used when this option is left unset. Changing this parameter will lead to a restart of the MySQL service.
 	RelayLogSpaceLimit *int `groups:"create,update" json:"relay_log_space_limit,omitempty"`
 
+	// +kubebuilder:validation:Minimum=256
+	// +kubebuilder:validation:Maximum=524288
+	// The number of schema definition objects the data dictionary object cache can hold. Raise it above the number of schemas on the service to keep their definitions in memory. Each cached definition uses a small amount of memory, and the cache never holds more than the service's own schemas, so a high value costs nothing extra on a service with few schemas. Default is 256.
+	SchemaDefinitionCache *int `groups:"create,update" json:"schema_definition_cache,omitempty"`
+
 	// Slow query log enables capturing of slow queries. Setting slow_query_log to false also truncates the mysql.slow_log table.
 	SlowQueryLog *bool `groups:"create,update" json:"slow_query_log,omitempty"`
 
@@ -318,6 +351,11 @@ type Mysql struct {
 
 	// Require primary key to be defined for new tables or old tables modified with ALTER TABLE and fail if missing. It is recommended to always have primary keys because various functionality may break if any large table is missing them.
 	SqlRequirePrimaryKey *bool `groups:"create,update" json:"sql_require_primary_key,omitempty"`
+
+	// +kubebuilder:validation:Minimum=256
+	// +kubebuilder:validation:Maximum=524288
+	// The number of tablespace definition objects the data dictionary object cache can hold. Each InnoDB table stored in its own file is a separate tablespace, so raise it above the number of tables on the service to keep their tablespace definitions in memory. Each cached definition uses a small amount of memory, and the cache never holds more than the service's own tables, so a high value costs nothing extra on a service with few tables. Default is 256.
+	TablespaceDefinitionCache *int `groups:"create,update" json:"tablespace_definition_cache,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1048576
 	// +kubebuilder:validation:Maximum=1073741824
@@ -407,8 +445,8 @@ type MysqlUserConfig struct {
 	BackupMinute *int `groups:"create,update" json:"backup_minute,omitempty"`
 
 	// +kubebuilder:validation:Minimum=600
-	// +kubebuilder:validation:Maximum=9007199254740991
-	// Warning: reducing this value can make a large batch of binary logs eligible for purge at once. Depending on the volume, this can sometimes stall the MySQL commit path and block writes until the purge completes. To stay on the safe side, prefer lowering the value gradually in small decrements during a low-traffic window rather than dropping it drastically in one step.
+	// +kubebuilder:validation:Maximum=1814400
+	// By default, the longest retention you can set is 86400 seconds (24 hours). To keep binary logs for longer, up to 1814400 seconds (21 days), contact Aiven support. If the service has enough disk space for the additional binary logs, Aiven raises the limit for the whole project. Warning: reducing this value can make a large batch of binary logs eligible for purge at once. Depending on the volume, this can sometimes stall the MySQL commit path and block writes until the purge completes. To stay on the safe side, prefer lowering the value gradually in small decrements during a low-traffic window rather than dropping it drastically in one step.
 	BinlogRetentionPeriod *int `groups:"create,update" json:"binlog_retention_period,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=8000

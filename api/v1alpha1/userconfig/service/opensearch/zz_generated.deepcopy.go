@@ -949,6 +949,16 @@ func (in *Opensearch) DeepCopyInto(out *Opensearch) {
 		*out = new(SearchBackpressure)
 		(*in).DeepCopyInto(*out)
 	}
+	if in.SearchCancelAfterTimeInterval != nil {
+		in, out := &in.SearchCancelAfterTimeInterval, &out.SearchCancelAfterTimeInterval
+		*out = new(string)
+		**out = **in
+	}
+	if in.SearchDefaultSearchTimeout != nil {
+		in, out := &in.SearchDefaultSearchTimeout, &out.SearchDefaultSearchTimeout
+		*out = new(string)
+		**out = **in
+	}
 	if in.SearchMaxBuckets != nil {
 		in, out := &in.SearchMaxBuckets, &out.SearchMaxBuckets
 		*out = new(int)
