@@ -1122,8 +1122,7 @@ spec:
 			require.Equal(t, "ca-cert", obs.SecretDetails["KAFKA_CA_CERT"])
 			require.Equal(t, "ca-cert", obs.SecretDetails["CA_CERT"])
 
-			adapter := &kafkaAdapter{Kafka: kafka}
-			expected := adapter.newSecret(svcOut).StringData
+			expected := kafkaSecretData(kafka, svcOut)
 			expected["KAFKA_CA_CERT"] = "ca-cert"
 			expected["CA_CERT"] = "ca-cert"
 			require.Equal(t, expected, obs.SecretDetails)

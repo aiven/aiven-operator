@@ -91,8 +91,7 @@ This setup grants the operator the permissions specified in the `ClusterRole`, b
 
 Once a resource is ready, the operator re-reconciles most kinds against the Aiven API on a fixed
 interval to pick up changes made outside Kubernetes. The default is 10 minutes. See
-[which resources this affects](#which-resources-this-affects) below — the service kinds are not
-among them.
+[which resources this affects](#which-resources-this-affects) below.
 
 Set the `pollInterval` value to change it:
 
@@ -104,9 +103,8 @@ The accepted range is `10m` to `60m`. A value outside it is rejected at startup.
 
 #### Which resources this affects
 
-It does **not** apply to the service kinds — `Clickhouse`, `Flink`, `Grafana`, `Kafka`,
-`KafkaConnect`, `MySQL`, `OpenSearch`, `PostgreSQL` and `Valkey`. Those do not re-reconcile on a
-fixed interval at all at the moment.
+It does **not** apply to `PostgreSQL`, which does not re-reconcile on a fixed interval at all at
+the moment.
 
 ### Choose which controllers run
 
