@@ -3,82 +3,33 @@
 package controllers
 
 import (
-	"context"
-	"fmt"
 	"strconv"
 
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
-
-// KafkaReconciler reconciles a Kafka object
-type KafkaReconciler struct {
-	Controller
-}
-
-func newKafkaReconciler(c Controller) reconcilerType {
-	return &KafkaReconciler{Controller: c}
-}
 
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkas,verbs=get;list;watch;create;update;patch;delete
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkas/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=kafkas/finalizers,verbs=get;create;update
 
-func (r *KafkaReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newKafkaAdapter, r.Log), &v1alpha1.Kafka{})
+func newKafkaReconciler(c Controller) reconcilerType {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.Kafka] {
+			return newServiceController(c, avnGen, kafkaKind)
+		},
+		nil,
+	)
 }
 
-func (r *KafkaReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.Kafka{}).
-		Owns(&corev1.Secret{}).
-		Complete(r)
-}
-
-// kafkaKind is the serviceController definition. Not wired yet.
+// kafkaKind is the serviceController definition for Kafka.
 var kafkaKind = newServiceKind(serviceTypeKafka, kafkaSecretData,
 	// todo: unprefixed CA_CERT is kept for backward compatibility, remove in future releases
 	withProjectCACert[*v1alpha1.Kafka]("CA_CERT"),
 )
-
-func newKafkaAdapter(object client.Object) (serviceAdapter, error) {
-	kafka, ok := object.(*v1alpha1.Kafka)
-	if !ok {
-		return nil, fmt.Errorf("object is not of type v1alpha1.Kafka")
-	}
-	return &kafkaAdapter{Kafka: kafka}, nil
-}
-
-// kafkaAdapter handles an Aiven Kafka service
-type kafkaAdapter struct {
-	*v1alpha1.Kafka
-}
-
-func (a *kafkaAdapter) getObjectMeta() *metav1.ObjectMeta {
-	return &a.ObjectMeta
-}
-
-func (a *kafkaAdapter) getServiceStatus() *v1alpha1.ServiceStatus {
-	return &a.Status
-}
-
-func (a *kafkaAdapter) getServiceCommonSpec() *v1alpha1.ServiceCommonSpec {
-	return &a.Spec.ServiceCommonSpec
-}
-
-func (a *kafkaAdapter) getUserConfig() any {
-	return a.Spec.UserConfig
-}
-
-func (a *kafkaAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
-	return newSecret(a, kafkaSecretData(a.Kafka, s), false)
-}
 
 // kafkaSecretData returns the prefixed connection secret keys.
 func kafkaSecretData(obj *v1alpha1.Kafka, s *service.ServiceGetOut) map[string]string {
@@ -121,22 +72,6 @@ func kafkaSecretData(obj *v1alpha1.Kafka, s *service.ServiceGetOut) map[string]s
 	}
 
 	return stringData
-}
-
-func (a *kafkaAdapter) getServiceType() serviceType {
-	return serviceTypeKafka
-}
-
-func (a *kafkaAdapter) getDiskSpace() string {
-	return a.Spec.DiskSpace
-}
-
-func (a *kafkaAdapter) performUpgradeTaskIfNeeded(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
-	return nil
-}
-
-func (a *kafkaAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
-	return nil
 }
 
 // addKafkaEndpointDetails sets the SASL and schema registry keys from the primary components on the

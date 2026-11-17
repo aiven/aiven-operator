@@ -165,7 +165,7 @@ func TestAddKafkaEndpointDetails(t *testing.T) {
 }
 
 // The service secret keeps the legacy selection: the last SASL and schema registry entry in API order.
-func TestKafkaAdapterNewSecret(t *testing.T) {
+func TestKafkaSecretData(t *testing.T) {
 	cert, key, rest, sr := "cert", "key", "https://rest", "https://sr"
 	svc := func(components []service.ComponentOut) *service.ServiceGetOut {
 		return &service.ServiceGetOut{
@@ -175,10 +175,10 @@ func TestKafkaAdapterNewSecret(t *testing.T) {
 			ConnectionInfo:   &service.ConnectionInfoOut{KafkaAccessCert: &cert, KafkaAccessKey: &key, KafkaRestUri: &rest, SchemaRegistryUri: &sr},
 		}
 	}
-	a := &kafkaAdapter{Kafka: &v1alpha1.Kafka{
+	kafka := &v1alpha1.Kafka{
 		TypeMeta:   metav1.TypeMeta{Kind: "Kafka"},
 		ObjectMeta: metav1.ObjectMeta{Name: "kafka", Namespace: "default"},
-	}}
+	}
 
 	want := func(saslHost, saslPort, srHost, srPort string) map[string]string {
 		return map[string]string{
@@ -203,8 +203,8 @@ func TestKafkaAdapterNewSecret(t *testing.T) {
 		}
 	}
 
-	assert.Equal(t, want("kafka-privatelink-sasl", "8", "sr-privatelink", "10"), a.newSecret(svc(testComponents())).StringData)
-	assert.Equal(t, want("kafka-dynamic-sasl", "6", "sr-dynamic", "9"), a.newSecret(svc(reversed(testComponents()))).StringData)
+	assert.Equal(t, want("kafka-privatelink-sasl", "8", "sr-privatelink", "10"), kafkaSecretData(kafka, svc(testComponents())))
+	assert.Equal(t, want("kafka-dynamic-sasl", "6", "sr-dynamic", "9"), kafkaSecretData(kafka, svc(reversed(testComponents()))))
 }
 
 func TestRefreshKafkaEndpointDetails(t *testing.T) {
