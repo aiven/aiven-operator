@@ -205,10 +205,20 @@ func (c *serviceController[T]) observeNewGeneration(
 	includeSecrets bool,
 ) (Observation, error) {
 	var details map[string]string
-	if includeSecrets && avnService.State == service.ServiceStateTypeRunning {
-		var err error
-		details, err = c.buildSecretDetails(ctx, obj, avnService)
-		if err != nil {
+	switch avnService.State {
+	case service.ServiceStateTypeRunning:
+		if includeSecrets {
+			var err error
+			details, err = c.buildSecretDetails(ctx, obj, avnService)
+			if err != nil {
+				return Observation{}, err
+			}
+		}
+	case service.ServiceStateTypePoweroff:
+		markInstancePoweredOff(obj)
+	default:
+		// No details are published, so a skipped Update must not leave the resource ready without a Secret.
+		if err := revokeReadyWithoutSecret(ctx, c.k8s, obj); err != nil {
 			return Observation{}, err
 		}
 	}

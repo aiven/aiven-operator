@@ -167,23 +167,34 @@ func TestServiceController_Observe(t *testing.T) {
 		require.True(t, obs.PruneSecretKeys)
 	})
 
-	t.Run("stale generation under management-policy CreateOnly while not running -> no secret details", func(t *testing.T) {
+	t.Run("stale generation under management-policy CreateOnly while not running -> no secret details, stale readiness dropped", func(t *testing.T) {
 		t.Parallel()
 
-		gf := newRunningGrafana(t)
-		gf.Generation = 2
-		ctx := withManagementPolicy(t.Context(), managementPolicyCreateOnly)
+		for state, wantRunning := range map[service.ServiceStateType]string{
+			service.ServiceStateTypeRebuilding: "",      // no Secret: readiness revoked
+			service.ServiceStateTypePoweroff:   "false", // powered off needs no Secret
+		} {
+			t.Run(string(state), func(t *testing.T) {
+				t.Parallel()
 
-		avn := avngen.NewMockClient(t)
-		avn.EXPECT().
-			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRebuilding}, nil).Once()
+				gf := newRunningGrafana(t)
+				markInstanceRunning(gf)
+				gf.Generation = 2
+				ctx := withManagementPolicy(t.Context(), managementPolicyCreateOnly)
 
-		c := newTestController(avn, grafanaKind, nil)
-		obs, err := c.Observe(ctx, gf)
-		require.NoError(t, err)
-		require.False(t, obs.ResourceUpToDate)
-		require.Nil(t, obs.SecretDetails)
+				avn := avngen.NewMockClient(t)
+				avn.EXPECT().
+					ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+					Return(&service.ServiceGetOut{State: state}, nil).Once()
+
+				c := newTestController(avn, grafanaKind, newFakeClient().Build())
+				obs, err := c.Observe(ctx, gf)
+				require.NoError(t, err)
+				require.False(t, obs.ResourceUpToDate)
+				require.Nil(t, obs.SecretDetails)
+				require.Equal(t, wantRunning, GetIsRunningAnnotation(gf))
+			})
+		}
 	})
 
 	t.Run("ignored power off under management-policy CreateOnly -> live state wins", func(t *testing.T) {
