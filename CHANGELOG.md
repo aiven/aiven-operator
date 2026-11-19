@@ -19,7 +19,8 @@
 - Add `controllers.aiven.io/management-policy: CreateOnly` annotation, supported on `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL`. The
   operator still creates a missing service and keeps its connection Secret in sync, but no longer
   applies spec changes or reverts changes made outside Kubernetes. Other kinds ignore it and emit a
-  `ManagementPolicyNotSupported` warning event
+  `ManagementPolicyNotSupported` warning event when the operator next applies their spec, such as on create or
+  after a spec change
 - `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `MySQL`, `Kafka`, `PostgreSQL`: `disk_space` on a service with an autoscaler integration is no longer an error. It is not
   applied, and a spec change emits a `DiskSpaceNotApplied` warning event
 - `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka`, `PostgreSQL`: a resource that sets both `projectVpcId` and `projectVPCRef` now reports an `Error`
