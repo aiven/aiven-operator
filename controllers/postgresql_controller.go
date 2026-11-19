@@ -12,23 +12,10 @@ import (
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/avast/retry-go"
-	corev1 "k8s.io/api/core/v1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
-	ctrl "sigs.k8s.io/controller-runtime"
-	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 	pguserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/pg"
 )
-
-// PostgreSQLReconciler reconciles a PostgreSQL object
-type PostgreSQLReconciler struct {
-	Controller
-}
-
-func newPostgreSQLReconciler(c Controller) reconcilerType {
-	return &PostgreSQLReconciler{Controller: c}
-}
 
 const waitForTaskToCompleteInterval = time.Second * 3
 
@@ -36,59 +23,22 @@ const waitForTaskToCompleteInterval = time.Second * 3
 //+kubebuilder:rbac:groups=aiven.io,resources=postgresqls/status,verbs=get;update;patch
 //+kubebuilder:rbac:groups=aiven.io,resources=postgresqls/finalizers,verbs=get;create;update
 
-func (r *PostgreSQLReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-	return r.reconcileInstance(ctx, req, newGenericServiceHandler(r.Client, r.Recorder, newPostgreSQLAdapterFactory(r.Client), r.Log), &v1alpha1.PostgreSQL{})
+func newPostgreSQLReconciler(c Controller) reconcilerType {
+	return newManagedReconciler(
+		c,
+		func(c Controller, avnGen avngen.Client) AivenController[*v1alpha1.PostgreSQL] {
+			return newServiceController(c, avnGen, postgreSQLKind)
+		},
+		nil,
+	)
 }
 
-func (r *PostgreSQLReconciler) SetupWithManager(mgr ctrl.Manager) error {
-	return ctrl.NewControllerManagedBy(mgr).
-		For(&v1alpha1.PostgreSQL{}).
-		Owns(&corev1.Secret{}).
-		Complete(r)
-}
-
-// postgreSQLKind is the serviceController definition. Not wired yet.
+// postgreSQLKind is the serviceController definition for PostgreSQL.
 var postgreSQLKind = newServiceKind(serviceTypePostgreSQL, postgreSQLSecretData,
 	withProjectCACert[*v1alpha1.PostgreSQL](),
 	withBeforeUpdate(postgreSQLUpgradeCheck),
 	withMigrationSecret(func(o *v1alpha1.PostgreSQL) *v1alpha1.MigrationSecretSource { return o.Spec.MigrationSecretSource }, postgreSQLMigrationUserConfig),
 )
-
-func newPostgreSQLAdapterFactory(k8s client.Client) serviceAdapterFabric {
-	return func(object client.Object) (serviceAdapter, error) {
-		pg, ok := object.(*v1alpha1.PostgreSQL)
-		if !ok {
-			return nil, fmt.Errorf("object is not of type v1alpha1.PostgreSQL")
-		}
-		return &postgreSQLAdapter{PostgreSQL: pg, k8s: k8s}, nil
-	}
-}
-
-// postgreSQLAdapter handles an Aiven PostgreSQL service
-type postgreSQLAdapter struct {
-	*v1alpha1.PostgreSQL
-	k8s client.Client
-}
-
-func (a *postgreSQLAdapter) getObjectMeta() *metav1.ObjectMeta {
-	return &a.ObjectMeta
-}
-
-func (a *postgreSQLAdapter) getServiceStatus() *v1alpha1.ServiceStatus {
-	return &a.Status
-}
-
-func (a *postgreSQLAdapter) getServiceCommonSpec() *v1alpha1.ServiceCommonSpec {
-	return &a.Spec.ServiceCommonSpec
-}
-
-func (a *postgreSQLAdapter) getUserConfig() any {
-	return a.Spec.UserConfig
-}
-
-func (a *postgreSQLAdapter) newSecret(s *service.ServiceGetOut) *corev1.Secret {
-	return newSecret(a, postgreSQLSecretData(a.PostgreSQL, s), false)
-}
 
 // postgreSQLSecretData returns the prefixed connection secret keys.
 func postgreSQLSecretData(obj *v1alpha1.PostgreSQL, s *service.ServiceGetOut) map[string]string {
@@ -112,15 +62,6 @@ func postgreSQLSecretData(obj *v1alpha1.PostgreSQL, s *service.ServiceGetOut) ma
 	}
 
 	return stringData
-}
-
-func (a *postgreSQLAdapter) getMigrationSecretSource() *v1alpha1.MigrationSecretSource {
-	return a.Spec.MigrationSecretSource
-}
-
-// buildUserConfigWithMigration merges pre-resolved migration Secret data into a clone of the user config.
-func (a *postgreSQLAdapter) buildUserConfigWithMigration(data map[string]string) (any, error) {
-	return postgreSQLMigrationUserConfig(a.PostgreSQL, data)
 }
 
 // postgreSQLMigrationUserConfig merges pre-resolved migration Secret data into a clone of the user config.
@@ -181,31 +122,9 @@ func postgreSQLMigrationUserConfig(obj *v1alpha1.PostgreSQL, data map[string]str
 	return cfg, nil
 }
 
-func (a *postgreSQLAdapter) getServiceType() serviceType {
-	return serviceTypePostgreSQL
-}
-
-func (a *postgreSQLAdapter) getDiskSpace() string {
-	return a.Spec.DiskSpace
-}
-
-// performUpgradeTaskIfNeeded validates that a PostgreSQL version upgrade is possible before
-// attempting the actual upgrade.
-//
-//  1. ServiceTaskCreate runs a compatibility check that validates if the upgrade is
-//     possible. Multiple checks can be created without conflicts.
-//  2. ServiceTaskGet polls for the check result. This step is required to unblock ServiceUpdate with
-//     upgrade request.
-//  3. If the check fails, the function returns the error from the
-//     task result, preventing the upgrade attempt.
-//  4. Once the check passes, ServiceUpdate can proceed. The actual upgrade happens async after ServiceUpdate.
-func (a *postgreSQLAdapter) performUpgradeTaskIfNeeded(ctx context.Context, avnGen avngen.Client, old *service.ServiceGetOut) error {
-	return postgreSQLUpgradeCheck(ctx, avnGen, a.PostgreSQL, old)
-}
-
 // postgreSQLUpgradeCheck runs the upgrade check task when pg_version changes.
 func postgreSQLUpgradeCheck(ctx context.Context, avnGen avngen.Client, obj *v1alpha1.PostgreSQL, old *service.ServiceGetOut) error {
-	currentVersion := old.UserConfig["pg_version"].(string)
+	currentVersion, _ := old.UserConfig["pg_version"].(string)
 	targetUserConfig := obj.Spec.UserConfig
 	if targetUserConfig == nil || targetUserConfig.PgVersion == nil {
 		return nil
@@ -248,7 +167,7 @@ func postgreSQLUpgradeCheck(ctx context.Context, avnGen avngen.Client, obj *v1al
 					"PG service upgrade check error, version upgrade from %s to %s, result: %s",
 					currentVersion,
 					targetVersion,
-					task.Result,
+					t.Result,
 				)
 			}
 
@@ -265,12 +184,4 @@ func postgreSQLUpgradeCheck(ctx context.Context, avnGen avngen.Client, obj *v1al
 	)
 
 	return err
-}
-
-func (a *postgreSQLAdapter) createOrUpdateServiceSpecific(_ context.Context, _ avngen.Client, _ *service.ServiceGetOut) error {
-	return nil
-}
-
-func (a *postgreSQLAdapter) deleteMigrationSecret(ctx context.Context) error {
-	return deleteMigrationSecret(ctx, a.k8s, a.GetNamespace(), a.Spec.MigrationSecretSource)
 }

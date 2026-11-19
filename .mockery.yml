@@ -9,5 +9,5 @@ template: testify
 template-schema: "{{.Template}}.schema.json"
 packages:
   github.com/aiven/aiven-operator/controllers:
-    config:
-      all: true
+    interfaces:
+      AivenController: {}

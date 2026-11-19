@@ -265,16 +265,6 @@ func ConvertDiskSpace(v string) int {
 	return int(diskSizeMB / units.MiB)
 }
 
-// FindProjectVPC returns ProjectVPC from reference list
-func FindProjectVPC(refs []Object) *ProjectVPC {
-	for _, o := range refs {
-		if p, ok := o.(*ProjectVPC); ok {
-			return p
-		}
-	}
-	return nil
-}
-
 // ErrorSubstrChecker returns error checker for containing given substrings
 func ErrorSubstrChecker(substrings ...string) func(error) bool {
 	return func(err error) bool {

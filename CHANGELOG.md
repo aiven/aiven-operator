@@ -2,7 +2,7 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
-- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL` and `Kafka` now revert changes made outside Kubernetes. On every poll they restore
+- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL` now revert changes made outside Kubernetes. On every poll they restore
   `plan`, `cloudName`, `projectVpcId` or `projectVPCRef`, `maintenanceWindowDow`,
   `maintenanceWindowTime`, `terminationProtection`, `powered`, `disk_space`, `tags` and
   `technicalEmails` from the spec (`Clickhouse` does not restore `plan`), and recreates a service that was deleted at Aiven unless `powered` is `false`. A field left
@@ -10,17 +10,25 @@
   powered on again. To
   keep settings managed in the Aiven Console, add the `controllers.aiven.io/management-policy: CreateOnly`
   annotation before upgrading
-- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL` and `Kafka` no longer clear the service's tags or technical emails when `tags` or
+- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL` no longer clear the service's tags or technical emails when `tags` or
   `technicalEmails` is left out of the spec. Set `tags: {}` or `technicalEmails: []` to clear them,
   also in the first manifest of a new resource
-- Add `controllers.aiven.io/management-policy: CreateOnly` annotation, supported on `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL` and `Kafka`. The
+- `pollInterval` (`--poll-interval`) now also applies to `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`,
+  `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL`: they re-reconcile against Aiven on that interval (default
+  `10m`), not only when the spec changes
+- Add `controllers.aiven.io/management-policy: CreateOnly` annotation, supported on `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL`. The
   operator still creates a missing service and keeps its connection Secret in sync, but no longer
   applies spec changes or reverts changes made outside Kubernetes. Other kinds ignore it and emit a
   `ManagementPolicyNotSupported` warning event
-- `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `MySQL`, `Kafka`: `disk_space` on a service with an autoscaler integration is no longer an error. It is not
-  applied and a `DiskSpaceNotApplied` warning event is emitted
-- `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka`: a resource that sets both `projectVpcId` and `projectVPCRef` now reports an `Error`
-  condition on every poll, not only on its next update. Drop one of the two fields to clear it
+- `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `MySQL`, `Kafka`, `PostgreSQL`: `disk_space` on a service with an autoscaler integration is no longer an error. It is not
+  applied, and a spec change emits a `DiskSpaceNotApplied` warning event
+- `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka`, `PostgreSQL`: a resource that sets both `projectVpcId` and `projectVPCRef` now reports an `Error`
+  condition when polled while running or powered off, not only on its next update. Drop one of the two fields to clear it
+- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL`: a
+  `controllers.aiven.io/deletion-policy` value other than `Orphan` now blocks deletion with an `Error` condition, instead
+  of deleting the service at Aiven. Remove the annotation to delete the service, or set it to `Orphan` to keep it
+- `PostgreSQL`: a rejected `pg_version` upgrade check now reports why Aiven rejected it, instead of an
+  empty result
 - Add `ServiceUser` field `accessControl.valkeyAclDatabases`, type `array`: Database ids the user can access
 - Change `Grafana` field `userConfig.dashboard_previews_enabled`: deprecated
 - Change `Grafana` field `userConfig.dashboard_scenes_enabled`: deprecated

@@ -28,6 +28,14 @@ import (
 // With a single worker the standing population alone saturates it at a few hundred users.
 const serviceUserMaxConcurrentReconciles = 10
 
+// defaultBuiltInUser is created by Aiven with the service and cannot be deleted.
+const defaultBuiltInUser = "avnadmin"
+
+// isBuiltInUser reports whether username is the built-in service user.
+func isBuiltInUser(username string) bool {
+	return username == defaultBuiltInUser
+}
+
 func newServiceUserReconciler(c Controller) reconcilerType {
 	return newManagedReconciler(
 		c,

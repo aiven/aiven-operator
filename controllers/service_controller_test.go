@@ -11,6 +11,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -166,23 +167,34 @@ func TestServiceController_Observe(t *testing.T) {
 		require.True(t, obs.PruneSecretKeys)
 	})
 
-	t.Run("stale generation under management-policy CreateOnly while not running -> no secret details", func(t *testing.T) {
+	t.Run("stale generation under management-policy CreateOnly while not running -> no secret details, stale readiness dropped", func(t *testing.T) {
 		t.Parallel()
 
-		gf := newRunningGrafana(t)
-		gf.Generation = 2
-		ctx := withManagementPolicy(t.Context(), managementPolicyCreateOnly)
+		for state, wantRunning := range map[service.ServiceStateType]string{
+			service.ServiceStateTypeRebuilding: "",      // no Secret: readiness revoked
+			service.ServiceStateTypePoweroff:   "false", // powered off needs no Secret
+		} {
+			t.Run(string(state), func(t *testing.T) {
+				t.Parallel()
 
-		avn := avngen.NewMockClient(t)
-		avn.EXPECT().
-			ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
-			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRebuilding}, nil).Once()
+				gf := newRunningGrafana(t)
+				markInstanceRunning(gf)
+				gf.Generation = 2
+				ctx := withManagementPolicy(t.Context(), managementPolicyCreateOnly)
 
-		c := newTestController(avn, grafanaKind, nil)
-		obs, err := c.Observe(ctx, gf)
-		require.NoError(t, err)
-		require.False(t, obs.ResourceUpToDate)
-		require.Nil(t, obs.SecretDetails)
+				avn := avngen.NewMockClient(t)
+				avn.EXPECT().
+					ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+					Return(&service.ServiceGetOut{State: state}, nil).Once()
+
+				c := newTestController(avn, grafanaKind, newFakeClient().Build())
+				obs, err := c.Observe(ctx, gf)
+				require.NoError(t, err)
+				require.False(t, obs.ResourceUpToDate)
+				require.Nil(t, obs.SecretDetails)
+				require.Equal(t, wantRunning, GetIsRunningAnnotation(gf))
+			})
+		}
 	})
 
 	t.Run("ignored power off under management-policy CreateOnly -> live state wins", func(t *testing.T) {
@@ -308,6 +320,49 @@ func TestServiceController_Observe(t *testing.T) {
 		require.True(t, obs.ResourceUpToDate)
 		require.False(t, hasIsRunningAnnotation(gf))
 		require.Nil(t, obs.SecretDetails)
+	})
+
+	t.Run("ready while rebuilding -> readiness revoked unless its own Secret exists", func(t *testing.T) {
+		t.Parallel()
+
+		ownedBy := func(uid types.UID) corev1.Secret {
+			return corev1.Secret{ObjectMeta: metav1.ObjectMeta{
+				Name:            "my-grafana",
+				Namespace:       "default",
+				OwnerReferences: []metav1.OwnerReference{{Controller: new(true), UID: uid, Name: "my-grafana"}},
+			}}
+		}
+		for name, tc := range map[string]struct {
+			secrets []corev1.Secret
+			ready   bool
+		}{
+			"secret missing":           {},
+			"secret of an older owner": {secrets: []corev1.Secret{ownedBy("old-uid")}},
+			"own secret":               {secrets: []corev1.Secret{ownedBy("uid-1")}, ready: true},
+		} {
+			t.Run(name, func(t *testing.T) {
+				t.Parallel()
+
+				gf := newRunningGrafana(t)
+				gf.UID = "uid-1"
+				markInstanceRunning(gf)
+				avn := avngen.NewMockClient(t)
+				avn.EXPECT().
+					ServiceGet(mock.Anything, gf.Spec.Project, gf.Name, mock.Anything).
+					Return(&service.ServiceGetOut{State: service.ServiceStateTypeRebuilding}, nil).Once()
+
+				c := newTestController(avn, grafanaKind, newFakeClient(tc.secrets...).Build())
+				obs, err := c.Observe(t.Context(), gf)
+				require.NoError(t, err)
+				require.True(t, obs.ResourceUpToDate)
+				require.Equal(t, tc.ready, hasIsRunningAnnotation(gf))
+				if !tc.ready {
+					running := meta.FindStatusCondition(gf.Status.Conditions, conditionTypeRunning)
+					require.NotNil(t, running)
+					require.Equal(t, string(errConditionConnInfoSecret), running.Reason)
+				}
+			})
+		}
 	})
 
 	t.Run("powered off -> markInstancePoweredOff, no secret details, no precondition calls", func(t *testing.T) {
@@ -662,7 +717,7 @@ func TestServiceController_Observe(t *testing.T) {
 	t.Run("nil secret -> markInstanceRunning, nil details", func(t *testing.T) {
 		t.Parallel()
 
-		// KafkaConnect's adapter returns a nil secret, exercising the secret == nil branch.
+		// KafkaConnect has no secretData, exercising the nil branch.
 		kc := &v1alpha1.KafkaConnect{
 			ObjectMeta: metav1.ObjectMeta{Name: "kafka-connect", Namespace: "default", Generation: 1},
 			Spec: v1alpha1.KafkaConnectSpec{
@@ -679,13 +734,14 @@ func TestServiceController_Observe(t *testing.T) {
 			ServiceGet(mock.Anything, kc.Spec.Project, kc.Name, mock.Anything).
 			Return(inSync(kc, &service.ServiceGetOut{State: service.ServiceStateTypeRunning}), nil).Once()
 
-		c := newTestController(avn, kafkaConnectKind, nil)
+		c, rec := newRecordingTestController(avn, kafkaConnectKind, nil)
 		obs, err := c.Observe(t.Context(), kc)
 		require.NoError(t, err)
 		require.True(t, obs.ResourceExists)
 		require.True(t, obs.ResourceUpToDate)
 		require.Nil(t, obs.SecretDetails)
 		require.Equal(t, "true", kc.Annotations[instanceIsRunningAnnotation])
+		require.Empty(t, rec.Events, "a kind without a secret emits no ConnInfoSecretCreationDisabled")
 	})
 
 	t.Run("NoSecret disabled -> event fired once per transition to running, nil details", func(t *testing.T) {
@@ -723,10 +779,10 @@ func TestServiceController_Observe(t *testing.T) {
 		require.Empty(t, recorderEvents(rec))
 	})
 
-	t.Run("NoSecret disabled -> adapter never sees the secret-less response", func(t *testing.T) {
+	t.Run("NoSecret disabled -> secretData never sees the secret-less response", func(t *testing.T) {
 		t.Parallel()
 
-		// Without include_secrets the Kafka adapter would panic on the missing certs.
+		// Without include_secrets Kafka secretData would panic on the missing certs.
 		kf := newObjectFromYAML[v1alpha1.Kafka](t, `
 apiVersion: aiven.io/v1alpha1
 kind: Kafka
@@ -969,6 +1025,33 @@ spec:
 			require.Error(t, err, "migration secret should have been deleted")
 		})
 
+		t.Run("drift with a finished migration -> True condition before the drift update", func(t *testing.T) {
+			t.Parallel()
+
+			pg := newMigratingPG(t)
+			markMigrationApplied(&pg.Status.Conditions, pg.Generation)
+			drifted := *runningPGOut
+			drifted.Plan = "drifted-plan"
+
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
+				Return(&drifted, nil).Once()
+			avn.EXPECT().
+				ServiceGetMigrationStatus(mock.Anything, pg.Spec.Project, pg.Name).
+				Return(&service.ServiceGetMigrationStatusOut{Migration: service.MigrationOut{Status: service.MigrationStatusTypeDone}}, nil).Once()
+			avn.EXPECT().
+				ProjectKmsGetCA(mock.Anything, pg.Spec.Project).Return("ca-cert", nil).Once()
+
+			c := newTestController(avn, postgreSQLKind, nil)
+			obs, err := c.Observe(t.Context(), pg)
+			require.NoError(t, err)
+			require.False(t, obs.ResourceUpToDate)
+
+			// A True condition keeps Update from reading the migration secret, which may be gone.
+			require.True(t, meta.IsStatusConditionTrue(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete))
+		})
+
 		t.Run("migration status 404 after the config was applied -> True condition (already cleaned up)", func(t *testing.T) {
 			t.Parallel()
 
@@ -1023,11 +1106,34 @@ spec:
 			require.NoError(t, k8s.Get(t.Context(), types.NamespacedName{Name: "creds", Namespace: "default"}, &corev1.Secret{}),
 				"the unused migration secret must be kept")
 		})
+
+		t.Run("powered off with a completed migration -> secret cleaned up, status not polled", func(t *testing.T) {
+			t.Parallel()
+
+			pg := newMigratingPG(t)
+			pg.Spec.Powered = new(false)
+			pg.Spec.MigrationSecretSource = &v1alpha1.MigrationSecretSource{Name: "creds", DeleteAfterMigration: true}
+			markMigrationDone(pg)
+
+			secret := &corev1.Secret{ObjectMeta: metav1.ObjectMeta{Name: "creds", Namespace: "default"}}
+			k8s := fake.NewClientBuilder().WithScheme(scheme).WithObjects(secret).Build()
+
+			avn := avngen.NewMockClient(t)
+			avn.EXPECT().
+				ServiceGet(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
+				Return(inSync(pg, &service.ServiceGetOut{State: service.ServiceStateTypePoweroff}), nil).Once()
+
+			c := newTestController(avn, postgreSQLKind, k8s)
+			_, err := c.Observe(t.Context(), pg)
+			require.NoError(t, err)
+
+			err = k8s.Get(t.Context(), types.NamespacedName{Name: "creds", Namespace: "default"}, &corev1.Secret{})
+			require.True(t, apierrors.IsNotFound(err), "migration secret should have been deleted, got: %v", err)
+		})
 	})
 
-	// The flattened SecretDetails must match exactly what the legacy adapter.newSecret produced,
-	// including the injected CA_CERT keys.
-	t.Run("secret parity with the legacy adapter", func(t *testing.T) {
+	// The flattened SecretDetails must match the kind's secret data plus the injected CA_CERT keys.
+	t.Run("secret details are the kind keys plus CA_CERT", func(t *testing.T) {
 		t.Parallel()
 
 		t.Run("postgresql prefixed CA_CERT", func(t *testing.T) {
@@ -1061,9 +1167,7 @@ spec:
 			obs, err := c.Observe(t.Context(), pg)
 			require.NoError(t, err)
 
-			// Build the legacy expectation directly from the adapter.
-			adapter := &postgreSQLAdapter{PostgreSQL: pg}
-			expected := adapter.newSecret(svcOut).StringData
+			expected := postgreSQLSecretData(pg, svcOut)
 			expected["POSTGRESQL_CA_CERT"] = "ca-cert"
 
 			require.Equal(t, expected, obs.SecretDetails)
@@ -1804,6 +1908,57 @@ func TestServiceController_Update(t *testing.T) {
 		require.ErrorContains(t, err, "upgrade check task")
 	})
 
+	t.Run("upgrade check rejected -> error carries the task result, no ServiceUpdate", func(t *testing.T) {
+		t.Parallel()
+
+		pg := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgres)
+		pg.Namespace = "default"
+		targetVersion := "16"
+		pg.Spec.UserConfig = &pguserconfig.PgUserConfig{PgVersion: &targetVersion}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(&service.ServiceGetOut{
+				State:      service.ServiceStateTypeRunning,
+				UserConfig: map[string]any{"pg_version": "15"},
+			}, nil).Once()
+		avn.EXPECT().
+			ServiceTaskCreate(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
+			Return(&service.ServiceTaskCreateOut{TaskId: "task-1"}, nil).Once()
+		avn.EXPECT().
+			ServiceTaskGet(mock.Anything, pg.Spec.Project, pg.Name, "task-1").
+			Return(&service.ServiceTaskGetOut{TaskId: "task-1", Result: "extension foo is not supported"}, nil).Once()
+
+		c := newTestController(avn, postgreSQLKind, nil)
+		_, err := c.Update(t.Context(), pg)
+		require.ErrorContains(t, err, "extension foo is not supported")
+	})
+
+	t.Run("live pg_version missing -> upgrade check runs, no panic", func(t *testing.T) {
+		t.Parallel()
+
+		pg := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgres)
+		pg.Namespace = "default"
+		targetVersion := "16"
+		pg.Spec.UserConfig = &pguserconfig.PgUserConfig{PgVersion: &targetVersion}
+
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGet(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(&service.ServiceGetOut{State: service.ServiceStateTypeRunning}, nil).Once()
+		avn.EXPECT().
+			ServiceTaskCreate(mock.Anything, pg.Spec.Project, pg.Name, mock.Anything).
+			Return(&service.ServiceTaskCreateOut{TaskId: "task-1"}, nil).Once()
+		avn.EXPECT().
+			ServiceTaskGet(mock.Anything, pg.Spec.Project, pg.Name, "task-1").
+			Return(&service.ServiceTaskGetOut{TaskId: "task-1", Result: "rejected"}, nil).Once()
+
+		c := newTestController(avn, postgreSQLKind, nil)
+		_, err := c.Update(t.Context(), pg)
+		require.ErrorContains(t, err, "rejected")
+	})
+
 	t.Run("ServiceGet failure propagates before update", func(t *testing.T) {
 		t.Parallel()
 
@@ -2183,7 +2338,7 @@ func TestServiceController_Delete(t *testing.T) {
 		require.NoError(t, err)
 	})
 
-	t.Run("service already gone at ServiceGet -> nil, no further calls", func(t *testing.T) {
+	t.Run("ServiceGet 404 still calls ServiceDelete, its 404 is success", func(t *testing.T) {
 		t.Parallel()
 
 		pg := newPG(t, new(false))
@@ -2192,6 +2347,10 @@ func TestServiceController_Delete(t *testing.T) {
 		avn.EXPECT().
 			ServiceGet(mock.Anything, pg.Spec.Project, pg.Name).
 			Return(nil, newAivenError(404, "Service not found")).Once()
+		// A transient 404 on the read must not leave the service behind at Aiven.
+		avn.EXPECT().
+			ServiceDelete(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(newAivenError(404, "Service not found")).Once()
 
 		c := newTestController(avn, postgreSQLKind, nil)
 		err := c.Delete(t.Context(), pg)

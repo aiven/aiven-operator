@@ -5,11 +5,13 @@ package tests
 import (
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"k8s.io/apimachinery/pkg/types"
+	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
 )
@@ -254,13 +256,21 @@ func TestPgCustomPrefix(t *testing.T) {
 	assert.NotEmpty(t, secret.Data["MY_PG_DATABASE_URI"])
 	assert.NotEmpty(t, secret.Data["MY_PG_CA_CERT"])
 
+	t.Run("tags changed at Aiven are reverted", func(t *testing.T) {
+		err := avnGen.ProjectServiceTagsReplace(ctx, cfg.Project, pgName, &service.ProjectServiceTagsReplaceIn{
+			Tags: map[string]string{"env": "drifted"},
+		})
+		require.NoError(t, err)
+		require.EventuallyWithT(t, func(collect *assert.CollectT) {
+			tags, err := avnGen.ProjectServiceTagsList(ctx, cfg.Project, pgName)
+			require.NoError(collect, err)
+			assert.Equal(collect, map[string]string{"env": "prod", "instance": "pg"}, tags)
+		}, 5*time.Minute, 15*time.Second)
+	})
+
 	// Tests service power off functionality
-	// Note: Power on testing is handled generically in generic_service_handler_test.go
-	// since it's consistent across services. Power off testing is done here since
-	// the flow can vary by service type and may require service-specific steps.
 	poweredOff := pg.DeepCopy()
-	poweredOff.Spec.Powered = anyPointer(false)
-	require.NoError(t, k8sClient.Update(ctx, poweredOff))
+	require.NoError(t, k8sClient.Patch(ctx, poweredOff, client.RawPatch(types.MergePatchType, []byte(`{"spec":{"powered":false}}`))))
 	require.NoError(t, s.GetRunning(poweredOff, pgName))
 
 	poweredOffAvn, err := avnGen.ServiceGet(ctx, cfg.Project, pgName)
