@@ -133,9 +133,22 @@ func (r *Reconciler[T]) Reconcile(ctx context.Context, req ctrl.Request) (res ct
 		orig := obj.DeepCopyObject().(v1alpha1.AivenManagedObject)
 		r.Recorder.Event(obj, corev1.EventTypeWarning, eventUnableToWaitForPreconditions, err.Error())
 		meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionPreconditions, err))
-		return ctrl.Result{}, errors.Join(fmt.Errorf("unable to resolve references: %w", err), r.persistReconcileState(ctx, orig, obj))
+		// Observe does not run either, so readiness without a connection Secret is revoked here.
+		var revokeErr error
+		if svc, ok := any(obj).(v1alpha1.ServiceObject); ok {
+			revokeErr = revokeReadyWithoutSecret(ctx, r.Client, svc)
+		}
+		return ctrl.Result{}, errors.Join(fmt.Errorf("unable to resolve references: %w", err), revokeErr, r.persistReconcileState(ctx, orig, obj))
 	} else if requeue {
 		r.Recorder.Event(obj, corev1.EventTypeNormal, eventWaitingForPreconditions, "waiting for referenced resources to be ready")
+		// Observe does not run while waiting, so readiness without a connection Secret is revoked here.
+		if svc, ok := any(obj).(v1alpha1.ServiceObject); ok {
+			orig := obj.DeepCopyObject().(v1alpha1.AivenManagedObject)
+			if err := revokeReadyWithoutSecret(ctx, r.Client, svc); err != nil {
+				return ctrl.Result{}, err
+			}
+			return ctrl.Result{RequeueAfter: requeueTimeout}, r.persistReconcileState(ctx, orig, obj)
+		}
 		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
 	}
 
@@ -242,6 +255,13 @@ func (r *Reconciler[T]) handleObserveError(ctx context.Context, obj T, err error
 	if errors.Is(err, context.Canceled) {
 		logr.FromContextOrDiscard(ctx).V(1).Info("reconcile context canceled, will retry", "error", err)
 		return ctrl.Result{RequeueAfter: requeueTimeout}, nil
+	}
+
+	// Observe stopped before publishing, so readiness without a connection Secret is revoked here.
+	if svc, ok := any(obj).(v1alpha1.ServiceObject); ok {
+		if revokeErr := revokeReadyWithoutSecret(ctx, r.Client, svc); revokeErr != nil {
+			return ctrl.Result{}, errors.Join(err, revokeErr)
+		}
 	}
 
 	if errors.Is(err, errServicePoweredOff) {

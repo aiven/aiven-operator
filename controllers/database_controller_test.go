@@ -256,7 +256,7 @@ func TestGetDatabaseByName(t *testing.T) {
 			ServiceDatabaseList(mock.Anything, project, svc).
 			Return(&service.ServiceDatabaseListOut{
 				Databases: []service.DatabaseOut{{DatabaseName: "other-a"}, {DatabaseName: "other-b"}},
-				Next:      toOptionalStringPointer("cursor-1"),
+				Next:      new("cursor-1"),
 			}, nil).Once()
 		// Second page: fetched using the cursor from the first page, contains the target.
 		avn.EXPECT().
@@ -277,7 +277,7 @@ func TestGetDatabaseByName(t *testing.T) {
 			ServiceDatabaseList(mock.Anything, project, svc).
 			Return(&service.ServiceDatabaseListOut{
 				Databases: []service.DatabaseOut{{DatabaseName: "target"}},
-				Next:      toOptionalStringPointer("cursor-1"),
+				Next:      new("cursor-1"),
 			}, nil).Once()
 
 		got, err := GetDatabaseByName(t.Context(), avn, project, svc, "target")
@@ -291,7 +291,7 @@ func TestGetDatabaseByName(t *testing.T) {
 			ServiceDatabaseList(mock.Anything, project, svc).
 			Return(&service.ServiceDatabaseListOut{
 				Databases: []service.DatabaseOut{{DatabaseName: "other-a"}},
-				Next:      toOptionalStringPointer("cursor-1"),
+				Next:      new("cursor-1"),
 			}, nil).Once()
 		avn.EXPECT().
 			ServiceDatabaseList(mock.Anything, project, svc, [][2]string{service.ServiceDatabaseListAfter("cursor-1")}).
@@ -310,7 +310,7 @@ func TestGetDatabaseByName(t *testing.T) {
 		out := func(i int) *service.ServiceDatabaseListOut {
 			return &service.ServiceDatabaseListOut{
 				Databases: []service.DatabaseOut{{DatabaseName: "other"}},
-				Next:      toOptionalStringPointer(fmt.Sprintf("cursor-%d", i+1)),
+				Next:      new(fmt.Sprintf("cursor-%d", i+1)),
 			}
 		}
 		avn.EXPECT().

@@ -79,6 +79,11 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 
 	// Drift is compared only in a stable service state.
 	if status.State != service.ServiceStateTypeRunning && status.State != service.ServiceStateTypePoweroff {
+		if c.kind.secretData != nil {
+			if err := revokeReadyWithoutSecret(ctx, c.k8s, obj); err != nil {
+				return Observation{}, err
+			}
+		}
 		return Observation{ResourceExists: true, ResourceUpToDate: true}, nil
 	}
 
@@ -86,6 +91,12 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 	if err != nil {
 		return Observation{}, err
 	}
+
+	requeueAfter, err := c.observeMigration(ctx, obj)
+	if err != nil {
+		return Observation{}, err
+	}
+
 	// Update corrects the drift; the live details are published either way.
 	if drifted && !skipUpdate {
 		obs := Observation{ResourceExists: true, ResourceUpToDate: false}
@@ -97,11 +108,6 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 			obs.SecretDetails, obs.PruneSecretKeys = details, true
 		}
 		return obs, nil
-	}
-
-	requeueAfter, err := c.observeMigration(ctx, obj)
-	if err != nil {
-		return Observation{}, err
 	}
 
 	// Powered off: no connection secret.
@@ -123,6 +129,28 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 		PruneSecretKeys:  true, // The details are the whole secret: drop keys no longer produced.
 		RequeueAfter:     requeueAfter,
 	}, nil
+}
+
+// revokeReadyWithoutSecret drops readiness of a running resource whose connection Secret is missing
+// or belongs to an older incarnation, so dependants stop trusting it until the next publish.
+func revokeReadyWithoutSecret(ctx context.Context, k8s client.Reader, obj v1alpha1.ServiceObject) error {
+	if GetIsRunningAnnotation(obj) != "true" || obj.NoSecret() {
+		return nil
+	}
+	secret := &corev1.Secret{}
+	err := k8s.Get(ctx, types.NamespacedName{Name: connectionSecretName(obj), Namespace: obj.GetNamespace()}, secret)
+	switch {
+	case apierrors.IsNotFound(err):
+	case err != nil:
+		return fmt.Errorf("cannot get connection secret: %w", err)
+	default:
+		if ref := metav1.GetControllerOf(secret); ref != nil && ref.UID == obj.GetUID() {
+			return nil
+		}
+	}
+	delete(obj.GetAnnotations(), instanceIsRunningAnnotation)
+	setConnectionSecretPublishPendingCondition(obj)
+	return nil
 }
 
 // getService returns the live service, or nil when it does not exist at Aiven.
@@ -403,10 +431,10 @@ func (c *serviceController[T]) Delete(ctx context.Context, obj T) error {
 
 	// The workqueue may collapse "terminationProtection: false" and the delete into one reconcile,
 	// so protection still on at Aiven is switched off first. The VPC is echoed: null would move the service out.
+	// A 404 here still goes on to ServiceDelete, which settles whether the service is gone.
 	live, err := c.avnGen.ServiceGet(ctx, spec.Project, obj.GetName())
 	switch {
 	case isNotFound(err):
-		return nil
 	case err != nil:
 		return fmt.Errorf("failed to fetch service: %w", err)
 	case live.TerminationProtection:
@@ -430,6 +458,10 @@ func (c *serviceController[T]) buildSecretDetails(
 	obj T,
 	avnService *service.ServiceGetOut,
 ) (map[string]string, error) {
+	if c.kind.secretData == nil {
+		return nil, nil
+	}
+
 	// The service was fetched without secrets, which secretData dereferences.
 	if obj.NoSecret() {
 		if GetIsRunningAnnotation(obj) != "true" {
@@ -440,10 +472,6 @@ func (c *serviceController[T]) buildSecretDetails(
 				"connInfoSecretTargetDisabled is true, secret will not be created",
 			)
 		}
-		return nil, nil
-	}
-
-	if c.kind.secretData == nil {
 		return nil, nil
 	}
 

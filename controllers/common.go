@@ -43,7 +43,6 @@ const (
 
 	deletionPolicyAnnotation = "controllers.aiven.io/deletion-policy"
 	deletionPolicyOrphan     = "Orphan"
-	deletionPolicyDelete     = "Delete"
 )
 
 type errCondition string
@@ -59,20 +58,6 @@ var (
 	errTerminationProtectionOn = errors.New("termination protection is on")
 	errServicePoweredOff       = errors.New("service is powered off")
 )
-
-// ErrRequeueNeeded is an error type that indicates that the reconciliation should be requeued.
-// It is used to handle errors that are expected to be resolved on a subsequent retries.
-type ErrRequeueNeeded struct {
-	OriginalError error
-}
-
-func (e ErrRequeueNeeded) Error() string {
-	return fmt.Sprintf("requeue needed: %s", e.OriginalError.Error())
-}
-
-func (e ErrRequeueNeeded) Unwrap() error {
-	return e.OriginalError
-}
 
 // checkServiceIsOperational checks if a service is in operational state, i.e., can create databases, users, etc.
 // Returns errServicePoweredOff if the service is powered off.
@@ -178,11 +163,6 @@ func markConnectionSecretPublishFailed(obj v1alpha1.AivenManagedObject, err erro
 	delete(obj.GetAnnotations(), instanceIsRunningAnnotation)
 	setConnectionSecretPublishPendingCondition(obj)
 	meta.SetStatusCondition(obj.Conditions(), getErrorCondition(errConditionConnInfoSecret, err))
-}
-
-func hasConnectionSecretPublishError(obj v1alpha1.AivenManagedObject) bool {
-	cond := meta.FindStatusCondition(*obj.Conditions(), ConditionTypeError)
-	return cond != nil && cond.Reason == string(errConditionConnInfoSecret)
 }
 
 func markInstanceNotReconciled(obj v1alpha1.AivenManagedObject) {

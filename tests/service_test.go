@@ -1,4 +1,4 @@
-//go:build genericservicehandler
+//go:build service
 
 package tests
 
@@ -61,6 +61,9 @@ spec:
 
   maintenanceWindowDow: sunday
   maintenanceWindowTime: 11:00:00
+
+  # An omitted tags field is unmanaged; {} clears the tags.
+  tags: {}
 `, project, pgName, powered)
 }
 
@@ -73,7 +76,7 @@ func TestCreateUpdateService(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pgName := randName("generic-handler")
+	pgName := randName("service")
 	ymlCreate := getCreateServiceYaml(cfg.Project, pgName)
 	s := NewSession(ctx, k8sClient)
 
@@ -278,7 +281,7 @@ func TestErrorCondition(t *testing.T) {
 	ctx, cancel := testCtx()
 	defer cancel()
 
-	pgName := randName("generic-handler")
+	pgName := randName("service")
 	yml := getErrorConditionYaml(cfg.Project, pgName)
 	s := NewSession(ctx, k8sClient)
 

@@ -6,6 +6,8 @@ import (
 	"strconv"
 	"strings"
 
+	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	"k8s.io/apimachinery/pkg/api/meta"
@@ -60,23 +62,65 @@ func deleteMigrationSecret(ctx context.Context, k8s client.Writer, namespace str
 	return nil
 }
 
-// maybeDeleteMigrationSecret deletes the referenced migration Secret when
-// DeleteAfterMigration is opted in and the MigrationComplete condition is True. No-op otherwise.
-func (h *genericServiceHandler) maybeDeleteMigrationSecret(ctx context.Context, o serviceAdapter, mp migrationSecretProvider) error {
-	src := mp.getMigrationSecretSource()
-	if src == nil || !src.DeleteAfterMigration {
-		return nil
+// markMigrationApplied records that the migration config was sent to Aiven, unless a migration condition exists.
+func markMigrationApplied(conditions *[]metav1.Condition, generation int64) {
+	if meta.FindStatusCondition(*conditions, v1alpha1.ConditionTypeMigrationComplete) != nil {
+		return
 	}
-	if !meta.IsStatusConditionTrue(o.getServiceStatus().Conditions, v1alpha1.ConditionTypeMigrationComplete) {
-		return nil
+	meta.SetStatusCondition(conditions, metav1.Condition{
+		Type:               v1alpha1.ConditionTypeMigrationComplete,
+		Status:             metav1.ConditionFalse,
+		ObservedGeneration: generation,
+		Reason:             v1alpha1.MigrationReasonInProgress,
+		Message:            "Migration config applied",
+	})
+}
+
+// updateMigrationCondition sets MigrationComplete from the migration status at Aiven.
+func updateMigrationCondition(ctx context.Context, avnGen avngen.Client, project, name string, generation int64, conditions *[]metav1.Condition) error {
+	migrationStatus, err := avnGen.ServiceGetMigrationStatus(ctx, project, name)
+	if err != nil {
+		if isNotFound(err) {
+			// 404 means no active migration: done once the migration config was applied, not started otherwise.
+			if meta.FindStatusCondition(*conditions, v1alpha1.ConditionTypeMigrationComplete) == nil {
+				return nil
+			}
+			meta.SetStatusCondition(conditions, metav1.Condition{
+				Type:               v1alpha1.ConditionTypeMigrationComplete,
+				Status:             metav1.ConditionTrue,
+				ObservedGeneration: generation,
+				Reason:             v1alpha1.MigrationReasonDone,
+				Message:            "Migration completed (no active migration found)",
+			})
+			return nil
+		}
+
+		return fmt.Errorf("failed to get migration status: %w", err)
 	}
-	if err := mp.deleteMigrationSecret(ctx); err != nil {
-		return err
+
+	condition := metav1.Condition{
+		Type:               v1alpha1.ConditionTypeMigrationComplete,
+		ObservedGeneration: generation,
 	}
-	h.log.Info("migration secret deleted",
-		"name", src.Name,
-		"namespace", o.getObjectMeta().Namespace,
-		"resource", o.getObjectMeta().Name,
-	)
+
+	switch migrationStatus.Migration.Status {
+	case service.MigrationStatusTypeDone:
+		condition.Status = metav1.ConditionTrue
+		condition.Reason = v1alpha1.MigrationReasonDone
+		condition.Message = "Migration completed successfully"
+	case service.MigrationStatusTypeFailed:
+		condition.Status = metav1.ConditionFalse
+		condition.Reason = v1alpha1.MigrationReasonFailed
+		condition.Message = "Migration failed"
+		if migrationStatus.Migration.Error != nil {
+			condition.Message = *migrationStatus.Migration.Error
+		}
+	default:
+		condition.Status = metav1.ConditionFalse
+		condition.Reason = v1alpha1.MigrationReasonInProgress
+		condition.Message = fmt.Sprintf("Migration status: %s", migrationStatus.Migration.Status)
+	}
+
+	meta.SetStatusCondition(conditions, condition)
 	return nil
 }

@@ -229,9 +229,6 @@ func TestClickhouse(t *testing.T) {
 	})
 
 	// Tests service power off functionality
-	// Note: Power on testing is handled generically in generic_service_handler_test.go
-	// since it's consistent across services. Power off testing is done here since
-	// the flow can vary by service type and may require service-specific steps.
 	require.NoError(t, k8sClient.Get(ctx, types.NamespacedName{Name: chName, Namespace: defaultNamespace}, ch))
 	poweredOff := ch.DeepCopy()
 	poweredOff.Spec.Powered = anyPointer(false)

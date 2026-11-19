@@ -2,13 +2,17 @@ package controllers
 
 import (
 	"context"
+	"net/http"
 	"testing"
 
-	"github.com/go-logr/logr"
+	avngen "github.com/aiven/go-client-codegen"
+	"github.com/aiven/go-client-codegen/handler/service"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/require"
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
+	"k8s.io/apimachinery/pkg/api/meta"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/types"
@@ -20,16 +24,16 @@ import (
 	pguserconfig "github.com/aiven/aiven-operator/api/v1alpha1/userconfig/service/pg"
 )
 
-var adapters = []adapterFactory{
+var migrationKinds = []migrationKindCase{
 	{"pg", func(ctx context.Context, ns, secret string, k8s *fake.ClientBuilder) (any, error) {
-		return resolveForTest(ctx, newPgAdapter(ns, secret, k8s))
+		return resolvePGForTest(ctx, newTestPG(ns, secret), k8s.Build())
 	}},
 	{"mysql", func(ctx context.Context, ns, secret string, k8s *fake.ClientBuilder) (any, error) {
 		return resolveMySQLForTest(ctx, newTestMySQL(ns, secret), k8s.Build())
 	}},
 }
 
-func TestPgAdapter_FullFields(t *testing.T) {
+func TestPostgreSQLMigrationUserConfig_FullFields(t *testing.T) {
 	t.Parallel()
 
 	s := secretInNs("creds", "default", map[string][]byte{
@@ -43,8 +47,8 @@ func TestPgAdapter_FullFields(t *testing.T) {
 		"ignore_dbs":   []byte("template0,template1"),
 		"ignore_roles": []byte("rdsadmin"),
 	})
-	adapter := newPgAdapter("default", "creds", newFakeClient(s))
-	result, err := resolveForTest(context.Background(), adapter)
+	pg := newTestPG("default", "creds")
+	result, err := resolvePGForTest(context.Background(), pg, newFakeClient(s).Build())
 	require.NoError(t, err)
 
 	cfg := result.(*pguserconfig.PgUserConfig)
@@ -61,10 +65,10 @@ func TestPgAdapter_FullFields(t *testing.T) {
 	assert.Equal(t, "rdsadmin", *m.IgnoreRoles)
 
 	// Original spec must not be mutated
-	assert.Nil(t, adapter.Spec.UserConfig)
+	assert.Nil(t, pg.Spec.UserConfig)
 }
 
-func TestMySQLAdapter_FullFields(t *testing.T) {
+func TestMySQLMigrationUserConfig_FullFields(t *testing.T) {
 	t.Parallel()
 
 	s := secretInNs("creds", "default", map[string][]byte{
@@ -103,7 +107,7 @@ func TestMySQLAdapter_FullFields(t *testing.T) {
 	assert.Nil(t, mysql.Spec.UserConfig)
 }
 
-func TestAdapters_StringFieldsPreservedAsStrings(t *testing.T) {
+func TestMigrationUserConfig_StringFieldsPreservedAsStrings(t *testing.T) {
 	t.Parallel()
 
 	tests := []struct {
@@ -122,8 +126,7 @@ func TestAdapters_StringFieldsPreservedAsStrings(t *testing.T) {
 				"password": []byte(tt.password),
 				"username": []byte(tt.username),
 			})
-			adapter := newPgAdapter("default", "creds", newFakeClient(s))
-			result, err := resolveForTest(context.Background(), adapter)
+			result, err := resolvePGForTest(context.Background(), newTestPG("default", "creds"), newFakeClient(s).Build())
 			require.NoError(t, err)
 
 			cfg := result.(*pguserconfig.PgUserConfig)
@@ -134,7 +137,7 @@ func TestAdapters_StringFieldsPreservedAsStrings(t *testing.T) {
 	}
 }
 
-func TestAdapters_Errors(t *testing.T) {
+func TestMigrationUserConfig_Errors(t *testing.T) {
 	t.Parallel()
 
 	cases := []struct {
@@ -153,16 +156,16 @@ func TestAdapters_Errors(t *testing.T) {
 		{"trailing newline in password", "default", "creds", map[string][]byte{"host": []byte("db.example.com"), "port": []byte("5432"), "password": []byte("pw\n")}, "whitespace"},
 		{"leading space in host", "default", "creds", map[string][]byte{"host": []byte(" db.example.com"), "port": []byte("5432")}, "whitespace"},
 	}
-	for _, af := range adapters {
+	for _, mk := range migrationKinds {
 		for _, tt := range cases {
-			t.Run(af.name+"/"+tt.name, func(t *testing.T) {
+			t.Run(mk.name+"/"+tt.name, func(t *testing.T) {
 				var k *fake.ClientBuilder
 				if tt.data != nil {
 					k = newFakeClient(secretInNs(tt.secret, tt.ns, tt.data))
 				} else {
 					k = newFakeClient()
 				}
-				_, err := af.resolve(context.Background(), tt.ns, tt.secret, k)
+				_, err := mk.resolve(context.Background(), tt.ns, tt.secret, k)
 				require.Error(t, err)
 				assert.Contains(t, err.Error(), tt.errSubstr)
 			})
@@ -170,7 +173,7 @@ func TestAdapters_Errors(t *testing.T) {
 	}
 }
 
-func TestMySQLAdapter_InvalidReestablishReplication(t *testing.T) {
+func TestMySQLMigrationUserConfig_InvalidReestablishReplication(t *testing.T) {
 	t.Parallel()
 
 	s := secretInNs("creds", "default", map[string][]byte{
@@ -183,7 +186,7 @@ func TestMySQLAdapter_InvalidReestablishReplication(t *testing.T) {
 	assert.Contains(t, err.Error(), "reestablish_replication")
 }
 
-func TestPgAdapter_SecretOverridesInlineConfig(t *testing.T) {
+func TestPostgreSQLMigrationUserConfig_SecretOverridesInlineConfig(t *testing.T) {
 	t.Parallel()
 
 	s := secretInNs("creds", "default", map[string][]byte{
@@ -200,8 +203,7 @@ func TestPgAdapter_SecretOverridesInlineConfig(t *testing.T) {
 			Password: new("inline-password"),
 		},
 	}
-	adapter := &postgreSQLAdapter{PostgreSQL: pg, k8s: newFakeClient(s).Build()}
-	result, err := resolveForTest(context.Background(), adapter)
+	result, err := resolvePGForTest(context.Background(), pg, newFakeClient(s).Build())
 	require.NoError(t, err)
 
 	cfg := result.(*pguserconfig.PgUserConfig)
@@ -218,13 +220,11 @@ func TestPgAdapter_SecretOverridesInlineConfig(t *testing.T) {
 	assert.Equal(t, "inline-password", *origM.Password)
 }
 
-func TestPgAdapter_NilRef(t *testing.T) {
+func TestPostgreSQLMigrationUserConfig_NilRef(t *testing.T) {
 	t.Parallel()
 
 	pg := &v1alpha1.PostgreSQL{}
-	adapter := &postgreSQLAdapter{PostgreSQL: pg, k8s: nil}
-
-	result, err := resolveForTest(context.Background(), adapter)
+	result, err := resolvePGForTest(context.Background(), pg, nil)
 	require.NoError(t, err)
 	assert.Nil(t, result)
 	assert.Nil(t, pg.Spec.UserConfig)
@@ -247,11 +247,16 @@ func secretInNs(name, ns string, data map[string][]byte) corev1.Secret {
 	}
 }
 
-func newPgAdapter(ns string, secretName string, k8s *fake.ClientBuilder) *postgreSQLAdapter {
+func newTestPG(ns string, secretName string) *v1alpha1.PostgreSQL {
 	pg := &v1alpha1.PostgreSQL{}
 	pg.Namespace = ns
 	pg.Spec.MigrationSecretSource = &v1alpha1.MigrationSecretSource{Name: secretName}
-	return &postgreSQLAdapter{PostgreSQL: pg, k8s: k8s.Build()}
+	return pg
+}
+
+// resolvePGForTest resolves the PostgreSQL user config through the service controller.
+func resolvePGForTest(ctx context.Context, pg *v1alpha1.PostgreSQL, k8s client.Client) (any, error) {
+	return newTestController(nil, postgreSQLKind, k8s).resolveUserConfig(ctx, pg)
 }
 
 func newTestMySQL(ns string, secretName string) *v1alpha1.MySQL {
@@ -266,29 +271,7 @@ func resolveMySQLForTest(ctx context.Context, mysql *v1alpha1.MySQL, k8s client.
 	return newTestController(nil, mySQLKind, k8s).resolveUserConfig(ctx, mysql)
 }
 
-// migrationAdapter abstracts over legacy PG adapters for shared tests.
-type migrationAdapter interface {
-	migrationSecretProvider
-	k8sClient() client.Client
-	namespace() string
-}
-
-func (a *postgreSQLAdapter) k8sClient() client.Client { return a.k8s }
-func (a *postgreSQLAdapter) namespace() string        { return a.GetNamespace() }
-
-func resolveForTest(ctx context.Context, a migrationAdapter) (any, error) {
-	ref := a.getMigrationSecretSource()
-	if ref == nil {
-		return a.buildUserConfigWithMigration(nil)
-	}
-	data, err := readMigrationSecret(ctx, a.k8sClient(), a.namespace(), ref)
-	if err != nil {
-		return nil, err
-	}
-	return a.buildUserConfigWithMigration(data)
-}
-
-type adapterFactory struct {
+type migrationKindCase struct {
 	name    string
 	resolve func(ctx context.Context, ns, secretName string, k8s *fake.ClientBuilder) (any, error)
 }
@@ -327,7 +310,7 @@ func secretExists(t *testing.T, k8s client.Client, name, ns string) bool {
 func TestMaybeDeleteMigrationSecret(t *testing.T) {
 	t.Parallel()
 
-	newPgAdapterWithClient := func(k8s client.Client, deleteAfter bool) (*v1alpha1.PostgreSQL, *postgreSQLAdapter) {
+	newPGWithClient := func(k8s client.Client, deleteAfter bool) (*v1alpha1.PostgreSQL, *serviceController[*v1alpha1.PostgreSQL]) {
 		pg := &v1alpha1.PostgreSQL{}
 		pg.Namespace = "default"
 		pg.Name = "pg-1"
@@ -335,7 +318,7 @@ func TestMaybeDeleteMigrationSecret(t *testing.T) {
 			Name:                 "creds",
 			DeleteAfterMigration: deleteAfter,
 		}
-		return pg, &postgreSQLAdapter{PostgreSQL: pg, k8s: k8s}
+		return pg, newTestController(nil, postgreSQLKind, k8s)
 	}
 
 	buildClient := func(withSecret bool) client.Client {
@@ -349,16 +332,14 @@ func TestMaybeDeleteMigrationSecret(t *testing.T) {
 		return b.Build()
 	}
 
-	h := &genericServiceHandler{log: logr.Discard()}
-
 	t.Run("Deletes secret when flag true and migration complete", func(t *testing.T) {
 		t.Parallel()
 
 		k8s := buildClient(true)
-		pg, adapter := newPgAdapterWithClient(k8s, true)
+		pg, c := newPGWithClient(k8s, true)
 		markMigrationDone(pg)
 
-		require.NoError(t, h.maybeDeleteMigrationSecret(context.Background(), adapter, adapter))
+		require.NoError(t, c.maybeDeleteMigrationSecret(context.Background(), pg, pg.Spec.MigrationSecretSource))
 		assert.False(t, secretExists(t, k8s, "creds", "default"))
 	})
 
@@ -366,10 +347,10 @@ func TestMaybeDeleteMigrationSecret(t *testing.T) {
 		t.Parallel()
 
 		k8s := buildClient(true)
-		pg, adapter := newPgAdapterWithClient(k8s, false)
+		pg, c := newPGWithClient(k8s, false)
 		markMigrationDone(pg)
 
-		require.NoError(t, h.maybeDeleteMigrationSecret(context.Background(), adapter, adapter))
+		require.NoError(t, c.maybeDeleteMigrationSecret(context.Background(), pg, pg.Spec.MigrationSecretSource))
 		assert.True(t, secretExists(t, k8s, "creds", "default"))
 	})
 
@@ -377,9 +358,9 @@ func TestMaybeDeleteMigrationSecret(t *testing.T) {
 		t.Parallel()
 
 		k8s := buildClient(true)
-		_, adapter := newPgAdapterWithClient(k8s, true)
+		pg, c := newPGWithClient(k8s, true)
 
-		require.NoError(t, h.maybeDeleteMigrationSecret(context.Background(), adapter, adapter))
+		require.NoError(t, c.maybeDeleteMigrationSecret(context.Background(), pg, pg.Spec.MigrationSecretSource))
 		assert.True(t, secretExists(t, k8s, "creds", "default"))
 	})
 
@@ -387,10 +368,10 @@ func TestMaybeDeleteMigrationSecret(t *testing.T) {
 		t.Parallel()
 
 		k8s := buildClient(true)
-		pg, adapter := newPgAdapterWithClient(k8s, true)
+		pg, c := newPGWithClient(k8s, true)
 		markMigrationInProgress(pg)
 
-		require.NoError(t, h.maybeDeleteMigrationSecret(context.Background(), adapter, adapter))
+		require.NoError(t, c.maybeDeleteMigrationSecret(context.Background(), pg, pg.Spec.MigrationSecretSource))
 		assert.True(t, secretExists(t, k8s, "creds", "default"))
 	})
 
@@ -398,20 +379,185 @@ func TestMaybeDeleteMigrationSecret(t *testing.T) {
 		t.Parallel()
 
 		k8s := buildClient(false)
-		pg, adapter := newPgAdapterWithClient(k8s, true)
+		pg, c := newPGWithClient(k8s, true)
 		markMigrationDone(pg)
 
-		require.NoError(t, h.maybeDeleteMigrationSecret(context.Background(), adapter, adapter))
+		require.NoError(t, c.maybeDeleteMigrationSecret(context.Background(), pg, pg.Spec.MigrationSecretSource))
 	})
+}
 
-	t.Run("No-op when MigrationSecretSource is nil", func(t *testing.T) {
+func TestUpdateMigrationStatus(t *testing.T) {
+	t.Parallel()
+
+	newPGWithMigration := func() *v1alpha1.PostgreSQL {
+		pg := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgres)
+		pg.Spec.MigrationSecretSource = &v1alpha1.MigrationSecretSource{Name: "creds"}
+		return pg
+	}
+	update := func(t *testing.T, avn avngen.Client, pg *v1alpha1.PostgreSQL) error {
+		return updateMigrationCondition(t.Context(), avn, pg.Spec.Project, pg.Name, pg.Generation, &pg.Status.Conditions)
+	}
+
+	t.Run("Sets MigrationDone on 404 (no active migration)", func(t *testing.T) {
 		t.Parallel()
 
-		k8s := buildClient(false)
-		pg := &v1alpha1.PostgreSQL{}
-		pg.Namespace = "default"
-		adapter := &postgreSQLAdapter{PostgreSQL: pg, k8s: k8s}
+		pg := newPGWithMigration()
+		markMigrationApplied(&pg.Status.Conditions, pg.Generation)
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGetMigrationStatus(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(nil, avngen.Error{Status: http.StatusNotFound, Message: "not found"}).Once()
 
-		require.NoError(t, h.maybeDeleteMigrationSecret(context.Background(), adapter, adapter))
+		require.NoError(t, update(t, avn, pg))
+
+		cond := meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+		require.NotNil(t, cond)
+		assert.Equal(t, metav1.ConditionTrue, cond.Status)
+		assert.Equal(t, v1alpha1.MigrationReasonDone, cond.Reason)
+	})
+
+	t.Run("Leaves the condition unset on 404 when the migration config was never applied", func(t *testing.T) {
+		t.Parallel()
+
+		pg := newPGWithMigration()
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGetMigrationStatus(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(nil, avngen.Error{Status: http.StatusNotFound, Message: "not found"}).Once()
+
+		require.NoError(t, update(t, avn, pg))
+		assert.Nil(t, meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete))
+	})
+
+	t.Run("Sets MigrationDone when status is done", func(t *testing.T) {
+		t.Parallel()
+
+		pg := newPGWithMigration()
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGetMigrationStatus(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(&service.ServiceGetMigrationStatusOut{
+				Migration: service.MigrationOut{Status: service.MigrationStatusTypeDone},
+			}, nil).Once()
+
+		require.NoError(t, update(t, avn, pg))
+
+		cond := meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+		require.NotNil(t, cond)
+		assert.Equal(t, metav1.ConditionTrue, cond.Status)
+		assert.Equal(t, v1alpha1.MigrationReasonDone, cond.Reason)
+	})
+
+	t.Run("Sets MigrationFailed with error message", func(t *testing.T) {
+		t.Parallel()
+
+		pg := newPGWithMigration()
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGetMigrationStatus(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(&service.ServiceGetMigrationStatusOut{
+				Migration: service.MigrationOut{
+					Status: service.MigrationStatusTypeFailed,
+					Error:  new("connection refused"),
+				},
+			}, nil).Once()
+
+		require.NoError(t, update(t, avn, pg))
+
+		cond := meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+		require.NotNil(t, cond)
+		assert.Equal(t, metav1.ConditionFalse, cond.Status)
+		assert.Equal(t, v1alpha1.MigrationReasonFailed, cond.Reason)
+		assert.Equal(t, "connection refused", cond.Message)
+	})
+
+	t.Run("Sets MigrationInProgress for other statuses", func(t *testing.T) {
+		t.Parallel()
+
+		pg := newPGWithMigration()
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGetMigrationStatus(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(&service.ServiceGetMigrationStatusOut{
+				Migration: service.MigrationOut{Status: "syncing"},
+			}, nil).Once()
+
+		require.NoError(t, update(t, avn, pg))
+
+		cond := meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+		require.NotNil(t, cond)
+		assert.Equal(t, metav1.ConditionFalse, cond.Status)
+		assert.Equal(t, v1alpha1.MigrationReasonInProgress, cond.Reason)
+	})
+
+	t.Run("Returns error on non-404 error", func(t *testing.T) {
+		t.Parallel()
+
+		pg := newPGWithMigration()
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGetMigrationStatus(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(nil, avngen.Error{Status: http.StatusInternalServerError, Message: "server error"}).Once()
+
+		err := update(t, avn, pg)
+		require.Error(t, err)
+		assert.Contains(t, err.Error(), "server error")
+
+		cond := meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+		assert.Nil(t, cond)
+	})
+}
+
+func TestHasPendingMigration(t *testing.T) {
+	t.Parallel()
+
+	t.Run("No condition — returns false", func(t *testing.T) {
+		t.Parallel()
+		pg := &v1alpha1.PostgreSQL{}
+		assert.False(t, hasPendingMigration(pg))
+	})
+
+	t.Run("Condition True — returns false", func(t *testing.T) {
+		t.Parallel()
+		pg := &v1alpha1.PostgreSQL{}
+		meta.SetStatusCondition(&pg.Status.Conditions, metav1.Condition{
+			Type:   v1alpha1.ConditionTypeMigrationComplete,
+			Status: metav1.ConditionTrue,
+			Reason: v1alpha1.MigrationReasonDone,
+		})
+		assert.False(t, hasPendingMigration(pg))
+	})
+
+	t.Run("Condition False (in progress) — returns true", func(t *testing.T) {
+		t.Parallel()
+		pg := &v1alpha1.PostgreSQL{}
+		meta.SetStatusCondition(&pg.Status.Conditions, metav1.Condition{
+			Type:   v1alpha1.ConditionTypeMigrationComplete,
+			Status: metav1.ConditionFalse,
+			Reason: v1alpha1.MigrationReasonInProgress,
+		})
+		assert.True(t, hasPendingMigration(pg))
+	})
+
+	t.Run("Condition False (failed) — returns false (terminal state)", func(t *testing.T) {
+		t.Parallel()
+		pg := &v1alpha1.PostgreSQL{}
+		meta.SetStatusCondition(&pg.Status.Conditions, metav1.Condition{
+			Type:   v1alpha1.ConditionTypeMigrationComplete,
+			Status: metav1.ConditionFalse,
+			Reason: v1alpha1.MigrationReasonFailed,
+		})
+		assert.False(t, hasPendingMigration(pg))
+	})
+
+	t.Run("Condition False with unknown Reason — returns false", func(t *testing.T) {
+		t.Parallel()
+		pg := &v1alpha1.PostgreSQL{}
+		meta.SetStatusCondition(&pg.Status.Conditions, metav1.Condition{
+			Type:   v1alpha1.ConditionTypeMigrationComplete,
+			Status: metav1.ConditionFalse,
+			Reason: "SomethingElse",
+		})
+		assert.False(t, hasPendingMigration(pg))
 	})
 }

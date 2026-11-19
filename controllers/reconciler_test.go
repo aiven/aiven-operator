@@ -438,6 +438,156 @@ func TestReconciler_Reconcile(t *testing.T) {
 		}, recorderEvents(recorder))
 	})
 
+	t.Run("Refs not ready or failing revokes readiness unless its own connection Secret exists", func(t *testing.T) {
+		ownedBy := func(uid types.UID) *corev1.Secret {
+			return &corev1.Secret{ObjectMeta: metav1.ObjectMeta{
+				Name:            "my-pg",
+				Namespace:       "default",
+				OwnerReferences: []metav1.OwnerReference{{Controller: new(true), UID: uid, Name: "my-pg"}},
+			}}
+		}
+		for name, tc := range map[string]struct {
+			secret *corev1.Secret
+			ready  bool
+		}{
+			"secret missing":           {},
+			"secret of an older owner": {secret: ownedBy("old-uid")},
+			"own secret":               {secret: ownedBy("pg-uid"), ready: true},
+		} {
+			for cause, resolveFails := range map[string]bool{"not ready": false, "error": true} {
+				t.Run(cause+"/"+name, func(t *testing.T) {
+					obj := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgresWithRef)
+					obj.UID = "pg-uid"
+					obj.Generation = 1
+					obj.Finalizers = []string{instanceDeletionFinalizer}
+					metav1.SetMetaDataAnnotation(&obj.ObjectMeta, processedGenerationAnnotation, "1")
+					markInstanceRunning(obj)
+
+					objs := []crclient.Object{obj}
+					if tc.secret != nil {
+						tc.secret.Name = connectionSecretName(obj)
+						tc.secret.Namespace = obj.Namespace
+						objs = append(objs, tc.secret)
+					}
+					k8sClient := fake.NewClientBuilder().
+						WithScheme(scheme).
+						WithStatusSubresource(&v1alpha1.PostgreSQL{}).
+						WithObjects(objs...).
+						Build()
+
+					r := &Reconciler[*v1alpha1.PostgreSQL]{
+						Controller: Controller{
+							Client:   k8sClient,
+							Scheme:   scheme,
+							Recorder: record.NewFakeRecorder(10),
+						},
+						newObj: func() *v1alpha1.PostgreSQL { return &v1alpha1.PostgreSQL{} },
+					}
+					if resolveFails {
+						// The referenced ProjectVPC kind is disabled: resolving the ref fails.
+						r.EnabledKinds = kindSet{"PostgreSQL": true}
+					}
+
+					nn := types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}
+					res, err := r.Reconcile(t.Context(), ctrl.Request{NamespacedName: nn})
+					if resolveFails {
+						require.Error(t, err)
+						require.Equal(t, ctrl.Result{}, res)
+					} else {
+						require.NoError(t, err)
+						require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
+					}
+
+					got := &v1alpha1.PostgreSQL{}
+					require.NoError(t, k8sClient.Get(t.Context(), nn, got))
+					require.Equal(t, tc.ready, IsReadyToUse(got))
+					if !tc.ready {
+						running := meta.FindStatusCondition(got.Status.Conditions, conditionTypeRunning)
+						require.NotNil(t, running)
+						require.Equal(t, string(errConditionConnInfoSecret), running.Reason)
+					}
+				})
+			}
+		}
+	})
+
+	t.Run("Observe error revokes readiness unless its own connection Secret exists", func(t *testing.T) {
+		ownedBy := func(uid types.UID) *corev1.Secret {
+			return &corev1.Secret{ObjectMeta: metav1.ObjectMeta{
+				OwnerReferences: []metav1.OwnerReference{{Controller: new(true), UID: uid, Name: "my-pg"}},
+			}}
+		}
+		for name, tc := range map[string]struct {
+			secret *corev1.Secret
+			ready  bool
+		}{
+			"secret missing":           {},
+			"secret of an older owner": {secret: ownedBy("old-uid")},
+			"own secret":               {secret: ownedBy("pg-uid"), ready: true},
+		} {
+			t.Run(name, func(t *testing.T) {
+				obj := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgres)
+				obj.UID = "pg-uid"
+				obj.Generation = 1
+				obj.Finalizers = []string{instanceDeletionFinalizer}
+				metav1.SetMetaDataAnnotation(&obj.ObjectMeta, processedGenerationAnnotation, "1")
+				markInstanceRunning(obj)
+
+				objs := []crclient.Object{obj}
+				if tc.secret != nil {
+					tc.secret.Name = connectionSecretName(obj)
+					tc.secret.Namespace = obj.Namespace
+					objs = append(objs, tc.secret)
+				}
+				k8sClient := fake.NewClientBuilder().
+					WithScheme(scheme).
+					WithStatusSubresource(&v1alpha1.PostgreSQL{}).
+					WithObjects(objs...).
+					Build()
+
+				c := NewMockAivenController[*v1alpha1.PostgreSQL](t)
+				c.EXPECT().Observe(mock.Anything, mock.Anything).Return(Observation{}, newAivenError(500, "boom")).Once()
+
+				m := &mock.Mock{}
+				t.Cleanup(func() { m.AssertExpectations(t) })
+				m.On("newAivenGeneratedClient", "default-token", "v1.30.0", "v0.0.0-test").
+					Return(avngen.NewMockClient(t), nil).
+					Once()
+
+				r := &Reconciler[*v1alpha1.PostgreSQL]{
+					Controller: Controller{
+						Client:          k8sClient,
+						Scheme:          scheme,
+						Recorder:        record.NewFakeRecorder(10),
+						DefaultToken:    "default-token",
+						KubeVersion:     "v1.30.0",
+						OperatorVersion: "v0.0.0-test",
+						PollInterval:    testPollInterval,
+					},
+					newAivenGeneratedClient: mockNewAivenGeneratedClient(m),
+					newController: func(avngen.Client) AivenController[*v1alpha1.PostgreSQL] {
+						return c
+					},
+					newObj: func() *v1alpha1.PostgreSQL { return &v1alpha1.PostgreSQL{} },
+				}
+
+				nn := types.NamespacedName{Name: obj.Name, Namespace: obj.Namespace}
+				res, err := r.Reconcile(t.Context(), ctrl.Request{NamespacedName: nn})
+				require.NoError(t, err)
+				require.Equal(t, ctrl.Result{RequeueAfter: requeueTimeout}, res)
+
+				got := &v1alpha1.PostgreSQL{}
+				require.NoError(t, k8sClient.Get(t.Context(), nn, got))
+				require.Equal(t, tc.ready, IsReadyToUse(got))
+				if !tc.ready {
+					running := meta.FindStatusCondition(got.Status.Conditions, conditionTypeRunning)
+					require.NotNil(t, running)
+					require.Equal(t, string(errConditionConnInfoSecret), running.Reason)
+				}
+			})
+		}
+	})
+
 	t.Run("Protects auth Secret before refs requeue", func(t *testing.T) {
 		obj := newObjectFromYAML[v1alpha1.PostgreSQL](t, yamlPostgresWithRef)
 		obj.Spec.AuthSecretRef = &v1alpha1.AuthSecretReference{
@@ -949,7 +1099,9 @@ func TestReconciler_Reconcile(t *testing.T) {
 		require.NotNil(t, running)
 		require.Equal(t, metav1.ConditionUnknown, running.Status)
 		require.Equal(t, string(errConditionConnInfoSecret), running.Reason)
-		require.True(t, hasConnectionSecretPublishError(updated))
+		errCond := meta.FindStatusCondition(updated.Status.Conditions, ConditionTypeError)
+		require.NotNil(t, errCond)
+		require.Equal(t, string(errConditionConnInfoSecret), errCond.Reason)
 	})
 
 	t.Run("Observe errConnInfoSecret revokes readiness like a failed publish", func(t *testing.T) {
