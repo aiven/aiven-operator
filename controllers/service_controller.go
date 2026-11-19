@@ -79,10 +79,8 @@ func (c *serviceController[T]) Observe(ctx context.Context, obj T) (Observation,
 
 	// Drift is compared only in a stable service state.
 	if status.State != service.ServiceStateTypeRunning && status.State != service.ServiceStateTypePoweroff {
-		if c.kind.secretData != nil {
-			if err := revokeReadyWithoutSecret(ctx, c.k8s, obj); err != nil {
-				return Observation{}, err
-			}
+		if err := revokeReadyWithoutSecret(ctx, c.k8s, obj); err != nil {
+			return Observation{}, err
 		}
 		return Observation{ResourceExists: true, ResourceUpToDate: true}, nil
 	}

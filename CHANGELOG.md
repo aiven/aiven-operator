@@ -24,6 +24,9 @@
   applied, and a spec change emits a `DiskSpaceNotApplied` warning event
 - `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka`, `PostgreSQL`: a resource that sets both `projectVpcId` and `projectVPCRef` now reports an `Error`
   condition when polled while running or powered off, not only on its next update. Drop one of the two fields to clear it
+- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL`: a
+  `controllers.aiven.io/deletion-policy` value other than `Orphan` now blocks deletion with an `Error` condition, instead
+  of deleting the service at Aiven. Remove the annotation to delete the service, or set it to `Orphan` to keep it
 - `PostgreSQL`: a rejected `pg_version` upgrade check now reports why Aiven rejected it, instead of an
   empty result
 - Add `ServiceUser` field `accessControl.valkeyAclDatabases`, type `array`: Database ids the user can access
