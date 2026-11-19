@@ -81,8 +81,9 @@ func updateMigrationCondition(ctx context.Context, avnGen avngen.Client, project
 	migrationStatus, err := avnGen.ServiceGetMigrationStatus(ctx, project, name)
 	if err != nil {
 		if isNotFound(err) {
-			// 404 means no active migration: done once the migration config was applied, not started otherwise.
-			if meta.FindStatusCondition(*conditions, v1alpha1.ConditionTypeMigrationComplete) == nil {
+			// 404 means no active migration: done only for one in progress; a failed one stays failed.
+			cond := meta.FindStatusCondition(*conditions, v1alpha1.ConditionTypeMigrationComplete)
+			if cond == nil || cond.Reason != v1alpha1.MigrationReasonInProgress {
 				return nil
 			}
 			meta.SetStatusCondition(conditions, metav1.Condition{
