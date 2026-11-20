@@ -43,7 +43,8 @@ spec:
 `, project, pgName)
 }
 
-func getUpdateServiceYaml(project, pgName string, powered bool) string {
+// getUpdateServiceYaml renders the update manifest; tags is a raw spec snippet, "" omits the field.
+func getUpdateServiceYaml(project, pgName string, powered bool, tags string) string {
 	return fmt.Sprintf(`
 apiVersion: aiven.io/v1alpha1
 kind: PostgreSQL
@@ -61,11 +62,11 @@ spec:
 
   maintenanceWindowDow: sunday
   maintenanceWindowTime: 11:00:00
-
-  # An omitted tags field is unmanaged; {} clears the tags.
-  tags: {}
-`, project, pgName, powered)
+%[4]s`, project, pgName, powered, tags)
 }
+
+// clearTags empties the tags; an omitted tags field is unmanaged.
+const clearTags = "\n  tags: {}\n"
 
 // TestCreateUpdateService tests create and update flow
 func TestCreateUpdateService(t *testing.T) {
@@ -113,8 +114,12 @@ func TestCreateUpdateService(t *testing.T) {
 		require.ErrorContains(t, err, "Must be HH:MM:SS")
 	})
 
+	// Server-side apply rejects {} as "null" while this field manager still owns tag keys, so release them first.
+	require.NoError(t, s.Apply(getUpdateServiceYaml(cfg.Project, pgName, true, "")))
+	require.NoError(t, s.GetRunning(new(v1alpha1.PostgreSQL), pgName))
+
 	// Removes the tags and updates the maintenance window
-	ymlUpdate := getUpdateServiceYaml(cfg.Project, pgName, true)
+	ymlUpdate := getUpdateServiceYaml(cfg.Project, pgName, true, clearTags)
 	require.NoError(t, err)
 	require.NoError(t, s.Apply(ymlUpdate))
 
@@ -132,7 +137,7 @@ func TestCreateUpdateService(t *testing.T) {
 	assert.Equal(t, "11:00:00", avnPgUpdated.Maintenance.Time)
 
 	// Validates service is powered off
-	ymlPowerOff := getUpdateServiceYaml(cfg.Project, pgName, false)
+	ymlPowerOff := getUpdateServiceYaml(cfg.Project, pgName, false, clearTags)
 	require.NoError(t, s.Apply(ymlPowerOff))
 
 	pgPoweredOff := new(v1alpha1.PostgreSQL)
@@ -144,7 +149,7 @@ func TestCreateUpdateService(t *testing.T) {
 	assert.Equal(t, "false", controllers.GetIsRunningAnnotation(pgPoweredOff))
 
 	// Validates the service is powered on
-	ymlPowerOn := getUpdateServiceYaml(cfg.Project, pgName, true)
+	ymlPowerOn := getUpdateServiceYaml(cfg.Project, pgName, true, clearTags)
 	require.NoError(t, s.Apply(ymlPowerOn))
 
 	pgPoweredOn := new(v1alpha1.PostgreSQL)
