@@ -59,6 +59,20 @@
   for search requests that don't set their own timeout
 - Change `Valkey` field `userConfig.valkey_notify_keyspace_events`: pattern ~~`^[KEg\$lshzxentdmA]*$`~~
   → `^[KEg\$lshzxentdmpA]*$`
+- Add `Grafana` field `userConfig.auth_azuread.org_mapping`, type `array`: Map Azure AD groups to Grafana
+  organizations and roles
+- Add `Grafana` field `userConfig.auth_azuread.skip_org_role_sync`, type `boolean`: Stop automatically
+  syncing user organizations and roles at sign-in
+- Add `Kafka` field `userConfig.kafka.sasl_oauthbearer_allow_unverified_audience`, type `boolean`: Accept
+  tokens whatever their audience when sasl_oauthbearer_expected_audience is not set
+- Add `Kafka` field `userConfig.kafka.sasl_oauthbearer_allow_unverified_issuer`, type `boolean`: Accept
+  tokens whatever their issuer when sasl_oauthbearer_expected_issuer is not set
+- Add `Valkey` field `userConfig.valkey_hotkeys_sampling_percentage`, type `integer`: Percentage of key
+  accesses sampled for hot key detection
+- Add `Valkey` field `userConfig.valkey_hotkeys_top_k`, type `integer`: Number of hottest keys to track
+  and report with the HOTKEYS GET command
+- Add `Valkey` field `userConfig.valkey_hotkeys_window_seconds`, type `integer`: Length of the hot key
+  reporting window in seconds. HOTKEYS GET reports the last completed window
 
 ## v0.50.1 - 2026-11-12
 
