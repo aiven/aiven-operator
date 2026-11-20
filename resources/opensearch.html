@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="../assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.1.1">
+      <meta name="generator" content="zensical-0.1.2">
     
     
       
@@ -711,6 +711,33 @@
     
   
   Deletion Policy
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../guides/management-policy.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Management Policy
 
     
   </span>
@@ -5027,6 +5054,8 @@ See the <a href="https://aiven.io/docs/platform/howto/manage-permissions">Aiven 
 <li><a href="#spec.userConfig.opensearch.script_max_compilations_rate-property" name="spec.userConfig.opensearch.script_max_compilations_rate-property"><code>script_max_compilations_rate</code></a> (string, Pattern: <code>^[^\r\n]*$</code>, MaxLength: 1024). Script compilation circuit breaker limits the number of inline script compilations within a period of time. Default is use-context.</li>
 <li><a href="#spec.userConfig.opensearch.search.insights.top_queries-property" name="spec.userConfig.opensearch.search.insights.top_queries-property"><code>search.insights.top_queries</code></a> (object). See below for <a href="#spec.userConfig.opensearch.search.insights.top_queries">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch.search_backpressure-property" name="spec.userConfig.opensearch.search_backpressure-property"><code>search_backpressure</code></a> (object). Search Backpressure Settings. See below for <a href="#spec.userConfig.opensearch.search_backpressure">nested schema</a>.</li>
+<li><a href="#spec.userConfig.opensearch.search_cancel_after_time_interval-property" name="spec.userConfig.opensearch.search_cancel_after_time_interval-property"><code>search_cancel_after_time_interval</code></a> (string, Pattern: <code>^\d+\s*(?:[dhms]|ms|micros|nanos)$</code>). Hard limit for search requests. When it is reached, the search task is cancelled and the request fails. OpenSearch default value is used when this is not defined.</li>
+<li><a href="#spec.userConfig.opensearch.search_default_search_timeout-property" name="spec.userConfig.opensearch.search_default_search_timeout-property"><code>search_default_search_timeout</code></a> (string, Pattern: <code>^\d+\s*(?:[dhms]|ms|micros|nanos)$</code>). Soft timeout for search requests that don't set their own timeout. When it is reached, the search returns partial results with <code>timed_out: true</code>, and the search task keeps running unless it is cancelled. OpenSearch default value is used when this is not defined.</li>
 <li><a href="#spec.userConfig.opensearch.search_max_buckets-property" name="spec.userConfig.opensearch.search_max_buckets-property"><code>search_max_buckets</code></a> (integer, Minimum: 1, Maximum: 1000000). Maximum number of aggregation buckets allowed in a single response. OpenSearch default value is used when this is not defined.</li>
 <li><a href="#spec.userConfig.opensearch.segrep-property" name="spec.userConfig.opensearch.segrep-property"><code>segrep</code></a> (object). Segment Replication Backpressure Settings. See below for <a href="#spec.userConfig.opensearch.segrep">nested schema</a>.</li>
 <li><a href="#spec.userConfig.opensearch.shard_indexing_pressure-property" name="spec.userConfig.opensearch.shard_indexing_pressure-property"><code>shard_indexing_pressure</code></a> (object). Shard indexing back pressure settings. See below for <a href="#spec.userConfig.opensearch.shard_indexing_pressure">nested schema</a>.</li>

@@ -22,7 +22,7 @@
       
       
       <link rel="icon" href="./assets/images/favicon.png">
-      <meta name="generator" content="zensical-0.1.1">
+      <meta name="generator" content="zensical-0.1.2">
     
     
       
@@ -490,6 +490,17 @@
       On this page
     </label>
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v0510-2026-11-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.51.0 - 2026-11-20
+      </span>
+    </span>
+  </a>
+  
+</li>
       
         <li class="md-nav__item">
   <a href="#v0501-2026-11-12" class="md-nav__link">
@@ -1385,6 +1396,33 @@
     
   
   Deletion Policy
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+                
+              
+                
+                  
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="./guides/management-policy.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+  Management Policy
 
     
   </span>
@@ -4020,6 +4058,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#v0510-2026-11-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      <span class="md-typeset">
+        v0.51.0 - 2026-11-20
+      </span>
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#v0501-2026-11-12" class="md-nav__link">
     <span class="md-ellipsis">
       <span class="md-typeset">
@@ -4675,6 +4724,64 @@
 
 
 <h1 id="changelog">Changelog<a class="headerlink" href="#changelog" title="Permanent link">&para;</a></h1>
+<h2 id="v0510-2026-11-20">v0.51.0 - 2026-11-20<a class="headerlink" href="#v0510-2026-11-20" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>BREAKING</strong>: <code>Grafana</code>, <code>Valkey</code>, <code>Flink</code>, <code>OpenSearch</code>, <code>Clickhouse</code>, <code>KafkaConnect</code>, <code>MySQL</code>, <code>Kafka</code> and <code>PostgreSQL</code> now revert changes made outside Kubernetes. On every poll they restore
+  <code>plan</code>, <code>cloudName</code>, <code>projectVpcId</code> or <code>projectVPCRef</code>, <code>maintenanceWindowDow</code>,
+  <code>maintenanceWindowTime</code>, <code>terminationProtection</code>, <code>powered</code>, <code>disk_space</code>, <code>tags</code> and
+  <code>technicalEmails</code> from the spec (<code>Clickhouse</code> does not restore <code>plan</code>), and recreates a service that was deleted at Aiven unless <code>powered</code> is <code>false</code>. A field left
+  out of the spec is not compared, except <code>powered</code>, which defaults to <code>true</code>: a service powered off outside Kubernetes is
+  powered on again. To
+  keep settings managed in the Aiven Console, add the <code>controllers.aiven.io/management-policy: CreateOnly</code>
+  annotation before upgrading</li>
+<li><strong>BREAKING</strong>: <code>Grafana</code>, <code>Valkey</code>, <code>Flink</code>, <code>OpenSearch</code>, <code>Clickhouse</code>, <code>KafkaConnect</code>, <code>MySQL</code>, <code>Kafka</code> and <code>PostgreSQL</code> no longer clear the service's tags or technical emails when <code>tags</code> or
+  <code>technicalEmails</code> is left out of the spec. Set <code>tags: {}</code> or <code>technicalEmails: []</code> to clear them,
+  also in the first manifest of a new resource</li>
+<li><code>pollInterval</code> (<code>--poll-interval</code>) now also applies to <code>Grafana</code>, <code>Valkey</code>, <code>Flink</code>, <code>OpenSearch</code>, <code>Clickhouse</code>,
+  <code>KafkaConnect</code>, <code>MySQL</code>, <code>Kafka</code> and <code>PostgreSQL</code>: they re-reconcile against Aiven on that interval (default
+  <code>10m</code>), not only when the spec changes</li>
+<li>Add <code>controllers.aiven.io/management-policy: CreateOnly</code> annotation, supported on <code>Grafana</code>, <code>Valkey</code>, <code>Flink</code>, <code>OpenSearch</code>, <code>Clickhouse</code>, <code>KafkaConnect</code>, <code>MySQL</code>, <code>Kafka</code> and <code>PostgreSQL</code>. The
+  operator still creates a missing service and keeps its connection Secret in sync, but no longer
+  applies spec changes or reverts changes made outside Kubernetes. Other kinds ignore it and emit a
+  <code>ManagementPolicyNotSupported</code> warning event when the operator next applies their spec, such as on create or
+  after a spec change</li>
+<li><code>Grafana</code>, <code>Valkey</code>, <code>Flink</code>, <code>OpenSearch</code>, <code>Clickhouse</code>, <code>MySQL</code>, <code>Kafka</code>, <code>PostgreSQL</code>: <code>disk_space</code> on a service with an autoscaler integration is no longer an error. It is not
+  applied, and a spec change emits a <code>DiskSpaceNotApplied</code> warning event</li>
+<li><code>Grafana</code>, <code>Valkey</code>, <code>Flink</code>, <code>OpenSearch</code>, <code>Clickhouse</code>, <code>KafkaConnect</code>, <code>MySQL</code>, <code>Kafka</code>, <code>PostgreSQL</code>: a resource that sets both <code>projectVpcId</code> and <code>projectVPCRef</code> now reports an <code>Error</code>
+  condition when polled while running or powered off, not only on its next update. Drop one of the two fields to clear it</li>
+<li><strong>BREAKING</strong>: <code>Grafana</code>, <code>Valkey</code>, <code>Flink</code>, <code>OpenSearch</code>, <code>Clickhouse</code>, <code>KafkaConnect</code>, <code>MySQL</code>, <code>Kafka</code> and <code>PostgreSQL</code>: a
+  <code>controllers.aiven.io/deletion-policy</code> value other than <code>Orphan</code> now blocks deletion with an <code>Error</code> condition, instead
+  of deleting the service at Aiven. Remove the annotation to delete the service, or set it to <code>Orphan</code> to keep it</li>
+<li><code>PostgreSQL</code>: a rejected <code>pg_version</code> upgrade check now reports why Aiven rejected it, instead of an
+  empty result</li>
+<li>Add <code>ServiceUser</code> field <code>accessControl.valkeyAclDatabases</code>, type <code>array</code>: Database ids the user can access</li>
+<li>Change <code>Grafana</code> field <code>userConfig.dashboard_previews_enabled</code>: deprecated</li>
+<li>Change <code>Grafana</code> field <code>userConfig.dashboard_scenes_enabled</code>: deprecated</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.collation_server</code>, type <code>string</code>: The default collation for databases
+  created without one, which their new tables then inherit</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.event_scheduler</code>, type <code>string</code>: Whether the event scheduler runs
+  the events created with CREATE EVENT</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_ft_cache_size</code>, type <code>integer</code>: The size in bytes of the
+  InnoDB FULLTEXT index cache for each table</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_ft_sort_pll_degree</code>, type <code>integer</code>: The number of parallel
+  threads used to tokenize and index text when building an InnoDB FULLTEXT index</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_ft_total_cache_size</code>, type <code>integer</code>: The combined memory
+  limit in bytes for InnoDB FULLTEXT index caches across all tables</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.innodb_sort_buffer_size</code>, type <code>integer</code>: The size in bytes of
+  the sort buffer used when creating InnoDB indexes</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.schema_definition_cache</code>, type <code>integer</code>: The number of schema
+  definition objects the data dictionary object cache can hold</li>
+<li>Add <code>MySQL</code> field <code>userConfig.mysql.tablespace_definition_cache</code>, type <code>integer</code>: The number of tablespace
+  definition objects the data dictionary object cache can hold</li>
+<li><strong>BREAKING</strong>: Change <code>MySQL</code> field <code>userConfig.binlog_retention_period</code>: maximum <del><code>9007199254740991</code></del> → <code>1814400</code>.
+  A <code>MySQL</code> resource with a higher value is rejected on create or spec update; lower it to <code>1814400</code> or less before upgrading</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.search_cancel_after_time_interval</code>, type <code>string</code>: Hard
+  limit for search requests</li>
+<li>Add <code>OpenSearch</code> field <code>userConfig.opensearch.search_default_search_timeout</code>, type <code>string</code>: Soft timeout
+  for search requests that don't set their own timeout</li>
+<li>Change <code>Valkey</code> field <code>userConfig.valkey_notify_keyspace_events</code>: pattern <del><code>^[KEg\$lshzxentdmA]*$</code></del>
+  → <code>^[KEg\$lshzxentdmpA]*$</code></li>
+</ul>
 <h2 id="v0501-2026-11-12">v0.50.1 - 2026-11-12<a class="headerlink" href="#v0501-2026-11-12" title="Permanent link">&para;</a></h2>
 <ul>
 <li><code>Database</code> resources reconcile faster on services with many databases: up to 3 are reconciled at once, and
