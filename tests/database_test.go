@@ -3,6 +3,7 @@
 package tests
 
 import (
+	"context"
 	"fmt"
 	"testing"
 	"time"
@@ -10,6 +11,8 @@ import (
 	avngen "github.com/aiven/go-client-codegen"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	corev1 "k8s.io/api/core/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 
 	"github.com/aiven/aiven-operator/api/v1alpha1"
@@ -62,11 +65,17 @@ func TestDatabase(t *testing.T) {
 	assert.Equal(t, fromPtr(dbAvn.LcCollate), db.Spec.LcCollate)
 
 	t.Run("a database deleted at Aiven is recreated", func(t *testing.T) {
-		require.NoError(t, avnGen.ServiceDatabaseDelete(ctx, cfg.Project, pgName, dbName))
+		var created int32
 		require.Eventually(t, func() bool {
-			_, err := controllers.GetDatabaseByName(ctx, avnGen, cfg.Project, pgName, dbName)
-			return avngen.IsNotFound(err)
+			created = countCreatedAtAivenEvents(ctx, db.GetUID())
+			return created > 0
 		}, time.Minute, 2*time.Second)
+
+		require.NoError(t, avnGen.ServiceDatabaseDelete(ctx, cfg.Project, pgName, dbName))
+
+		require.Eventually(t, func() bool {
+			return countCreatedAtAivenEvents(ctx, db.GetUID()) > created
+		}, 5*time.Minute, 5*time.Second)
 
 		require.EventuallyWithT(t, func(collect *assert.CollectT) {
 			_, err := controllers.GetDatabaseByName(ctx, avnGen, cfg.Project, pgName, dbName)
@@ -273,4 +282,19 @@ spec:
 		_, err := controllers.GetDatabaseByName(ctx, avnGen, cfg.Project, pgName, dbName)
 		return avngen.IsNotFound(err)
 	}, 2*time.Minute, 5*time.Second, "database %s should be deleted from Aiven", dbName)
+}
+
+// countCreatedAtAivenEvents sums the CreatedOrUpdatedAtAiven events recorded for the object.
+func countCreatedAtAivenEvents(ctx context.Context, uid types.UID) int32 {
+	events := new(corev1.EventList)
+	if err := k8sClient.List(ctx, events, client.InNamespace(defaultNamespace)); err != nil {
+		return 0
+	}
+	var n int32
+	for _, e := range events.Items {
+		if e.InvolvedObject.UID == uid && e.Reason == "CreatedOrUpdatedAtAiven" {
+			n += max(e.Count, 1)
+		}
+	}
+	return n
 }
