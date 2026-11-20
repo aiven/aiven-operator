@@ -172,6 +172,21 @@ type ValkeyUserConfig struct {
 	ValkeyActivedefrag *bool `groups:"create,update" json:"valkey_activedefrag,omitempty"`
 
 	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=100
+	// Percentage of key accesses sampled for hot key detection. Lower values reduce overhead at the cost of accuracy. Only takes effect when `valkey_hotkeys_top_k` is above 0. Defaults to 1. Requires Valkey 9.2 or later.
+	ValkeyHotkeysSamplingPercentage *int `groups:"create,update" json:"valkey_hotkeys_sampling_percentage,omitempty"`
+
+	// +kubebuilder:validation:Minimum=0
+	// +kubebuilder:validation:Maximum=1000
+	// Number of hottest keys to track and report with the HOTKEYS GET command. 0 disables hot key detection. Requires Valkey 9.2 or later.
+	ValkeyHotkeysTopK *int `groups:"create,update" json:"valkey_hotkeys_top_k,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
+	// +kubebuilder:validation:Maximum=300
+	// Length of the hot key reporting window in seconds. HOTKEYS GET reports the last completed window. Only takes effect when `valkey_hotkeys_top_k` is above 0. Defaults to 1. Requires Valkey 9.2 or later.
+	ValkeyHotkeysWindowSeconds *int `groups:"create,update" json:"valkey_hotkeys_window_seconds,omitempty"`
+
+	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=256
 	// Set Valkey IO thread count. On Valkey 9.0 and later, changes are applied without a restart. On Valkey 8.1, changing this replaces the service nodes.
 	ValkeyIoThreads *int `groups:"create,update" json:"valkey_io_threads,omitempty"`
