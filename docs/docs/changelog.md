@@ -1,6 +1,69 @@
 # Changelog
 
 
+## v0.51.0 - 2026-11-20
+
+- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL` now revert changes made outside Kubernetes. On every poll they restore
+  `plan`, `cloudName`, `projectVpcId` or `projectVPCRef`, `maintenanceWindowDow`,
+  `maintenanceWindowTime`, `terminationProtection`, `powered`, `disk_space`, `tags` and
+  `technicalEmails` from the spec (`Clickhouse` does not restore `plan`), and recreates a service that was deleted at Aiven unless `powered` is `false`. A field left
+  out of the spec is not compared, except `powered`, which defaults to `true`: a service powered off outside Kubernetes is
+  powered on again. To
+  keep settings managed in the Aiven Console, add the `controllers.aiven.io/management-policy: CreateOnly`
+  annotation before upgrading
+- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL` no longer clear the service's tags or technical emails when `tags` or
+  `technicalEmails` is left out of the spec. Set `tags: {}` or `technicalEmails: []` to clear them,
+  also in the first manifest of a new resource
+- `pollInterval` (`--poll-interval`) now also applies to `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`,
+  `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL`: they re-reconcile against Aiven on that interval (default
+  `10m`), not only when the spec changes
+- Add `controllers.aiven.io/management-policy: CreateOnly` annotation, supported on `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL`. The
+  operator still creates a missing service and keeps its connection Secret in sync, but no longer
+  applies spec changes or reverts changes made outside Kubernetes. Other kinds ignore it and emit a
+  `ManagementPolicyNotSupported` warning event when the operator next applies their spec, such as on create or
+  after a spec change
+- `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `MySQL`, `Kafka`, `PostgreSQL`: `disk_space` on a service with an autoscaler integration is no longer an error. It is not
+  applied, and a spec change emits a `DiskSpaceNotApplied` warning event
+- `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka`, `PostgreSQL`: a resource that sets both `projectVpcId` and `projectVPCRef` now reports an `Error`
+  condition when polled while running or powered off, not only on its next update. Drop one of the two fields to clear it
+- **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL`: a
+  `controllers.aiven.io/deletion-policy` value other than `Orphan` now blocks deletion with an `Error` condition, instead
+  of deleting the service at Aiven. Remove the annotation to delete the service, or set it to `Orphan` to keep it
+- `PostgreSQL`: a rejected `pg_version` upgrade check now reports why Aiven rejected it, instead of an
+  empty result
+- Add `ServiceUser` field `accessControl.valkeyAclDatabases`, type `array`: Database ids the user can access
+- Change `Grafana` field `userConfig.dashboard_previews_enabled`: deprecated
+- Change `Grafana` field `userConfig.dashboard_scenes_enabled`: deprecated
+- Add `MySQL` field `userConfig.mysql.collation_server`, type `string`: The default collation for databases
+  created without one, which their new tables then inherit
+- Add `MySQL` field `userConfig.mysql.event_scheduler`, type `string`: Whether the event scheduler runs
+  the events created with CREATE EVENT
+- Add `MySQL` field `userConfig.mysql.innodb_ft_cache_size`, type `integer`: The size in bytes of the
+  InnoDB FULLTEXT index cache for each table
+- Add `MySQL` field `userConfig.mysql.innodb_ft_sort_pll_degree`, type `integer`: The number of parallel
+  threads used to tokenize and index text when building an InnoDB FULLTEXT index
+- Add `MySQL` field `userConfig.mysql.innodb_ft_total_cache_size`, type `integer`: The combined memory
+  limit in bytes for InnoDB FULLTEXT index caches across all tables
+- Add `MySQL` field `userConfig.mysql.innodb_sort_buffer_size`, type `integer`: The size in bytes of
+  the sort buffer used when creating InnoDB indexes
+- Add `MySQL` field `userConfig.mysql.schema_definition_cache`, type `integer`: The number of schema
+  definition objects the data dictionary object cache can hold
+- Add `MySQL` field `userConfig.mysql.tablespace_definition_cache`, type `integer`: The number of tablespace
+  definition objects the data dictionary object cache can hold
+- **BREAKING**: Change `MySQL` field `userConfig.binlog_retention_period`: maximum ~~`9007199254740991`~~ → `1814400`.
+  A `MySQL` resource with a higher value is rejected on create or spec update; lower it to `1814400` or less before upgrading
+- Add `OpenSearch` field `userConfig.opensearch.search_cancel_after_time_interval`, type `string`: Hard
+  limit for search requests
+- Add `OpenSearch` field `userConfig.opensearch.search_default_search_timeout`, type `string`: Soft timeout
+  for search requests that don't set their own timeout
+- Change `Valkey` field `userConfig.valkey_notify_keyspace_events`: pattern ~~`^[KEg\$lshzxentdmA]*$`~~
+  → `^[KEg\$lshzxentdmpA]*$`
+
+## v0.50.1 - 2026-11-12
+
+- `Database` resources reconcile faster on services with many databases: up to 3 are reconciled at once, and
+  checking an existing database usually takes one Aiven API call instead of paging through the service's databases
+
 ## v0.50.0 - 2026-11-05
 
 - `ClickhouseUser` with `connInfoSecretSource` no longer fails every reconcile while the source Secret
