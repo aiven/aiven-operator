@@ -294,6 +294,15 @@ func markMigrationInProgress(pg *v1alpha1.PostgreSQL) {
 	})
 }
 
+func markMigrationFailed(pg *v1alpha1.PostgreSQL) {
+	pg.Status.Conditions = append(pg.Status.Conditions, metav1.Condition{
+		Type:    v1alpha1.ConditionTypeMigrationComplete,
+		Status:  metav1.ConditionFalse,
+		Reason:  v1alpha1.MigrationReasonFailed,
+		Message: "connection refused",
+	})
+}
+
 func secretExists(t *testing.T, k8s client.Client, name, ns string) bool {
 	t.Helper()
 	err := k8s.Get(context.Background(), types.NamespacedName{Name: name, Namespace: ns}, &corev1.Secret{})
@@ -375,6 +384,23 @@ func TestMaybeDeleteMigrationSecret(t *testing.T) {
 		assert.True(t, secretExists(t, k8s, "creds", "default"))
 	})
 
+	t.Run("Keeps the secret of a failed migration on 404", func(t *testing.T) {
+		t.Parallel()
+
+		k8s := buildClient(true)
+		pg, _ := newPGWithClient(k8s, true)
+		markMigrationFailed(pg)
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGetMigrationStatus(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(nil, avngen.Error{Status: http.StatusNotFound, Message: "not found"}).Once()
+		c := newTestController(avn, postgreSQLKind, k8s)
+
+		_, err := c.observeMigration(context.Background(), pg)
+		require.NoError(t, err)
+		assert.True(t, secretExists(t, k8s, "creds", "default"))
+	})
+
 	t.Run("Idempotent when secret already gone", func(t *testing.T) {
 		t.Parallel()
 
@@ -427,6 +453,24 @@ func TestUpdateMigrationStatus(t *testing.T) {
 
 		require.NoError(t, update(t, avn, pg))
 		assert.Nil(t, meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete))
+	})
+
+	t.Run("Keeps MigrationFailed on 404", func(t *testing.T) {
+		t.Parallel()
+
+		pg := newPGWithMigration()
+		markMigrationFailed(pg)
+		avn := avngen.NewMockClient(t)
+		avn.EXPECT().
+			ServiceGetMigrationStatus(mock.Anything, pg.Spec.Project, pg.Name).
+			Return(nil, avngen.Error{Status: http.StatusNotFound, Message: "not found"}).Once()
+
+		require.NoError(t, update(t, avn, pg))
+
+		cond := meta.FindStatusCondition(pg.Status.Conditions, v1alpha1.ConditionTypeMigrationComplete)
+		require.NotNil(t, cond)
+		assert.Equal(t, metav1.ConditionFalse, cond.Status)
+		assert.Equal(t, v1alpha1.MigrationReasonFailed, cond.Reason)
 	})
 
 	t.Run("Sets MigrationDone when status is done", func(t *testing.T) {

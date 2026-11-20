@@ -32,6 +32,8 @@
   of deleting the service at Aiven. Remove the annotation to delete the service, or set it to `Orphan` to keep it
 - `PostgreSQL`: a rejected `pg_version` upgrade check now reports why Aiven rejected it, instead of an
   empty result
+- `MySQL`, `PostgreSQL`: a failed migration no longer turns into `MigrationComplete=True` once Aiven stops
+  reporting it, so `deleteAfterMigration` no longer deletes the credentials Secret of a failed migration
 - Add `ServiceUser` field `accessControl.valkeyAclDatabases`, type `array`: Database ids the user can access
 - Change `Grafana` field `userConfig.dashboard_previews_enabled`: deprecated
 - Change `Grafana` field `userConfig.dashboard_scenes_enabled`: deprecated
