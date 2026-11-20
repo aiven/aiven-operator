@@ -2,6 +2,8 @@
 
 ## [MAJOR.MINOR.PATCH] - YYYY-MM-DD
 
+## v0.51.0 - 2026-11-20
+
 - **BREAKING**: `Grafana`, `Valkey`, `Flink`, `OpenSearch`, `Clickhouse`, `KafkaConnect`, `MySQL`, `Kafka` and `PostgreSQL` now revert changes made outside Kubernetes. On every poll they restore
   `plan`, `cloudName`, `projectVpcId` or `projectVPCRef`, `maintenanceWindowDow`,
   `maintenanceWindowTime`, `terminationProtection`, `powered`, `disk_space`, `tags` and
