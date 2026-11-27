@@ -611,7 +611,7 @@ type PgUserConfig struct {
 	// Enable the pg_stat_plans extension. Changing this parameter causes a service restart. Tracks execution plans for SQL queries
 	PgStatPlansEnable *bool `groups:"create,update" json:"pg_stat_plans_enable,omitempty"`
 
-	// Available versions: `14`, `15`, `16`, `17`, `18`. Newer versions may also be available.
+	// Available versions: `14`, `15`, `16`, `17`, `18`, `19`. Newer versions may also be available.
 	// PostgreSQL major version. Deprecated values: `14`
 	PgVersion *string `groups:"create,update" json:"pg_version,omitempty"`
 

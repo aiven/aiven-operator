@@ -270,6 +270,21 @@ func (in *ValkeyUserConfig) DeepCopyInto(out *ValkeyUserConfig) {
 		*out = new(bool)
 		**out = **in
 	}
+	if in.ValkeyHotkeysSamplingPercentage != nil {
+		in, out := &in.ValkeyHotkeysSamplingPercentage, &out.ValkeyHotkeysSamplingPercentage
+		*out = new(int)
+		**out = **in
+	}
+	if in.ValkeyHotkeysTopK != nil {
+		in, out := &in.ValkeyHotkeysTopK, &out.ValkeyHotkeysTopK
+		*out = new(int)
+		**out = **in
+	}
+	if in.ValkeyHotkeysWindowSeconds != nil {
+		in, out := &in.ValkeyHotkeysWindowSeconds, &out.ValkeyHotkeysWindowSeconds
+		*out = new(int)
+		**out = **in
+	}
 	if in.ValkeyIoThreads != nil {
 		in, out := &in.ValkeyIoThreads, &out.ValkeyIoThreads
 		*out = new(int)
@@ -289,6 +304,11 @@ func (in *ValkeyUserConfig) DeepCopyInto(out *ValkeyUserConfig) {
 		in, out := &in.ValkeyMaxmemoryPolicy, &out.ValkeyMaxmemoryPolicy
 		*out = new(string)
 		**out = **in
+	}
+	if in.ValkeyModulesEnabled != nil {
+		in, out := &in.ValkeyModulesEnabled, &out.ValkeyModulesEnabled
+		*out = make([]string, len(*in))
+		copy(*out, *in)
 	}
 	if in.ValkeyNotifyKeyspaceEvents != nil {
 		in, out := &in.ValkeyNotifyKeyspaceEvents, &out.ValkeyNotifyKeyspaceEvents

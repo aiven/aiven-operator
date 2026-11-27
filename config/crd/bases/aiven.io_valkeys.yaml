@@ -503,6 +503,32 @@ spec:
                         runs on the main thread and consumes CPU, so it may increase
                         latency under load.
                       type: boolean
+                    valkey_hotkeys_sampling_percentage:
+                      description:
+                        Percentage of key accesses sampled for hot key detection.
+                        Lower values reduce overhead at the cost of accuracy. Only takes
+                        effect when `valkey_hotkeys_top_k` is above 0. Defaults to 1.
+                        Requires Valkey 9.2 or later.
+                      maximum: 100
+                      minimum: 1
+                      type: integer
+                    valkey_hotkeys_top_k:
+                      description:
+                        Number of hottest keys to track and report with the
+                        HOTKEYS GET command. 0 disables hot key detection. Requires
+                        Valkey 9.2 or later.
+                      maximum: 1000
+                      minimum: 0
+                      type: integer
+                    valkey_hotkeys_window_seconds:
+                      description:
+                        Length of the hot key reporting window in seconds.
+                        HOTKEYS GET reports the last completed window. Only takes effect
+                        when `valkey_hotkeys_top_k` is above 0. Defaults to 1. Requires
+                        Valkey 9.2 or later.
+                      maximum: 300
+                      minimum: 1
+                      type: integer
                     valkey_io_threads:
                       description:
                         Set Valkey IO thread count. On Valkey 9.0 and later,
@@ -535,6 +561,15 @@ spec:
                         - volatile-random
                         - volatile-ttl
                       type: string
+                    valkey_modules_enabled:
+                      description:
+                        Modules loaded by the service. `json` is available
+                        on all versions, `bloom` and `search` require Valkey 9 or later.
+                        Removing a module that still holds data is rejected. Changing
+                        the list replaces the service nodes.
+                      items:
+                        type: string
+                      type: array
                     valkey_notify_keyspace_events:
                       description: Set notify-keyspace-events option
                       maxLength: 32

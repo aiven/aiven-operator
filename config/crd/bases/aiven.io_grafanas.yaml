@@ -319,6 +319,23 @@ spec:
                           maxLength: 1024
                           pattern: ^[\040-\176]+$
                           type: string
+                        org_mapping:
+                          description:
+                            Map Azure AD groups to Grafana organizations
+                            and roles. Each entry is <group object ID>:<organization
+                            ID>:<role>. Use * as the group to match all users, or as
+                            the organization to match all organizations. The role defaults
+                            to Viewer. Users matching at least one entry are removed
+                            from organizations they are not mapped to.
+                          items:
+                            type: string
+                          maxItems: 50
+                          type: array
+                        skip_org_role_sync:
+                          description:
+                            Stop automatically syncing user organizations
+                            and roles at sign-in
+                          type: boolean
                         token_url:
                           description: Token URL
                           maxLength: 2048
@@ -692,7 +709,7 @@ spec:
                       type: string
                     grafana_version:
                       description: |-
-                        Available versions: `11`, `12`. Newer versions may also be available.
+                        Available versions: `11`, `12`, `13`. Newer versions may also be available.
                         Grafana major version
                       type: string
                     ip_filter:

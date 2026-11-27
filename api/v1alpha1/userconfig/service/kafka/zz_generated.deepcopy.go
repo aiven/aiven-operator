@@ -475,6 +475,16 @@ func (in *Kafka) DeepCopyInto(out *Kafka) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.SaslOauthbearerAllowUnverifiedAudience != nil {
+		in, out := &in.SaslOauthbearerAllowUnverifiedAudience, &out.SaslOauthbearerAllowUnverifiedAudience
+		*out = new(bool)
+		**out = **in
+	}
+	if in.SaslOauthbearerAllowUnverifiedIssuer != nil {
+		in, out := &in.SaslOauthbearerAllowUnverifiedIssuer, &out.SaslOauthbearerAllowUnverifiedIssuer
+		*out = new(bool)
+		**out = **in
+	}
 	if in.SaslOauthbearerExpectedAudience != nil {
 		in, out := &in.SaslOauthbearerExpectedAudience, &out.SaslOauthbearerExpectedAudience
 		*out = new(string)

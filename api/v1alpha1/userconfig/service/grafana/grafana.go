@@ -30,6 +30,13 @@ type AuthAzuread struct {
 	// Client secret from provider
 	ClientSecret string `groups:"create,update" json:"client_secret"`
 
+	// +kubebuilder:validation:MaxItems=50
+	// Map Azure AD groups to Grafana organizations and roles. Each entry is <group object ID>:<organization ID>:<role>. Use * as the group to match all users, or as the organization to match all organizations. The role defaults to Viewer. Users matching at least one entry are removed from organizations they are not mapped to.
+	OrgMapping []string `groups:"create,update" json:"org_mapping,omitempty"`
+
+	// Stop automatically syncing user organizations and roles at sign-in
+	SkipOrgRoleSync *bool `groups:"create,update" json:"skip_org_role_sync,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=2048
 	// Token URL
 	TokenUrl string `groups:"create,update" json:"token_url"`
@@ -389,7 +396,7 @@ type GrafanaUserConfig struct {
 	// Google Analytics ID
 	GoogleAnalyticsUaId *string `groups:"create,update" json:"google_analytics_ua_id,omitempty"`
 
-	// Available versions: `11`, `12`. Newer versions may also be available.
+	// Available versions: `11`, `12`, `13`. Newer versions may also be available.
 	// Grafana major version
 	GrafanaVersion *string `groups:"create,update" json:"grafana_version,omitempty"`
 

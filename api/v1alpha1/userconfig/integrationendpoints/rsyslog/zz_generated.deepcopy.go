@@ -39,6 +39,11 @@ func (in *RsyslogUserConfig) DeepCopyInto(out *RsyslogUserConfig) {
 		*out = new(int)
 		**out = **in
 	}
+	if in.OctetCountedFraming != nil {
+		in, out := &in.OctetCountedFraming, &out.OctetCountedFraming
+		*out = new(bool)
+		**out = **in
+	}
 	if in.Sd != nil {
 		in, out := &in.Sd, &out.Sd
 		*out = new(string)

@@ -38,9 +38,9 @@ type FlinkUserConfig struct {
 	// Enable to upload Custom JARs for Flink applications
 	CustomCode *bool `groups:"create" json:"custom_code,omitempty"`
 
-	// Available versions: `1.16`, `1.19`, `1.20`. Newer versions may also be available.
+	// Available versions: `1.19`, `1.20`. Newer versions may also be available.
 	// +kubebuilder:validation:XValidation:rule="self == oldSelf",message="Value is immutable"
-	// Flink major version. Deprecated values: `1.16`
+	// Flink major version. Deprecated values: `1.19`
 	FlinkVersion *string `groups:"create" json:"flink_version,omitempty"`
 
 	// +kubebuilder:validation:MaxItems=8000

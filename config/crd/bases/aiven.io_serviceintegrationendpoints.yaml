@@ -579,6 +579,15 @@ spec:
                       maximum: 2147483647
                       minimum: 2048
                       type: integer
+                    octet_counted_framing:
+                      description:
+                        Frame each log message with its length prefix (RFC
+                        6587 section 3.4.1) so multi-line records arrive whole at receivers
+                        that support it. Only enable it if the receiver supports octet-counted
+                        framing (for example rsyslog or syslog-ng); other receivers
+                        cannot parse the length prefix. Disabled by default. When enabled,
+                        it takes precedence over escape_newlines.
+                      type: boolean
                     port:
                       description: Rsyslog server port
                       maximum: 65535

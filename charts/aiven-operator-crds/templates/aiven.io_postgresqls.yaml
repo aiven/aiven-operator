@@ -990,7 +990,7 @@ spec:
                       type: boolean
                     pg_version:
                       description: |-
-                        Available versions: `14`, `15`, `16`, `17`, `18`. Newer versions may also be available.
+                        Available versions: `14`, `15`, `16`, `17`, `18`, `19`. Newer versions may also be available.
                         PostgreSQL major version. Deprecated values: `14`
                       type: string
                     pgaudit:

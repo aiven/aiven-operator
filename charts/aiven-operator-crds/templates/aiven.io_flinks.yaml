@@ -259,8 +259,8 @@ spec:
                           rule: self == oldSelf
                     flink_version:
                       description: |-
-                        Available versions: `1.16`, `1.19`, `1.20`. Newer versions may also be available.
-                        Flink major version. Deprecated values: `1.16`
+                        Available versions: `1.19`, `1.20`. Newer versions may also be available.
+                        Flink major version. Deprecated values: `1.19`
                       type: string
                       x-kubernetes-validations:
                         - message: Value is immutable

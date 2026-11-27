@@ -408,4 +408,5 @@ Rsyslog configuration values.
 - [`key`](#spec.rsyslog.key-property){: name='spec.rsyslog.key-property'} (string, MaxLength: 16384). PEM encoded client key.
 - [`logline`](#spec.rsyslog.logline-property){: name='spec.rsyslog.logline-property'} (string, Pattern: `^[ -~\t]+$`, MinLength: 1, MaxLength: 512). Custom syslog message format.
 - [`max_message_size`](#spec.rsyslog.max_message_size-property){: name='spec.rsyslog.max_message_size-property'} (integer, Minimum: 2048, Maximum: 2147483647). Rsyslog max message size.
+- [`octet_counted_framing`](#spec.rsyslog.octet_counted_framing-property){: name='spec.rsyslog.octet_counted_framing-property'} (boolean). Frame each log message with its length prefix (RFC 6587 section 3.4.1) so multi-line records arrive whole at receivers that support it. Only enable it if the receiver supports octet-counted framing (for example rsyslog or syslog-ng); other receivers cannot parse the length prefix. Disabled by default. When enabled, it takes precedence over escape_newlines.
 - [`sd`](#spec.rsyslog.sd-property){: name='spec.rsyslog.sd-property'} (string, MaxLength: 1024). Structured data block for log message.
