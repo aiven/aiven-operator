@@ -260,7 +260,7 @@ Grafana specific user configuration options.
 - [`editors_can_admin`](#spec.userConfig.editors_can_admin-property){: name='spec.userConfig.editors_can_admin-property'} (boolean). Editors can manage folders, teams and dashboards created by them.
 - [`external_image_storage`](#spec.userConfig.external_image_storage-property){: name='spec.userConfig.external_image_storage-property'} (object). External image store settings. See below for [nested schema](#spec.userConfig.external_image_storage).
 - [`google_analytics_ua_id`](#spec.userConfig.google_analytics_ua_id-property){: name='spec.userConfig.google_analytics_ua_id-property'} (string, Pattern: `^(G|UA|YT|MO)-[a-zA-Z0-9-]+$`, MaxLength: 64). Google Analytics ID.
-- [`grafana_version`](#spec.userConfig.grafana_version-property){: name='spec.userConfig.grafana_version-property'} (string). Available versions: `11`, `12`. Newer versions may also be available.
+- [`grafana_version`](#spec.userConfig.grafana_version-property){: name='spec.userConfig.grafana_version-property'} (string). Available versions: `11`, `12`, `13`. Newer versions may also be available.
     Grafana major version.
 - [`ip_filter`](#spec.userConfig.ip_filter-property){: name='spec.userConfig.ip_filter-property'} (array of objects, MaxItems: 8000). Allow incoming connections from CIDR address block, e.g. `10.20.0.0/16`. See below for [nested schema](#spec.userConfig.ip_filter).
 - [`metrics_disable_total_stats`](#spec.userConfig.metrics_disable_total_stats-property){: name='spec.userConfig.metrics_disable_total_stats-property'} (boolean). Do not collect the grafana_stat_total_* and grafana_stat_totals_* metrics, which require periodic database queries. Defaults to true, unless metrics_enabled is set.
@@ -299,6 +299,8 @@ Azure AD OAuth integration.
 - [`allow_sign_up`](#spec.userConfig.auth_azuread.allow_sign_up-property){: name='spec.userConfig.auth_azuread.allow_sign_up-property'} (boolean). Automatically sign-up users on successful sign-in.
 - [`allowed_domains`](#spec.userConfig.auth_azuread.allowed_domains-property){: name='spec.userConfig.auth_azuread.allowed_domains-property'} (array of strings, MaxItems: 50). Allowed domains.
 - [`allowed_groups`](#spec.userConfig.auth_azuread.allowed_groups-property){: name='spec.userConfig.auth_azuread.allowed_groups-property'} (array of strings, MaxItems: 50). Require users to belong to one of given groups.
+- [`org_mapping`](#spec.userConfig.auth_azuread.org_mapping-property){: name='spec.userConfig.auth_azuread.org_mapping-property'} (array of strings, MaxItems: 50). Map Azure AD groups to Grafana organizations and roles. Each entry is <group object ID>:<organization ID>:<role>. Use * as the group to match all users, or as the organization to match all organizations. The role defaults to Viewer. Users matching at least one entry are removed from organizations they are not mapped to.
+- [`skip_org_role_sync`](#spec.userConfig.auth_azuread.skip_org_role_sync-property){: name='spec.userConfig.auth_azuread.skip_org_role_sync-property'} (boolean). Stop automatically syncing user organizations and roles at sign-in.
 
 ### auth_generic_oauth {: #spec.userConfig.auth_generic_oauth }
 

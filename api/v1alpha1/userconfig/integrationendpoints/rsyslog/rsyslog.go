@@ -34,6 +34,9 @@ type RsyslogUserConfig struct {
 	// Rsyslog max message size
 	MaxMessageSize *int `groups:"create,update" json:"max_message_size,omitempty"`
 
+	// Frame each log message with its length prefix (RFC 6587 section 3.4.1) so multi-line records arrive whole at receivers that support it. Only enable it if the receiver supports octet-counted framing (for example rsyslog or syslog-ng); other receivers cannot parse the length prefix. Disabled by default. When enabled, it takes precedence over escape_newlines.
+	OctetCountedFraming *bool `groups:"create,update" json:"octet_counted_framing,omitempty"`
+
 	// +kubebuilder:validation:Minimum=1
 	// +kubebuilder:validation:Maximum=65535
 	// Rsyslog server port

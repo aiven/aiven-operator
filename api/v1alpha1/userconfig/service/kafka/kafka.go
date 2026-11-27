@@ -310,14 +310,20 @@ type Kafka struct {
 	// Maximum bytes expected for the entire fetch response. Records are fetched in batches, and if the first record batch in the first non-empty partition of the fetch is larger than this value, the record batch will still be returned to ensure that progress can be made. As such, this is not an absolute maximum. (Default: 10485760 bytes (10 mebibytes))
 	ReplicaFetchResponseMaxBytes *int `groups:"create,update" json:"replica_fetch_response_max_bytes,omitempty"`
 
+	// Accept tokens whatever their audience when sasl_oauthbearer_expected_audience is not set. Either this or sasl_oauthbearer_expected_audience is required when sasl_oauthbearer_jwks_endpoint_url is set. Apache Kafka only has this option from version 4.4: before that, the audience is not verified unless sasl_oauthbearer_expected_audience is set (Default: false).
+	SaslOauthbearerAllowUnverifiedAudience *bool `groups:"create,update" json:"sasl_oauthbearer_allow_unverified_audience,omitempty"`
+
+	// Accept tokens whatever their issuer when sasl_oauthbearer_expected_issuer is not set. Either this or sasl_oauthbearer_expected_issuer is required when sasl_oauthbearer_jwks_endpoint_url is set. Apache Kafka only has this option from version 4.4: before that, the issuer is not verified unless sasl_oauthbearer_expected_issuer is set (Default: false).
+	SaslOauthbearerAllowUnverifiedIssuer *bool `groups:"create,update" json:"sasl_oauthbearer_allow_unverified_issuer,omitempty"`
+
 	// +kubebuilder:validation:MaxLength=128
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
-	// The (optional) comma-delimited setting for the broker to use to verify that the JWT was issued for one of the expected audiences. (Default: null)
+	// The comma-delimited setting for the broker to use to verify that the JWT was issued for one of the expected audiences.
 	SaslOauthbearerExpectedAudience *string `groups:"create,update" json:"sasl_oauthbearer_expected_audience,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=128
 	// +kubebuilder:validation:Pattern=`^[^\r\n]*$`
-	// Optional setting for the broker to use to verify that the JWT was created by the expected issuer.(Default: null)
+	// The broker uses this setting to verify that the JWT was created by the expected issuer.
 	SaslOauthbearerExpectedIssuer *string `groups:"create,update" json:"sasl_oauthbearer_expected_issuer,omitempty"`
 
 	// +kubebuilder:validation:MaxLength=2048
